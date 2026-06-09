@@ -1,0 +1,49 @@
+{
+  "color": {
+    "bg": {
+      "primary":    { "value": "{color.neutral.0}" },
+      "secondary":  { "value": "{color.neutral.100}" },
+      "tertiary":   { "value": "{color.neutral.50}" },
+      "inverse":    { "value": "{color.neutral.900}" },
+      "accent":     { "value": "{color.brand.100}" }
+    },
+    "text": {
+      "primary":    { "value": "{color.neutral.900}" },
+      "secondary":  { "value": "{color.neutral.500}" },
+      "tertiary":   { "value": "{color.neutral.400}" },
+      "inverse":    { "value": "{color.neutral.0}" },
+      "accent":     { "value": "{color.brand.500}" },
+      "accent-strong": { "value": "{color.brand.700}" }
+    },
+    "border": {
+      "default":  { "value": "{color.neutral.200}" },
+      "strong":   { "value": "{color.neutral.300}" },
+      "subtle":   { "value": "{color.neutral.100}" },
+      "accent":   { "value": "{color.brand.500}" }
+    },
+    "accent": {
+      "default":  { "value": "{color.brand.500}" },
+      "subtle":   { "value": "{color.brand.100}" },
+      "strong":   { "value": "{color.brand.700}" }
+    },
+    "status": {
+      "success-bg":   { "value": "{color.success.bg}" },
+      "success-text": { "value": "{color.success.base}" },
+      "warning-bg":   { "value": "{color.warning.bg}" },
+      "warning-text": { "value": "{color.warning.base}" },
+      "danger-bg":    { "value": "{color.danger.bg}" },
+      "danger-text":  { "value": "{color.danger.base}" }
+    }
+  },
+  "font": {
+    "display":  { "value": "{font.family.display}" },
+    "body":     { "value": "{font.family.body}" },
+    "mono":     { "value": "{font.family.mono}" }
+  },
+  "radius": {
+    "card":     { "value": "{radius.lg}" },
+    "button":   { "value": "{radius.md}" },
+    "badge":    { "value": "{radius.full}" },
+    "input":    { "value": "{radius.md}" }
+  }
+}

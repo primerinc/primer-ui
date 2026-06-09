@@ -1,0 +1,161 @@
+---
+/**
+ * FeatureGrid component
+ * Storyblok block name: feature_grid
+ *
+ * Fields:
+ * - eyebrow: text (optional)
+ * - headline: text (required)
+ * - subheadline: textarea (optional)
+ * - features: blocks (repeater of feature_item)
+ *   Each feature_item has:
+ *   - icon: text (optional — icon name or SVG string)
+ *   - title: text (required)
+ *   - description: textarea (required)
+ * - columns: option — 2 | 3 | 4 (default: 3)
+ */
+
+interface FeatureItem {
+  icon?: string;
+  title: string;
+  description: string;
+}
+
+interface Props {
+  eyebrow?: string;
+  headline: string;
+  subheadline?: string;
+  features: FeatureItem[];
+  columns?: 2 | 3 | 4;
+  class?: string;
+}
+
+const {
+  eyebrow,
+  headline,
+  subheadline,
+  features = [],
+  columns = 3,
+  class: className = ''
+} = Astro.props;
+---
+
+<section class:list={['features', className]}>
+  <div class="features__container">
+    <div class="features__header">
+      {eyebrow && <p class="features__eyebrow">{eyebrow}</p>}
+      <h2 class="features__headline">{headline}</h2>
+      {subheadline && <p class="features__sub">{subheadline}</p>}
+    </div>
+
+    <ul class:list={['features__grid', `features__grid--${columns}`]} role="list">
+      {features.map((feature) => (
+        <li class="feature-card">
+          {feature.icon && (
+            <div class="feature-card__icon" aria-hidden="true">
+              <Fragment set:html={feature.icon} />
+            </div>
+          )}
+          <h3 class="feature-card__title">{feature.title}</h3>
+          <p class="feature-card__desc">{feature.description}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .features {
+    padding: var(--p-space-24) var(--p-space-8);
+    background: var(--p-color-bg-primary);
+  }
+
+  .features__container {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .features__header {
+    max-width: 640px;
+    margin: 0 auto var(--p-space-16);
+    text-align: center;
+  }
+
+  .features__eyebrow {
+    font-family: var(--p-font-body);
+    font-size: var(--p-font-size-xs);
+    font-weight: var(--p-font-weight-medium);
+    letter-spacing: var(--p-font-tracking-wider);
+    text-transform: uppercase;
+    color: var(--p-color-text-tertiary);
+    margin-bottom: var(--p-space-3);
+  }
+
+  .features__headline {
+    font-family: var(--p-font-display);
+    font-size: var(--p-font-size-3xl);
+    font-weight: var(--p-font-weight-semibold);
+    line-height: var(--p-font-leading-tight);
+    color: var(--p-color-text-primary);
+    margin-bottom: var(--p-space-5);
+  }
+
+  .features__sub {
+    font-size: var(--p-font-size-lg);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-secondary);
+    line-height: var(--p-font-leading-normal);
+  }
+
+  .features__grid {
+    display: grid;
+    gap: var(--p-space-6);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .features__grid--2 { grid-template-columns: repeat(2, 1fr); }
+  .features__grid--3 { grid-template-columns: repeat(3, 1fr); }
+  .features__grid--4 { grid-template-columns: repeat(4, 1fr); }
+
+  @media (max-width: 768px) {
+    .features__grid--2,
+    .features__grid--3,
+    .features__grid--4 { grid-template-columns: 1fr; }
+  }
+
+  .feature-card {
+    background: var(--p-color-bg-secondary);
+    border: 1px solid var(--p-color-border-default);
+    border-radius: var(--p-radius-card);
+    padding: var(--p-space-8) var(--p-space-8);
+  }
+
+  .feature-card__icon {
+    width: 40px;
+    height: 40px;
+    background: var(--p-color-accent-subtle);
+    border-radius: var(--p-radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--p-space-5);
+    color: var(--p-color-accent-default);
+  }
+
+  .feature-card__title {
+    font-family: var(--p-font-body);
+    font-size: var(--p-font-size-md);
+    font-weight: var(--p-font-weight-medium);
+    color: var(--p-color-text-primary);
+    margin-bottom: var(--p-space-3);
+  }
+
+  .feature-card__desc {
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-secondary);
+    line-height: var(--p-font-leading-normal);
+  }
+</style>

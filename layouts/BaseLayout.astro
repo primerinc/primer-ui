@@ -1,0 +1,91 @@
+---
+/**
+ * BaseLayout
+ * The root layout for all Primer client builds.
+ * Import tokens.css here — one import covers the entire site.
+ *
+ * Usage:
+ *   import BaseLayout from '@layouts/BaseLayout.astro';
+ *   <BaseLayout title="Page Title" description="Page description">
+ *     ...page content...
+ *   </BaseLayout>
+ */
+
+import '../tokens/dist/tokens.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+  noIndex?: boolean;
+}
+
+const {
+  title,
+  description = '',
+  ogImage = '',
+  noIndex = false
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <title>{title}</title>
+  {description && <meta name="description" content={description} />}
+  <link rel="canonical" href={canonicalURL} />
+  {noIndex && <meta name="robots" content="noindex, nofollow" />}
+
+  {ogImage && <meta property="og:image" content={ogImage} />}
+  <meta property="og:title" content={title} />
+  {description && <meta property="og:description" content={description} />}
+  <meta property="og:type" content="website" />
+
+  <!-- Load brand fonts — update per client -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap"
+    rel="stylesheet"
+  />
+</head>
+<body>
+  <slot />
+</body>
+</html>
+
+<style is:global>
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    font-family: var(--p-font-body);
+    font-weight: var(--p-font-weight-light);
+    background-color: var(--p-color-bg-primary);
+    color: var(--p-color-text-primary);
+    line-height: var(--p-font-leading-normal);
+  }
+
+  img, video {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  a { color: inherit; }
+</style>

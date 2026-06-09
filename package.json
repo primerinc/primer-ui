@@ -1,0 +1,17 @@
+{
+  "name": "@primer-inc/ui",
+  "version": "0.1.0",
+  "description": "Primer shared component library for Astro + Storyblok client builds",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build:tokens": "style-dictionary build --config tokens/sd.config.js",
+    "watch:tokens": "style-dictionary build --watch --config tokens/sd.config.js",
+    "dev": "npm run watch:tokens"
+  },
+  "keywords": ["astro", "storyblok", "design-tokens", "component-library"],
+  "author": "Primer <hello@primerinc.com>",
+  "dependencies": {
+    "style-dictionary": "^5.4.4"
+  }
+}

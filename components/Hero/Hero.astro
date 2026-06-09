@@ -1,0 +1,135 @@
+---
+/**
+ * Hero component
+ * Storyblok block name: hero
+ *
+ * Fields:
+ * - headline: text (required)
+ * - subheadline: textarea (optional)
+ * - cta_primary_label: text (optional)
+ * - cta_primary_url: text (optional)
+ * - cta_secondary_label: text (optional)
+ * - cta_secondary_url: text (optional)
+ * - background_image: asset (optional)
+ * - layout: option — centered | left-aligned (default: centered)
+ */
+
+interface Props {
+  headline: string;
+  subheadline?: string;
+  cta_primary_label?: string;
+  cta_primary_url?: string;
+  cta_secondary_label?: string;
+  cta_secondary_url?: string;
+  background_image?: { filename: string; alt?: string };
+  layout?: 'centered' | 'left-aligned';
+  class?: string;
+}
+
+const {
+  headline,
+  subheadline,
+  cta_primary_label,
+  cta_primary_url,
+  cta_secondary_label,
+  cta_secondary_url,
+  background_image,
+  layout = 'centered',
+  class: className = ''
+} = Astro.props;
+---
+
+<section
+  class:list={['hero', `hero--${layout}`, className]}
+  style={background_image?.filename ? `--hero-bg: url('${background_image.filename}')` : ''}
+>
+  <div class="hero__inner">
+    <h1 class="hero__headline">{headline}</h1>
+    {subheadline && <p class="hero__sub">{subheadline}</p>}
+    {(cta_primary_label || cta_secondary_label) && (
+      <div class="hero__actions">
+        {cta_primary_label && cta_primary_url && (
+          <a href={cta_primary_url} class="btn btn--primary">{cta_primary_label}</a>
+        )}
+        {cta_secondary_label && cta_secondary_url && (
+          <a href={cta_secondary_url} class="btn btn--secondary">{cta_secondary_label}</a>
+        )}
+      </div>
+    )}
+  </div>
+</section>
+
+<style>
+  .hero {
+    background-color: var(--p-color-bg-secondary);
+    padding: var(--p-space-24) var(--p-space-8);
+    position: relative;
+  }
+
+  .hero__inner {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  .hero--centered .hero__inner {
+    text-align: center;
+  }
+
+  .hero__headline {
+    font-family: var(--p-font-display);
+    font-size: var(--p-font-size-4xl);
+    font-weight: var(--p-font-weight-semibold);
+    line-height: var(--p-font-leading-tight);
+    color: var(--p-color-text-primary);
+    margin-bottom: var(--p-space-6);
+  }
+
+  .hero__sub {
+    font-family: var(--p-font-body);
+    font-size: var(--p-font-size-lg);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-secondary);
+    max-width: 600px;
+    margin-bottom: var(--p-space-10);
+  }
+
+  .hero--centered .hero__sub {
+    margin-inline: auto;
+  }
+
+  .hero__actions {
+    display: flex;
+    gap: var(--p-space-4);
+    flex-wrap: wrap;
+  }
+
+  .hero--centered .hero__actions {
+    justify-content: center;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--p-space-3) var(--p-space-8);
+    border-radius: var(--p-radius-button);
+    font-family: var(--p-font-body);
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-medium);
+    letter-spacing: var(--p-font-tracking-wide);
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .btn:hover { opacity: 0.85; }
+
+  .btn--primary {
+    background: var(--p-color-accent-default);
+    color: var(--p-color-text-inverse);
+  }
+
+  .btn--secondary {
+    background: transparent;
+    color: var(--p-color-text-primary);
+    border: 1px solid var(--p-color-border-default);
+  }
+</style>
