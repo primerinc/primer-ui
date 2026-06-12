@@ -1,0 +1,112 @@
+---
+/**
+ * RichText
+ * Storyblok block name: rich_text
+ *
+ * Fields: content (richtext)
+ */
+import { storyblokEditable, renderRichText } from '@storyblok/astro';
+
+const { blok } = Astro.props;
+
+const html = blok.content ? renderRichText(blok.content) : '';
+---
+
+<section {...storyblokEditable(blok)} class="rich-text">
+  <div class="rich-text__inner">
+    <Fragment set:html={html} />
+  </div>
+</section>
+
+<style>
+  .rich-text {
+    padding: var(--p-space-16) var(--p-space-8);
+    background: var(--p-color-bg-primary);
+  }
+
+  .rich-text__inner {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .rich-text__inner :global(h1),
+  .rich-text__inner :global(h2),
+  .rich-text__inner :global(h3),
+  .rich-text__inner :global(h4) {
+    font-family: var(--p-font-display);
+    font-weight: var(--p-font-weight-semibold);
+    line-height: var(--p-font-leading-tight);
+    color: var(--p-color-text-primary);
+    margin-top: var(--p-space-10);
+    margin-bottom: var(--p-space-4);
+  }
+
+  .rich-text__inner :global(h1) { font-size: var(--p-font-size-4xl); }
+  .rich-text__inner :global(h2) { font-size: var(--p-font-size-3xl); }
+  .rich-text__inner :global(h3) { font-size: var(--p-font-size-2xl); }
+  .rich-text__inner :global(h4) { font-size: var(--p-font-size-xl); }
+
+  .rich-text__inner :global(p) {
+    font-size: var(--p-font-size-md);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-secondary);
+    line-height: var(--p-font-leading-normal);
+    margin-bottom: var(--p-space-5);
+  }
+
+  .rich-text__inner :global(ul),
+  .rich-text__inner :global(ol) {
+    padding-left: var(--p-space-6);
+    margin-bottom: var(--p-space-5);
+  }
+
+  .rich-text__inner :global(li) {
+    font-size: var(--p-font-size-md);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-secondary);
+    line-height: var(--p-font-leading-normal);
+    margin-bottom: var(--p-space-2);
+  }
+
+  .rich-text__inner :global(a) {
+    color: var(--p-color-text-accent-strong);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .rich-text__inner :global(strong) {
+    font-weight: var(--p-font-weight-medium);
+    color: var(--p-color-text-primary);
+  }
+
+  .rich-text__inner :global(em) {
+    font-style: italic;
+  }
+
+  .rich-text__inner :global(blockquote) {
+    border-left: 3px solid var(--p-color-border-accent);
+    padding-left: var(--p-space-6);
+    margin: var(--p-space-8) 0;
+    font-family: var(--p-font-display);
+    font-size: var(--p-font-size-xl);
+    font-style: italic;
+    color: var(--p-color-text-primary);
+  }
+
+  .rich-text__inner :global(hr) {
+    border: none;
+    border-top: 1px solid var(--p-color-border-default);
+    margin: var(--p-space-10) 0;
+  }
+
+  .rich-text__inner :global(img) {
+    width: 100%;
+    height: auto;
+    border-radius: var(--p-radius-md);
+    margin: var(--p-space-8) 0;
+  }
+
+  .rich-text__inner :global(*:first-child) {
+    margin-top: 0;
+  }
+</style>

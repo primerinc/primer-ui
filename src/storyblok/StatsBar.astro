@@ -1,0 +1,114 @@
+---
+/**
+ * StatsBar
+ * Storyblok block name: stats_bar
+ *
+ * Fields: eyebrow, stats (blocks → stat_item: number, label, description)
+ */
+import { storyblokEditable } from '@storyblok/astro';
+import type { SbBlokData } from '@storyblok/astro';
+
+const { blok } = Astro.props;
+---
+
+<section {...storyblokEditable(blok)} class="stats-bar">
+  <div class="stats-bar__inner">
+    {blok.eyebrow && <p class="stats-bar__eyebrow">{blok.eyebrow}</p>}
+    <ul class="stats-bar__list" role="list">
+      {blok.stats?.map((stat: SbBlokData) => (
+        <li class="stat" {...storyblokEditable(stat)}>
+          <span class="stat__number">{stat.number}</span>
+          <span class="stat__label">{stat.label}</span>
+          {stat.description && <span class="stat__desc">{stat.description}</span>}
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .stats-bar {
+    padding: var(--p-space-20) var(--p-space-8);
+    background: var(--p-color-bg-secondary);
+    border-top: 1px solid var(--p-color-border-subtle);
+    border-bottom: 1px solid var(--p-color-border-subtle);
+  }
+
+  .stats-bar__inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .stats-bar__eyebrow {
+    font-size: var(--p-font-size-xs);
+    font-weight: var(--p-font-weight-medium);
+    letter-spacing: var(--p-font-tracking-wider);
+    text-transform: uppercase;
+    color: var(--p-color-text-tertiary);
+    text-align: center;
+    margin-bottom: var(--p-space-10);
+  }
+
+  .stats-bar__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--p-space-8);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--p-space-2);
+    padding: var(--p-space-6);
+    border-right: 1px solid var(--p-color-border-default);
+  }
+
+  .stat:last-child {
+    border-right: none;
+  }
+
+  .stat__number {
+    font-family: var(--p-font-display);
+    font-size: var(--p-font-size-5xl);
+    font-weight: var(--p-font-weight-semibold);
+    line-height: 1;
+    color: var(--p-color-text-accent);
+    letter-spacing: var(--p-font-tracking-tight);
+  }
+
+  .stat__label {
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-medium);
+    color: var(--p-color-text-primary);
+    letter-spacing: var(--p-font-tracking-wide);
+    text-transform: uppercase;
+  }
+
+  .stat__desc {
+    font-size: var(--p-font-size-xs);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-tertiary);
+    line-height: var(--p-font-leading-normal);
+    max-width: 160px;
+  }
+
+  @media (max-width: 580px) {
+    .stats-bar__list {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .stat {
+      border-right: none;
+      border-bottom: 1px solid var(--p-color-border-default);
+    }
+
+    .stat:nth-last-child(-n+2) {
+      border-bottom: none;
+    }
+  }
+</style>

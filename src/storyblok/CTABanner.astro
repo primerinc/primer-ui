@@ -1,0 +1,120 @@
+---
+/**
+ * CTABanner
+ * Storyblok block name: cta_banner
+ *
+ * Fields: headline, subheadline, cta_label, cta_url, background_style
+ */
+import { storyblokEditable } from '@storyblok/astro';
+
+const { blok } = Astro.props;
+
+const style = blok.background_style || 'accent';
+---
+
+<section {...storyblokEditable(blok)} class:list={['cta-banner', `cta-banner--${style}`]}>
+  <div class="cta-banner__inner">
+    <div class="cta-banner__copy">
+      <h2 class="cta-banner__headline">{blok.headline}</h2>
+      {blok.subheadline && <p class="cta-banner__sub">{blok.subheadline}</p>}
+    </div>
+    {blok.cta_label && blok.cta_url && (
+      <a href={blok.cta_url} class="cta-banner__btn">{blok.cta_label}</a>
+    )}
+  </div>
+</section>
+
+<style>
+  .cta-banner {
+    padding: var(--p-space-20) var(--p-space-8);
+  }
+
+  .cta-banner--accent {
+    background: var(--p-color-accent-subtle);
+  }
+
+  .cta-banner--dark {
+    background: var(--p-color-bg-inverse);
+  }
+
+  .cta-banner--light {
+    background: var(--p-color-bg-primary);
+    border-top: 1px solid var(--p-color-border-default);
+    border-bottom: 1px solid var(--p-color-border-default);
+  }
+
+  .cta-banner__inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--p-space-10);
+    flex-wrap: wrap;
+  }
+
+  .cta-banner__copy {
+    flex: 1;
+    min-width: 260px;
+  }
+
+  .cta-banner__headline {
+    font-family: var(--p-font-display);
+    font-size: var(--p-font-size-2xl);
+    font-weight: var(--p-font-weight-semibold);
+    line-height: var(--p-font-leading-tight);
+    margin-bottom: var(--p-space-2);
+  }
+
+  .cta-banner--accent .cta-banner__headline { color: var(--p-color-text-accent-strong); }
+  .cta-banner--dark  .cta-banner__headline { color: var(--p-color-text-inverse); }
+  .cta-banner--light .cta-banner__headline { color: var(--p-color-text-primary); }
+
+  .cta-banner__sub {
+    font-size: var(--p-font-size-md);
+    font-weight: var(--p-font-weight-light);
+    line-height: var(--p-font-leading-normal);
+  }
+
+  .cta-banner--accent .cta-banner__sub { color: var(--p-color-text-accent-strong); opacity: 0.85; }
+  .cta-banner--dark  .cta-banner__sub { color: var(--p-color-text-inverse); opacity: 0.75; }
+  .cta-banner--light .cta-banner__sub { color: var(--p-color-text-secondary); }
+
+  .cta-banner__btn {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    text-decoration: none;
+    font-family: var(--p-font-body);
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-medium);
+    letter-spacing: var(--p-font-tracking-wide);
+    padding: var(--p-space-3) var(--p-space-8);
+    border-radius: var(--p-radius-button);
+    transition: opacity 0.2s ease;
+  }
+
+  .cta-banner__btn:hover { opacity: 0.85; }
+
+  .cta-banner--accent .cta-banner__btn {
+    background: var(--p-color-accent-default);
+    color: var(--p-color-text-inverse);
+  }
+
+  .cta-banner--dark .cta-banner__btn {
+    background: var(--p-color-text-inverse);
+    color: var(--p-color-bg-inverse);
+  }
+
+  .cta-banner--light .cta-banner__btn {
+    background: var(--p-color-accent-default);
+    color: var(--p-color-text-inverse);
+  }
+
+  @media (max-width: 640px) {
+    .cta-banner__inner {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>

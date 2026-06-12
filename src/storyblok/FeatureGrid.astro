@@ -1,56 +1,29 @@
 ---
 /**
- * FeatureGrid component
+ * FeatureGrid
  * Storyblok block name: feature_grid
  *
- * Fields:
- * - eyebrow: text (optional)
- * - headline: text (required)
- * - subheadline: textarea (optional)
- * - features: blocks (repeater of feature_item)
- *   Each feature_item has:
- *   - icon: text (optional — icon name or SVG string)
- *   - title: text (required)
- *   - description: textarea (required)
- * - columns: option — 2 | 3 | 4 (default: 3)
+ * Fields: eyebrow, headline, subheadline, features (blocks → feature_item), columns
  */
+import { storyblokEditable } from '@storyblok/astro';
+import type { SbBlokData } from '@storyblok/astro';
 
-interface FeatureItem {
-  icon?: string;
-  title: string;
-  description: string;
-}
+const { blok } = Astro.props;
 
-interface Props {
-  eyebrow?: string;
-  headline: string;
-  subheadline?: string;
-  features: FeatureItem[];
-  columns?: 2 | 3 | 4;
-  class?: string;
-}
-
-const {
-  eyebrow,
-  headline,
-  subheadline,
-  features = [],
-  columns = 3,
-  class: className = ''
-} = Astro.props;
+const columns = blok.columns || 3;
 ---
 
-<section class:list={['features', className]}>
+<section {...storyblokEditable(blok)} class="features">
   <div class="features__container">
     <div class="features__header">
-      {eyebrow && <p class="features__eyebrow">{eyebrow}</p>}
-      <h2 class="features__headline">{headline}</h2>
-      {subheadline && <p class="features__sub">{subheadline}</p>}
+      {blok.eyebrow && <p class="features__eyebrow">{blok.eyebrow}</p>}
+      <h2 class="features__headline">{blok.headline}</h2>
+      {blok.subheadline && <p class="features__sub">{blok.subheadline}</p>}
     </div>
 
     <ul class:list={['features__grid', `features__grid--${columns}`]} role="list">
-      {features.map((feature) => (
-        <li class="feature-card">
+      {blok.features?.map((feature: SbBlokData) => (
+        <li class="feature-card" {...storyblokEditable(feature)}>
           {feature.icon && (
             <div class="feature-card__icon" aria-hidden="true">
               <Fragment set:html={feature.icon} />
@@ -129,7 +102,7 @@ const {
     background: var(--p-color-bg-secondary);
     border: 1px solid var(--p-color-border-default);
     border-radius: var(--p-radius-card);
-    padding: var(--p-space-8) var(--p-space-8);
+    padding: var(--p-space-8);
   }
 
   .feature-card__icon {

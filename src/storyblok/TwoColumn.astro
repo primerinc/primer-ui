@@ -1,0 +1,127 @@
+---
+/**
+ * TwoColumn
+ * Storyblok block name: two_column
+ *
+ * Fields: eyebrow, headline, body, cta_label, cta_url, image, image_side
+ */
+import { storyblokEditable } from '@storyblok/astro';
+
+const { blok } = Astro.props;
+
+const imageSide = blok.image_side || 'right';
+
+const imageUrl = blok.image?.filename
+  ? `${blok.image.filename}/m/1200x0/filters:quality(85)`
+  : null;
+---
+
+<section
+  {...storyblokEditable(blok)}
+  class:list={['two-col', `two-col--image-${imageSide}`]}
+>
+  <div class="two-col__inner">
+    <div class="two-col__copy">
+      {blok.eyebrow && <p class="two-col__eyebrow">{blok.eyebrow}</p>}
+      {blok.headline && <h2 class="two-col__headline">{blok.headline}</h2>}
+      {blok.body && <p class="two-col__body">{blok.body}</p>}
+      {blok.cta_label && blok.cta_url && (
+        <a href={blok.cta_url} class="two-col__cta">{blok.cta_label}</a>
+      )}
+    </div>
+
+    {imageUrl && (
+      <div class="two-col__media">
+        <img
+          src={imageUrl}
+          alt={blok.image?.alt || ''}
+          class="two-col__img"
+          loading="lazy"
+        />
+      </div>
+    )}
+  </div>
+</section>
+
+<style>
+  .two-col {
+    padding: var(--p-space-24) var(--p-space-8);
+    background: var(--p-color-bg-primary);
+  }
+
+  .two-col__inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--p-space-16);
+    align-items: center;
+  }
+
+  .two-col--image-left .two-col__copy  { order: 2; }
+  .two-col--image-left .two-col__media { order: 1; }
+
+  .two-col__eyebrow {
+    font-size: var(--p-font-size-xs);
+    font-weight: var(--p-font-weight-medium);
+    letter-spacing: var(--p-font-tracking-wider);
+    text-transform: uppercase;
+    color: var(--p-color-text-accent);
+    margin-bottom: var(--p-space-4);
+  }
+
+  .two-col__headline {
+    font-family: var(--p-font-display);
+    font-size: var(--p-font-size-3xl);
+    font-weight: var(--p-font-weight-semibold);
+    line-height: var(--p-font-leading-tight);
+    color: var(--p-color-text-primary);
+    margin-bottom: var(--p-space-5);
+  }
+
+  .two-col__body {
+    font-size: var(--p-font-size-md);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-secondary);
+    line-height: var(--p-font-leading-normal);
+    margin-bottom: var(--p-space-8);
+  }
+
+  .two-col__cta {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-medium);
+    letter-spacing: var(--p-font-tracking-wide);
+    color: var(--p-color-text-accent-strong);
+    border-bottom: 1px solid var(--p-color-border-accent);
+    padding-bottom: var(--p-space-1);
+    transition: opacity 0.2s ease;
+  }
+
+  .two-col__cta:hover { opacity: 0.7; }
+
+  .two-col__media {
+    border-radius: var(--p-radius-lg);
+    overflow: hidden;
+  }
+
+  .two-col__img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  @media (max-width: 768px) {
+    .two-col__inner {
+      grid-template-columns: 1fr;
+      gap: var(--p-space-10);
+    }
+
+    .two-col--image-left .two-col__copy,
+    .two-col--image-left .two-col__media {
+      order: unset;
+    }
+  }
+</style>

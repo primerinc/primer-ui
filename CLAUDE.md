@@ -48,13 +48,17 @@ npm run build:tokens
 
 ## Component library
 
-| Component         | Storyblok block name  | File path                                  | Status      |
-|-------------------|-----------------------|--------------------------------------------|-------------|
-| Hero              | hero                  | components/Hero/Hero.astro                 | complete    |
-| FeatureGrid       | feature_grid          | components/FeatureGrid/FeatureGrid.astro   | complete    |
-| TestimonialBlock  | testimonials          | components/TestimonialBlock/ (stub)        | stub        |
-| CTABanner         | cta_banner            | components/CTABanner/ (stub)               | stub        |
-| LogoBar           | logo_bar              | components/LogoBar/ (stub)                 | stub        |
+| Component        | Storyblok block name | File path                             | Status   |
+|------------------|----------------------|---------------------------------------|----------|
+| Hero             | hero                 | src/storyblok/Hero.astro              | complete |
+| FeatureGrid      | feature_grid         | src/storyblok/FeatureGrid.astro       | complete |
+| CTABanner        | cta_banner           | src/storyblok/CTABanner.astro         | complete |
+| LogoBar          | logo_bar             | src/storyblok/LogoBar.astro           | complete |
+| TestimonialBlock | testimonials         | src/storyblok/TestimonialBlock.astro  | complete |
+| TwoColumn        | two_column           | src/storyblok/TwoColumn.astro         | complete |
+| RichText         | rich_text            | src/storyblok/RichText.astro          | complete |
+| StatsBar         | stats_bar            | src/storyblok/StatsBar.astro          | complete |
+| CardGrid         | card_grid            | src/storyblok/CardGrid.astro          | complete |
 
 Update this table every time a component is added or its status changes.
 
@@ -63,7 +67,7 @@ Update this table every time a component is added or its status changes.
 ## Coding conventions
 
 ### Component structure
-Every component follows this pattern:
+Every component lives in `src/storyblok/` and follows this pattern:
 
 ```astro
 ---
@@ -73,19 +77,13 @@ Every component follows this pattern:
  *
  * Fields: (list all Storyblok fields with types)
  */
+import { storyblokEditable } from '@storyblok/astro';
 
-interface Props {
-  // TypeScript interface matching Storyblok block fields exactly
-  field_name: string;
-  optional_field?: string;
-  class?: string; // always include this for override flexibility
-}
-
-const { field_name, optional_field, class: className = '' } = Astro.props;
+const { blok } = Astro.props;
 ---
 
-<section class:list={['component-name', className]}>
-  <!-- markup -->
+<section {...storyblokEditable(blok)} class="component-name">
+  <!-- markup using blok.field_name -->
 </section>
 
 <style>
@@ -98,10 +96,11 @@ const { field_name, optional_field, class: className = '' } = Astro.props;
 ```
 
 ### Rules
+- All components receive a `blok` prop from Storyblok — never individual props
+- Always spread `{...storyblokEditable(blok)}` on the root element (enables visual editor)
 - Never use hardcoded color, font, spacing, or radius values — always CSS custom properties
-- Always include `class?: string` prop for external override flexibility
 - Use `class:list` for conditional class merging
-- Storyblok image fields are typed as `{ filename: string; alt?: string }`
+- Storyblok image fields are accessed as `blok.image?.filename` and `blok.image?.alt`
 - Keep component styles scoped (default Astro behavior)
 - Name CSS classes using kebab-case BEM-lite: `.component-name`, `.component-name__element`
 
@@ -118,7 +117,7 @@ When creating a new Storyblok space for a client:
 ---
 
 ## BaseLayout
-`layouts/BaseLayout.astro` is the root layout. It imports `tokens/dist/tokens.css`.
+`src/layouts/BaseLayout.astro` is the root layout. It imports `tokens/dist/tokens.css`.
 All client Astro projects use this layout as their base.
 
 Update the Google Fonts link in BaseLayout for each client's brand fonts.
@@ -132,9 +131,10 @@ This repo uses Style Dictionary v5. Token references in JSON files use the v5 sy
 ---
 
 ## Adding a new component — checklist
-- [ ] Create `components/[Name]/[Name].astro` following the standard structure
-- [ ] Interface matches Storyblok field schema exactly
+- [ ] Create `src/storyblok/[Name].astro` following the standard structure
+- [ ] Use `blok` prop with `storyblokEditable` on the root element
 - [ ] All styles use CSS custom properties
+- [ ] Register the component in `astro.config.mjs` under `components: { block_name: 'storyblok/Name' }`
 - [ ] Add block schema to `storyblok/schema-reference.md`
 - [ ] Add row to component table above in this file
 - [ ] Commit with message: "Add [Name] component"

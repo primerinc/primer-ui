@@ -91,9 +91,72 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 
 ---
 
+## two_column
+
+| Field name  | Type     | Required | Options / Notes              |
+|-------------|----------|----------|------------------------------|
+| eyebrow     | Text     | No       |                              |
+| headline    | Text     | No       |                              |
+| body        | Textarea | No       |                              |
+| cta_label   | Text     | No       |                              |
+| cta_url     | Text     | No       |                              |
+| image       | Asset    | No       | Image only                   |
+| image_side  | Option   | No       | right (default), left        |
+
+---
+
+## rich_text
+
+| Field name | Type      | Required | Notes                          |
+|------------|-----------|----------|--------------------------------|
+| content    | Richtext  | Yes      | Storyblok richtext field       |
+
+---
+
+## stats_bar
+
+| Field name | Type   | Required | Notes                           |
+|------------|--------|----------|---------------------------------|
+| eyebrow    | Text   | No       | e.g. "By the numbers"           |
+| stats      | Blocks | Yes      | Restrict to: stat_item          |
+
+### stat_item (nested block inside stats_bar)
+
+| Field name  | Type | Required | Notes                        |
+|-------------|------|----------|------------------------------|
+| number      | Text | Yes      | e.g. "12+", "$2M", "98%"     |
+| label       | Text | Yes      | e.g. "Years in business"     |
+| description | Text | No       | Optional supporting line     |
+
+---
+
+## card_grid
+
+| Field name  | Type     | Required | Options / Notes              |
+|-------------|----------|----------|------------------------------|
+| eyebrow     | Text     | No       |                              |
+| headline    | Text     | No       |                              |
+| subheadline | Textarea | No       |                              |
+| cards       | Blocks   | Yes      | Restrict to: card_item       |
+| columns     | Option   | No       | 2, 3 (default)               |
+
+### card_item (nested block inside card_grid)
+
+| Field name  | Type     | Required | Notes                        |
+|-------------|----------|----------|------------------------------|
+| image       | Asset    | No       | Image only                   |
+| eyebrow     | Text     | No       | Category / tag label         |
+| title       | Text     | Yes      |                              |
+| description | Textarea | No       |                              |
+| cta_label   | Text     | No       |                              |
+| cta_url     | Text     | No       |                              |
+
+---
+
 ## Adding new blocks
 
 When you add a new component to the library:
-1. Add the Astro component in components/[ComponentName]/[ComponentName].astro
-2. Document its schema in this file following the table format above
-3. Update the component inventory table in CLAUDE.md
+1. Add the Astro component in src/storyblok/[ComponentName].astro
+2. Register it in astro.config.mjs under the `components` map
+3. Document its schema in this file following the table format above
+4. Update the component inventory table in CLAUDE.md

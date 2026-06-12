@@ -1,0 +1,100 @@
+---
+/**
+ * LogoBar
+ * Storyblok block name: logo_bar
+ *
+ * Fields: eyebrow, logos (blocks → logo_item: image, alt, url)
+ */
+import { storyblokEditable } from '@storyblok/astro';
+import type { SbBlokData } from '@storyblok/astro';
+
+const { blok } = Astro.props;
+---
+
+<section {...storyblokEditable(blok)} class="logo-bar">
+  <div class="logo-bar__inner">
+    {blok.eyebrow && <p class="logo-bar__eyebrow">{blok.eyebrow}</p>}
+    <ul class="logo-bar__list" role="list">
+      {blok.logos?.map((logo: SbBlokData) => (
+        <li class="logo-bar__item" {...storyblokEditable(logo)}>
+          {logo.url ? (
+            <a href={logo.url} class="logo-bar__link" aria-label={logo.alt}>
+              <img
+                src={`${logo.image?.filename}/m/200x80/filters:quality(90)`}
+                alt={logo.alt || ''}
+                class="logo-bar__img"
+                loading="lazy"
+              />
+            </a>
+          ) : (
+            <img
+              src={`${logo.image?.filename}/m/200x80/filters:quality(90)`}
+              alt={logo.alt || ''}
+              class="logo-bar__img"
+              loading="lazy"
+            />
+          )}
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .logo-bar {
+    padding: var(--p-space-16) var(--p-space-8);
+    background: var(--p-color-bg-secondary);
+    border-top: 1px solid var(--p-color-border-subtle);
+    border-bottom: 1px solid var(--p-color-border-subtle);
+  }
+
+  .logo-bar__inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .logo-bar__eyebrow {
+    font-size: var(--p-font-size-xs);
+    font-weight: var(--p-font-weight-medium);
+    letter-spacing: var(--p-font-tracking-wider);
+    text-transform: uppercase;
+    color: var(--p-color-text-tertiary);
+    text-align: center;
+    margin-bottom: var(--p-space-8);
+  }
+
+  .logo-bar__list {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: var(--p-space-10);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .logo-bar__item {
+    display: flex;
+    align-items: center;
+  }
+
+  .logo-bar__link {
+    display: block;
+  }
+
+  .logo-bar__img {
+    height: 36px;
+    width: auto;
+    max-width: 140px;
+    object-fit: contain;
+    opacity: 0.55;
+    filter: grayscale(100%);
+    transition: opacity 0.2s ease, filter 0.2s ease;
+  }
+
+  .logo-bar__link:hover .logo-bar__img,
+  .logo-bar__item:not(:has(a)) .logo-bar__img {
+    opacity: 0.7;
+  }
+</style>

@@ -1,0 +1,156 @@
+---
+/**
+ * TestimonialBlock
+ * Storyblok block name: testimonials
+ *
+ * Fields: eyebrow, headline, items (blocks → testimonial_item), layout
+ * testimonial_item fields: quote, author, role, avatar
+ */
+import { storyblokEditable } from '@storyblok/astro';
+import type { SbBlokData } from '@storyblok/astro';
+
+const { blok } = Astro.props;
+
+const layout = blok.layout || 'grid';
+---
+
+<section {...storyblokEditable(blok)} class:list={['testimonials', `testimonials--${layout}`]}>
+  <div class="testimonials__inner">
+    {(blok.eyebrow || blok.headline) && (
+      <div class="testimonials__header">
+        {blok.eyebrow && <p class="testimonials__eyebrow">{blok.eyebrow}</p>}
+        {blok.headline && <h2 class="testimonials__headline">{blok.headline}</h2>}
+      </div>
+    )}
+
+    <ul class="testimonials__grid" role="list">
+      {blok.items?.map((item: SbBlokData) => (
+        <li class="testimonial-card" {...storyblokEditable(item)}>
+          <blockquote class="testimonial-card__quote">
+            <p>"{item.quote}"</p>
+          </blockquote>
+          <footer class="testimonial-card__footer">
+            {item.avatar?.filename && (
+              <img
+                src={`${item.avatar.filename}/m/80x80/filters:quality(85)`}
+                alt={item.author}
+                class="testimonial-card__avatar"
+                loading="lazy"
+              />
+            )}
+            <div class="testimonial-card__attr">
+              <cite class="testimonial-card__author">{item.author}</cite>
+              {item.role && <span class="testimonial-card__role">{item.role}</span>}
+            </div>
+          </footer>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .testimonials {
+    padding: var(--p-space-24) var(--p-space-8);
+    background: var(--p-color-bg-primary);
+  }
+
+  .testimonials__inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .testimonials__header {
+    max-width: 640px;
+    margin: 0 auto var(--p-space-16);
+    text-align: center;
+  }
+
+  .testimonials__eyebrow {
+    font-size: var(--p-font-size-xs);
+    font-weight: var(--p-font-weight-medium);
+    letter-spacing: var(--p-font-tracking-wider);
+    text-transform: uppercase;
+    color: var(--p-color-text-tertiary);
+    margin-bottom: var(--p-space-3);
+  }
+
+  .testimonials__headline {
+    font-family: var(--p-font-display);
+    font-size: var(--p-font-size-3xl);
+    font-weight: var(--p-font-weight-semibold);
+    line-height: var(--p-font-leading-tight);
+    color: var(--p-color-text-primary);
+  }
+
+  .testimonials__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--p-space-6);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  @media (max-width: 900px) {
+    .testimonials__grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 580px) {
+    .testimonials__grid { grid-template-columns: 1fr; }
+  }
+
+  .testimonial-card {
+    background: var(--p-color-bg-secondary);
+    border: 1px solid var(--p-color-border-default);
+    border-radius: var(--p-radius-card);
+    padding: var(--p-space-8);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--p-space-6);
+  }
+
+  .testimonial-card__quote {
+    font-family: var(--p-font-display);
+    font-size: var(--p-font-size-lg);
+    font-weight: var(--p-font-weight-regular);
+    line-height: var(--p-font-leading-snug);
+    color: var(--p-color-text-primary);
+    font-style: italic;
+    margin: 0;
+  }
+
+  .testimonial-card__footer {
+    display: flex;
+    align-items: center;
+    gap: var(--p-space-4);
+  }
+
+  .testimonial-card__avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--p-radius-full);
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .testimonial-card__attr {
+    display: flex;
+    flex-direction: column;
+    gap: var(--p-space-1);
+  }
+
+  .testimonial-card__author {
+    font-style: normal;
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-medium);
+    color: var(--p-color-text-primary);
+  }
+
+  .testimonial-card__role {
+    font-size: var(--p-font-size-xs);
+    color: var(--p-color-text-tertiary);
+    letter-spacing: var(--p-font-tracking-wide);
+  }
+</style>

@@ -1,0 +1,198 @@
+---
+/**
+ * CardGrid
+ * Storyblok block name: card_grid
+ *
+ * Fields: eyebrow, headline, subheadline, cards (blocks → card_item), columns
+ * card_item fields: image, eyebrow, title, description, cta_label, cta_url
+ */
+import { storyblokEditable } from '@storyblok/astro';
+import type { SbBlokData } from '@storyblok/astro';
+
+const { blok } = Astro.props;
+
+const columns = blok.columns || 3;
+---
+
+<section {...storyblokEditable(blok)} class="card-grid">
+  <div class="card-grid__inner">
+    {(blok.eyebrow || blok.headline || blok.subheadline) && (
+      <div class="card-grid__header">
+        {blok.eyebrow && <p class="card-grid__eyebrow">{blok.eyebrow}</p>}
+        {blok.headline && <h2 class="card-grid__headline">{blok.headline}</h2>}
+        {blok.subheadline && <p class="card-grid__sub">{blok.subheadline}</p>}
+      </div>
+    )}
+
+    <ul class:list={['card-grid__list', `card-grid__list--${columns}`]} role="list">
+      {blok.cards?.map((card: SbBlokData) => {
+        const imageUrl = card.image?.filename
+          ? `${card.image.filename}/m/800x600/filters:quality(85)`
+          : null;
+
+        return (
+          <li class="card" {...storyblokEditable(card)}>
+            {imageUrl && (
+              <div class="card__media">
+                <img
+                  src={imageUrl}
+                  alt={card.image?.alt || ''}
+                  class="card__img"
+                  loading="lazy"
+                />
+              </div>
+            )}
+            <div class="card__body">
+              {card.eyebrow && <p class="card__eyebrow">{card.eyebrow}</p>}
+              <h3 class="card__title">{card.title}</h3>
+              {card.description && <p class="card__desc">{card.description}</p>}
+              {card.cta_label && card.cta_url && (
+                <a href={card.cta_url} class="card__cta">{card.cta_label} →</a>
+              )}
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .card-grid {
+    padding: var(--p-space-24) var(--p-space-8);
+    background: var(--p-color-bg-primary);
+  }
+
+  .card-grid__inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .card-grid__header {
+    max-width: 640px;
+    margin: 0 auto var(--p-space-16);
+    text-align: center;
+  }
+
+  .card-grid__eyebrow {
+    font-size: var(--p-font-size-xs);
+    font-weight: var(--p-font-weight-medium);
+    letter-spacing: var(--p-font-tracking-wider);
+    text-transform: uppercase;
+    color: var(--p-color-text-tertiary);
+    margin-bottom: var(--p-space-3);
+  }
+
+  .card-grid__headline {
+    font-family: var(--p-font-display);
+    font-size: var(--p-font-size-3xl);
+    font-weight: var(--p-font-weight-semibold);
+    line-height: var(--p-font-leading-tight);
+    color: var(--p-color-text-primary);
+    margin-bottom: var(--p-space-4);
+  }
+
+  .card-grid__sub {
+    font-size: var(--p-font-size-lg);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-secondary);
+    line-height: var(--p-font-leading-normal);
+  }
+
+  .card-grid__list {
+    display: grid;
+    gap: var(--p-space-6);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .card-grid__list--2 { grid-template-columns: repeat(2, 1fr); }
+  .card-grid__list--3 { grid-template-columns: repeat(3, 1fr); }
+
+  @media (max-width: 900px) {
+    .card-grid__list--3 { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 580px) {
+    .card-grid__list--2,
+    .card-grid__list--3 { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: var(--p-color-bg-primary);
+    border: 1px solid var(--p-color-border-default);
+    border-radius: var(--p-radius-card);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.2s ease;
+  }
+
+  .card:hover {
+    box-shadow: var(--p-shadow-md);
+  }
+
+  .card__media {
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--p-color-bg-secondary);
+  }
+
+  .card__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+  }
+
+  .card:hover .card__img {
+    transform: scale(1.03);
+  }
+
+  .card__body {
+    padding: var(--p-space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--p-space-3);
+    flex: 1;
+  }
+
+  .card__eyebrow {
+    font-size: var(--p-font-size-xs);
+    font-weight: var(--p-font-weight-medium);
+    letter-spacing: var(--p-font-tracking-wider);
+    text-transform: uppercase;
+    color: var(--p-color-text-accent);
+  }
+
+  .card__title {
+    font-family: var(--p-font-body);
+    font-size: var(--p-font-size-lg);
+    font-weight: var(--p-font-weight-medium);
+    color: var(--p-color-text-primary);
+    line-height: var(--p-font-leading-snug);
+  }
+
+  .card__desc {
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-secondary);
+    line-height: var(--p-font-leading-normal);
+    flex: 1;
+  }
+
+  .card__cta {
+    display: inline-block;
+    margin-top: var(--p-space-2);
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-medium);
+    color: var(--p-color-text-accent-strong);
+    text-decoration: none;
+    letter-spacing: var(--p-font-tracking-wide);
+    transition: opacity 0.2s ease;
+  }
+
+  .card__cta:hover { opacity: 0.7; }
+</style>
