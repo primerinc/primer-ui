@@ -1,5 +1,6 @@
 ---
 import { useStoryblokApi } from '@storyblok/astro';
+import type { SbBlokData } from '@storyblok/astro';
 import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 
@@ -10,13 +11,18 @@ export async function getStaticPaths() {
     excluding_slugs: 'home',
   });
 
-  return data.stories.map((story: { full_slug: string }) => ({
+  return data.stories.map((story: { full_slug: string; name: string; content: Record<string, unknown> }) => ({
     params: { slug: story.full_slug },
     props: { story },
   }));
 }
 
-const { story } = Astro.props;
+interface Story {
+  name: string;
+  content: SbBlokData;
+}
+
+const { story } = Astro.props as { story: Story };
 ---
 
 <BaseLayout title={story.name}>

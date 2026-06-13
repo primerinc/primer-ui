@@ -9,6 +9,15 @@
 import { storyblokEditable } from '@storyblok/astro';
 import type { SbBlokData } from '@storyblok/astro';
 
+interface CardItem extends SbBlokData {
+  image?: { filename: string; alt?: string };
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  cta_label?: string;
+  cta_url?: string;
+}
+
 const { blok } = Astro.props;
 
 const columns = blok.columns || 3;
@@ -25,7 +34,7 @@ const columns = blok.columns || 3;
     )}
 
     <ul class:list={['card-grid__list', `card-grid__list--${columns}`]} role="list">
-      {blok.cards?.map((card: SbBlokData) => {
+      {(blok.cards as CardItem[])?.map((card) => {
         const imageUrl = card.image?.filename
           ? `${card.image.filename}/m/800x600/filters:quality(85)`
           : null;
@@ -36,7 +45,7 @@ const columns = blok.columns || 3;
               <div class="card__media">
                 <img
                   src={imageUrl}
-                  alt={card.image?.alt || ''}
+                  alt={card.image?.alt ?? ''}
                   class="card__img"
                   loading="lazy"
                 />
@@ -47,7 +56,7 @@ const columns = blok.columns || 3;
               <h3 class="card__title">{card.title}</h3>
               {card.description && <p class="card__desc">{card.description}</p>}
               {card.cta_label && card.cta_url && (
-                <a href={card.cta_url} class="card__cta">{card.cta_label} →</a>
+                <a href={String(card.cta_url)} class="card__cta">{card.cta_label} →</a>
               )}
             </div>
           </li>

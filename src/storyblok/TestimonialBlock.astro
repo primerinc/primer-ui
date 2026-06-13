@@ -9,6 +9,13 @@
 import { storyblokEditable } from '@storyblok/astro';
 import type { SbBlokData } from '@storyblok/astro';
 
+interface TestimonialItem extends SbBlokData {
+  quote?: string;
+  author?: string;
+  role?: string;
+  avatar?: { filename: string; alt?: string };
+}
+
 const { blok } = Astro.props;
 
 const layout = blok.layout || 'grid';
@@ -24,7 +31,7 @@ const layout = blok.layout || 'grid';
     )}
 
     <ul class="testimonials__grid" role="list">
-      {blok.items?.map((item: SbBlokData) => (
+      {(blok.items as TestimonialItem[])?.map((item) => (
         <li class="testimonial-card" {...storyblokEditable(item)}>
           <blockquote class="testimonial-card__quote">
             <p>"{item.quote}"</p>
@@ -33,7 +40,7 @@ const layout = blok.layout || 'grid';
             {item.avatar?.filename && (
               <img
                 src={`${item.avatar.filename}/m/80x80/filters:quality(85)`}
-                alt={item.author}
+                alt={item.author ?? ''}
                 class="testimonial-card__avatar"
                 loading="lazy"
               />

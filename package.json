@@ -14,7 +14,12 @@
     "build": "astro build",
     "preview": "astro preview"
   },
-  "keywords": ["astro", "storyblok", "design-tokens", "component-library"],
+  "keywords": [
+    "astro",
+    "storyblok",
+    "design-tokens",
+    "component-library"
+  ],
   "author": "Primer <hello@primerinc.com>",
   "dependencies": {
     "@storyblok/astro": "^9.0.12",
@@ -22,6 +27,8 @@
     "style-dictionary": "^5.4.4"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.9",
+    "typescript": "^6.0.3",
     "vite-plugin-mkcert": "^1.17.12"
   }
 }
