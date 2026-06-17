@@ -21,7 +21,7 @@ export default defineConfig({
         stats_bar:     'storyblok/StatsBar',
         card_grid:     'storyblok/CardGrid',
       },
-      apiOptions: { region: 'eu' },
+      apiOptions: { region: 'us' },
     }),
   ],
   vite: { plugins: [mkcert()] },
