@@ -3,13 +3,14 @@
  * CTABanner
  * Storyblok block name: cta_banner
  *
- * Fields: headline, subheadline, cta_label, cta_url, background_style
+ * Fields: headline, subheadline, buttons (Blocks → button), background_style
  */
 import { storyblokEditable } from '@storyblok/astro';
 
 const { blok } = Astro.props;
 
 const style = blok.background_style || 'accent';
+const buttons = blok.buttons || [];
 ---
 
 <section {...storyblokEditable(blok)} class:list={['cta-banner', `cta-banner--${style}`]}>
@@ -18,8 +19,18 @@ const style = blok.background_style || 'accent';
       <h2 class="cta-banner__headline">{blok.headline}</h2>
       {blok.subheadline && <p class="cta-banner__sub">{blok.subheadline}</p>}
     </div>
-    {blok.cta_label && blok.cta_url && (
-      <a href={blok.cta_url} class="cta-banner__btn">{blok.cta_label}</a>
+    {buttons.length > 0 && (
+      <div class="cta-banner__actions">
+        {buttons.map((btn: any) => (
+          <a
+            href={btn.link?.url || btn.link?.cached_url || '#'}
+            class="cta-banner__btn"
+            {...storyblokEditable(btn)}
+          >
+            {btn.text}
+          </a>
+        ))}
+      </div>
     )}
   </div>
 </section>

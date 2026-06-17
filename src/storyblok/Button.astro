@@ -1,0 +1,50 @@
+---
+/**
+ * Button
+ * Storyblok block name: button
+ *
+ * Fields: text, link (Multilink), variant (primary | secondary)
+ */
+import { storyblokEditable } from '@storyblok/astro';
+
+const { blok } = Astro.props;
+
+const href = blok.link?.url || blok.link?.cached_url || '#';
+const variant = blok.variant || 'primary';
+---
+
+<a
+  href={href}
+  class:list={['btn', `btn--${variant}`]}
+  {...storyblokEditable(blok)}
+>
+  {blok.text}
+</a>
+
+<style>
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--p-space-3) var(--p-space-8);
+    border-radius: var(--p-radius-button);
+    font-family: var(--p-font-body);
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-medium);
+    letter-spacing: var(--p-font-tracking-wide);
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .btn:hover { opacity: 0.85; }
+
+  .btn--primary {
+    background: var(--p-color-accent-default);
+    color: var(--p-color-text-inverse);
+  }
+
+  .btn--secondary {
+    background: transparent;
+    color: var(--p-color-text-primary);
+    border: 1px solid var(--p-color-border-default);
+  }
+</style>
