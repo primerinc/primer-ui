@@ -153,6 +153,46 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 
 ---
 
+## header
+
+| Field name                | Type    | Required | Options / Notes                        |
+|---------------------------|---------|----------|----------------------------------------|
+| announcement_enabled      | Boolean | No       | Default false                          |
+| announcement_text         | Text    | No       |                                        |
+| announcement_link_label   | Text    | No       |                                        |
+| announcement_link_url     | Link    | No       | Multilink                              |
+| logo                      | Asset   | No       | Image only                             |
+| nav_items                 | Blocks  | No       | Restrict to: nav_item                  |
+| login_enabled             | Boolean | No       | Default false                          |
+| login_label               | Text    | No       | e.g. "Log In"                          |
+| login_link                | Link    | No       | Multilink                              |
+| cta_button                | Blocks  | No       | Restrict to: button. Maximum: 1        |
+| sticky                    | Boolean | No       | Default true                           |
+
+### nav_item (nested block inside header)
+
+| Field name       | Type   | Required | Notes                                  |
+|------------------|--------|----------|----------------------------------------|
+| label            | Text   | Yes      |                                        |
+| link             | Link   | No       | Multilink — omit if item has dropdown  |
+| dropdown_groups  | Blocks | No       | Restrict to: nav_group                 |
+
+### nav_group (nested block inside nav_item)
+
+| Field name | Type   | Required | Notes                                  |
+|------------|--------|----------|----------------------------------------|
+| heading    | Text   | No       | Section label e.g. "By Industry"       |
+| links      | Blocks | Yes      | Restrict to: nav_link                  |
+
+### nav_link (nested block inside nav_group)
+
+| Field name | Type | Required | Notes      |
+|------------|------|----------|------------|
+| label      | Text | Yes      |            |
+| link       | Link | Yes      | Multilink  |
+
+---
+
 ## Adding new blocks
 
 When you add a new component to the library:

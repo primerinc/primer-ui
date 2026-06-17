@@ -59,6 +59,7 @@ npm run build:tokens
 | RichText         | rich_text            | src/storyblok/RichText.astro          | complete |
 | StatsBar         | stats_bar            | src/storyblok/StatsBar.astro          | complete |
 | CardGrid         | card_grid            | src/storyblok/CardGrid.astro          | complete |
+| Header           | header               | src/storyblok/Header.astro            | complete |
 
 Update this table every time a component is added or its status changes.
 

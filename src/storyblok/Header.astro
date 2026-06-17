@@ -1,0 +1,578 @@
+---
+/**
+ * Header
+ * Storyblok block name: header
+ *
+ * Fields: announcement_enabled, announcement_text, announcement_link_label,
+ *         announcement_link_url, logo, nav_items (→ nav_item), login_enabled,
+ *         login_label, login_link, cta_button (→ button, max 1), sticky
+ */
+import { storyblokEditable } from '@storyblok/astro';
+
+const { blok } = Astro.props;
+
+const sticky            = blok.sticky ?? true;
+const announcementOn    = blok.announcement_enabled ?? false;
+const loginOn           = blok.login_enabled ?? false;
+const navItems          = blok.nav_items || [];
+const ctaButtons        = blok.cta_button || [];
+const logoUrl           = blok.logo?.filename;
+const logoAlt           = blok.logo?.alt || 'Logo';
+const loginHref         = blok.login_link?.url || blok.login_link?.cached_url || '#';
+const announcementHref  = blok.announcement_link_url?.url || blok.announcement_link_url?.cached_url || null;
+---
+
+{announcementOn && (
+  <div class="announcement-bar" data-announcement {...storyblokEditable(blok)}>
+    <p class="announcement-bar__text">
+      {blok.announcement_text}
+      {announcementHref && blok.announcement_link_label && (
+        <a href={announcementHref} class="announcement-bar__link">{blok.announcement_link_label}</a>
+      )}
+    </p>
+    <button class="announcement-bar__close" aria-label="Close announcement" data-close-announcement>
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+        <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+)}
+
+<header
+  class:list={['site-header', sticky && 'site-header--sticky']}
+  {...storyblokEditable(blok)}
+>
+  <div class="site-header__inner">
+
+    <a href="/" class="site-header__logo">
+      {logoUrl
+        ? <img src={`${logoUrl}/m/200x0`} alt={logoAlt} width="160" height="40" />
+        : <span class="site-header__logo-text">{logoAlt}</span>
+      }
+    </a>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <ul class="site-nav__list" role="list">
+        {navItems.map((item: any, i: number) => {
+          const groups = item.dropdown_groups || [];
+          const hasDropdown = groups.length > 0;
+          const itemHref = item.link?.url || item.link?.cached_url || null;
+          return (
+            <li class:list={['site-nav__item', hasDropdown && 'site-nav__item--has-dropdown']} {...storyblokEditable(item)}>
+              {hasDropdown ? (
+                <>
+                  <button
+                    class="site-nav__trigger"
+                    aria-expanded="false"
+                    aria-controls={`dropdown-${i}`}
+                    data-dropdown-trigger
+                  >
+                    {item.label}
+                    <svg class="site-nav__chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                      <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                  <div class="site-nav__dropdown" id={`dropdown-${i}`} role="region">
+                    {groups.map((group: any) => {
+                      const links = group.links || [];
+                      return (
+                        <div class="nav-group" {...storyblokEditable(group)}>
+                          {group.heading && <p class="nav-group__heading">{group.heading}</p>}
+                          <ul class="nav-group__list" role="list">
+                            {links.map((link: any) => {
+                              const href = link.link?.url || link.link?.cached_url || '#';
+                              return (
+                                <li {...storyblokEditable(link)}>
+                                  <a href={href} class="nav-group__link">{link.label}</a>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              ) : (
+                <a href={itemHref || '#'} class="site-nav__link">{item.label}</a>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
+
+    <div class="site-header__actions">
+      {loginOn && (
+        <a href={loginHref} class="site-header__login">{blok.login_label || 'Log In'}</a>
+      )}
+      {ctaButtons.map((btn: any) => (
+        <a
+          href={btn.link?.url || btn.link?.cached_url || '#'}
+          class:list={['btn', `btn--${btn.variant || 'primary'}`]}
+          {...storyblokEditable(btn)}
+        >
+          {btn.text}
+        </a>
+      ))}
+    </div>
+
+    <button class="site-header__hamburger" aria-label="Open menu" aria-expanded="false" data-hamburger>
+      <span class="site-header__hamburger-bar"></span>
+      <span class="site-header__hamburger-bar"></span>
+      <span class="site-header__hamburger-bar"></span>
+    </button>
+
+  </div>
+
+  <div class="site-header__mobile-nav" data-mobile-nav aria-hidden="true">
+    <ul class="site-mobile-nav__list" role="list">
+      {navItems.map((item: any, i: number) => {
+        const groups = item.dropdown_groups || [];
+        const hasDropdown = groups.length > 0;
+        const itemHref = item.link?.url || item.link?.cached_url || null;
+        return (
+          <li class="site-mobile-nav__item">
+            {hasDropdown ? (
+              <>
+                <button class="site-mobile-nav__trigger" data-mobile-trigger aria-expanded="false">
+                  {item.label}
+                  <svg class="site-nav__chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                    <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+                <div class="site-mobile-nav__sub" hidden>
+                  {groups.map((group: any) => {
+                    const links = group.links || [];
+                    return (
+                      <div class="nav-group">
+                        {group.heading && <p class="nav-group__heading">{group.heading}</p>}
+                        <ul class="nav-group__list" role="list">
+                          {links.map((link: any) => {
+                            const href = link.link?.url || link.link?.cached_url || '#';
+                            return (
+                              <li><a href={href} class="nav-group__link">{link.label}</a></li>
+                            );
+                          })}
+                        </ul>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            ) : (
+              <a href={itemHref || '#'} class="site-mobile-nav__link">{item.label}</a>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+    <div class="site-mobile-nav__footer">
+      {loginOn && (
+        <a href={loginHref} class="site-header__login">{blok.login_label || 'Log In'}</a>
+      )}
+      {ctaButtons.map((btn: any) => (
+        <a
+          href={btn.link?.url || btn.link?.cached_url || '#'}
+          class:list={['btn', `btn--${btn.variant || 'primary'}`]}
+        >
+          {btn.text}
+        </a>
+      ))}
+    </div>
+  </div>
+</header>
+
+<script>
+  // Announcement bar close
+  document.querySelectorAll('[data-close-announcement]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const bar = btn.closest('[data-announcement]') as HTMLElement;
+      if (bar) bar.style.display = 'none';
+    });
+  });
+
+  // Desktop dropdowns — click to toggle, close on outside click or Escape
+  document.querySelectorAll('[data-dropdown-trigger]').forEach(trigger => {
+    trigger.addEventListener('click', () => {
+      const isOpen = trigger.getAttribute('aria-expanded') === 'true';
+      // Close all first
+      document.querySelectorAll('[data-dropdown-trigger]').forEach(t => {
+        t.setAttribute('aria-expanded', 'false');
+        t.closest('.site-nav__item')?.classList.remove('is-open');
+      });
+      if (!isOpen) {
+        trigger.setAttribute('aria-expanded', 'true');
+        trigger.closest('.site-nav__item')?.classList.add('is-open');
+      }
+    });
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!(e.target as Element).closest('.site-nav__item--has-dropdown')) {
+      document.querySelectorAll('[data-dropdown-trigger]').forEach(t => {
+        t.setAttribute('aria-expanded', 'false');
+        t.closest('.site-nav__item')?.classList.remove('is-open');
+      });
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('[data-dropdown-trigger]').forEach(t => {
+        t.setAttribute('aria-expanded', 'false');
+        t.closest('.site-nav__item')?.classList.remove('is-open');
+      });
+    }
+  });
+
+  // Mobile hamburger
+  const hamburger = document.querySelector('[data-hamburger]') as HTMLButtonElement;
+  const mobileNav = document.querySelector('[data-mobile-nav]') as HTMLElement;
+  const header    = document.querySelector('.site-header') as HTMLElement;
+
+  hamburger?.addEventListener('click', () => {
+    const isOpen = hamburger.getAttribute('aria-expanded') === 'true';
+    hamburger.setAttribute('aria-expanded', String(!isOpen));
+    mobileNav?.setAttribute('aria-hidden', String(isOpen));
+    header?.classList.toggle('mobile-open', !isOpen);
+  });
+
+  // Mobile sub-menu toggles
+  document.querySelectorAll('[data-mobile-trigger]').forEach(trigger => {
+    trigger.addEventListener('click', () => {
+      const sub = trigger.nextElementSibling as HTMLElement;
+      const isOpen = trigger.getAttribute('aria-expanded') === 'true';
+      trigger.setAttribute('aria-expanded', String(!isOpen));
+      if (isOpen) sub?.setAttribute('hidden', '');
+      else sub?.removeAttribute('hidden');
+    });
+  });
+</script>
+
+<style>
+  /* ── Announcement Bar ───────────────────────────────────────── */
+  .announcement-bar {
+    background: var(--p-color-accent-default);
+    color: var(--p-color-text-inverse);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--p-space-4);
+    padding: var(--p-space-2) var(--p-space-6);
+    font-family: var(--p-font-body);
+    font-size: var(--p-font-size-sm);
+    position: relative;
+  }
+
+  .announcement-bar__text { margin: 0; }
+
+  .announcement-bar__link {
+    color: inherit;
+    font-weight: var(--p-font-weight-medium);
+    text-underline-offset: 2px;
+    margin-left: var(--p-space-2);
+  }
+
+  .announcement-bar__close {
+    position: absolute;
+    right: var(--p-space-4);
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    padding: var(--p-space-1);
+    opacity: 0.75;
+    line-height: 1;
+  }
+
+  .announcement-bar__close:hover { opacity: 1; }
+
+  /* ── Site Header ────────────────────────────────────────────── */
+  .site-header {
+    background: var(--p-color-bg-primary);
+    border-bottom: 1px solid var(--p-color-border-default);
+    position: relative;
+    z-index: 100;
+  }
+
+  .site-header--sticky {
+    position: sticky;
+    top: 0;
+  }
+
+  .site-header__inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--p-space-6);
+    height: 68px;
+    display: flex;
+    align-items: center;
+    gap: var(--p-space-8);
+  }
+
+  .site-header__logo {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    text-decoration: none;
+  }
+
+  .site-header__logo img { display: block; height: 36px; width: auto; }
+
+  .site-header__logo-text {
+    font-family: var(--p-font-display);
+    font-size: var(--p-font-size-lg);
+    font-weight: var(--p-font-weight-semibold);
+    color: var(--p-color-text-primary);
+  }
+
+  /* ── Desktop Nav ────────────────────────────────────────────── */
+  .site-nav { flex: 1; }
+
+  .site-nav__list {
+    display: flex;
+    align-items: center;
+    gap: var(--p-space-1);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .site-nav__item { position: relative; }
+
+  .site-nav__link,
+  .site-nav__trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--p-space-1);
+    padding: var(--p-space-2) var(--p-space-3);
+    font-family: var(--p-font-body);
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-medium);
+    color: var(--p-color-text-primary);
+    text-decoration: none;
+    background: none;
+    border: none;
+    border-radius: var(--p-radius-sm);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .site-nav__link:hover,
+  .site-nav__trigger:hover,
+  .site-nav__item--has-dropdown.is-open .site-nav__trigger {
+    background: var(--p-color-bg-secondary);
+    color: var(--p-color-accent-default);
+  }
+
+  .site-nav__chevron {
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .site-nav__item--has-dropdown.is-open .site-nav__chevron {
+    transform: rotate(180deg);
+  }
+
+  /* ── Dropdown Panel ─────────────────────────────────────────── */
+  .site-nav__dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + var(--p-space-2));
+    left: 0;
+    background: var(--p-color-bg-primary);
+    border: 1px solid var(--p-color-border-default);
+    border-radius: var(--p-radius-card);
+    box-shadow: var(--p-shadow-md);
+    padding: var(--p-space-6);
+    min-width: 220px;
+    display: none;
+    gap: var(--p-space-6);
+    z-index: 200;
+  }
+
+  .site-nav__item--has-dropdown.is-open .site-nav__dropdown {
+    display: flex;
+  }
+
+  /* ── Nav Groups ─────────────────────────────────────────────── */
+  .nav-group { min-width: 160px; }
+
+  .nav-group__heading {
+    font-family: var(--p-font-body);
+    font-size: var(--p-font-size-xs);
+    font-weight: var(--p-font-weight-semibold);
+    color: var(--p-color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: var(--p-font-tracking-wide);
+    margin: 0 0 var(--p-space-3);
+    padding: 0 var(--p-space-2);
+  }
+
+  .nav-group__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--p-space-1);
+  }
+
+  .nav-group__link {
+    display: block;
+    padding: var(--p-space-2);
+    font-family: var(--p-font-body);
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-regular);
+    color: var(--p-color-text-primary);
+    text-decoration: none;
+    border-radius: var(--p-radius-sm);
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .nav-group__link:hover {
+    background: var(--p-color-bg-secondary);
+    color: var(--p-color-accent-default);
+  }
+
+  /* ── Header Actions ─────────────────────────────────────────── */
+  .site-header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--p-space-3);
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+
+  .site-header__login {
+    font-family: var(--p-font-body);
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-medium);
+    color: var(--p-color-text-primary);
+    text-decoration: none;
+    padding: var(--p-space-2) var(--p-space-3);
+    border-radius: var(--p-radius-sm);
+    transition: color 0.15s ease;
+  }
+
+  .site-header__login:hover { color: var(--p-color-accent-default); }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--p-space-2) var(--p-space-6);
+    border-radius: var(--p-radius-button);
+    font-family: var(--p-font-body);
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-medium);
+    letter-spacing: var(--p-font-tracking-wide);
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .btn:hover { opacity: 0.85; }
+
+  .btn--primary {
+    background: var(--p-color-accent-default);
+    color: var(--p-color-text-inverse);
+  }
+
+  .btn--secondary {
+    background: transparent;
+    color: var(--p-color-text-primary);
+    border: 1px solid var(--p-color-border-default);
+  }
+
+  /* ── Hamburger ──────────────────────────────────────────────── */
+  .site-header__hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 36px;
+    height: 36px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: var(--p-space-2);
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .site-header__hamburger-bar {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: var(--p-color-text-primary);
+    border-radius: 2px;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+
+  .mobile-open .site-header__hamburger-bar:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .mobile-open .site-header__hamburger-bar:nth-child(2) { opacity: 0; }
+  .mobile-open .site-header__hamburger-bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* ── Mobile Nav ─────────────────────────────────────────────── */
+  .site-header__mobile-nav {
+    display: none;
+    background: var(--p-color-bg-primary);
+    border-top: 1px solid var(--p-color-border-default);
+    padding: var(--p-space-4) var(--p-space-6) var(--p-space-8);
+  }
+
+  .site-mobile-nav__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .site-mobile-nav__item { border-bottom: 1px solid var(--p-color-border-default); }
+
+  .site-mobile-nav__link,
+  .site-mobile-nav__trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: var(--p-space-4) 0;
+    font-family: var(--p-font-body);
+    font-size: var(--p-font-size-md);
+    font-weight: var(--p-font-weight-medium);
+    color: var(--p-color-text-primary);
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .site-mobile-nav__sub {
+    padding-bottom: var(--p-space-4);
+  }
+
+  .site-mobile-nav__sub .nav-group { margin-bottom: var(--p-space-4); }
+
+  .site-mobile-nav__footer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--p-space-3);
+    margin-top: var(--p-space-6);
+  }
+
+  .site-mobile-nav__footer .btn { justify-content: center; }
+
+  /* ── Responsive ─────────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .site-nav,
+    .site-header__actions { display: none; }
+
+    .site-header__hamburger { display: flex; }
+
+    .mobile-open .site-header__mobile-nav { display: block; }
+  }
+</style>

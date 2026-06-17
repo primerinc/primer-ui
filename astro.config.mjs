@@ -21,6 +21,7 @@ export default defineConfig({
         stats_bar:     'storyblok/StatsBar',
         card_grid:     'storyblok/CardGrid',
         button:        'storyblok/Button',
+        header:        'storyblok/Header',
       },
       apiOptions: { region: '' },
     }),
