@@ -44,12 +44,13 @@ const socialIcons: Record<string, string> = {
           <div class="site-footer__social">
             {socialLinks.map((s: any) => {
               const href = s.url?.url || s.url?.cached_url || '#';
-              const icon = socialIcons[s.platform?.toLowerCase()] || '';
+              const platform = s.platform?.value ?? s.platform ?? '';
+              const icon = socialIcons[platform.toLowerCase()] || '';
               return (
                 <a
                   href={href}
                   class="site-footer__social-link"
-                  aria-label={s.platform}
+                  aria-label={platform}
                   target="_blank"
                   rel="noopener noreferrer"
                   {...storyblokEditable(s)}
