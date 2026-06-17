@@ -60,6 +60,7 @@ npm run build:tokens
 | StatsBar         | stats_bar            | src/storyblok/StatsBar.astro          | complete |
 | CardGrid         | card_grid            | src/storyblok/CardGrid.astro          | complete |
 | Header           | header               | src/storyblok/Header.astro            | complete |
+| Footer           | footer               | src/storyblok/Footer.astro            | complete |
 
 Update this table every time a component is added or its status changes.
 

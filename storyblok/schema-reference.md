@@ -193,6 +193,35 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 
 ---
 
+## footer
+
+| Field name          | Type    | Required | Options / Notes                         |
+|---------------------|---------|----------|-----------------------------------------|
+| logo                | Asset   | No       | Image only                              |
+| tagline             | Text    | No       | Short line under logo                   |
+| columns             | Blocks  | No       | Restrict to: footer_column              |
+| social_links        | Blocks  | No       | Restrict to: social_link                |
+| newsletter_enabled  | Boolean | No       | Default false                           |
+| newsletter_heading  | Text    | No       | e.g. "Stay in the loop"                 |
+| copyright           | Text    | No       | e.g. "© 2026 Acme Inc."                 |
+| legal_links         | Blocks  | No       | Restrict to: nav_link                   |
+
+### footer_column (nested block inside footer)
+
+| Field name | Type   | Required | Notes                    |
+|------------|--------|----------|--------------------------|
+| heading    | Text   | No       | Column label             |
+| links      | Blocks | Yes      | Restrict to: nav_link    |
+
+### social_link (nested block inside footer)
+
+| Field name | Type   | Required | Options / Notes                                     |
+|------------|--------|----------|-----------------------------------------------------|
+| platform   | Option | Yes      | linkedin, x, facebook, instagram, youtube           |
+| url        | Link   | Yes      | Multilink                                           |
+
+---
+
 ## Adding new blocks
 
 When you add a new component to the library:
