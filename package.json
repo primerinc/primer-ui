@@ -9,6 +9,7 @@
   },
   "scripts": {
     "build:tokens": "style-dictionary build --config tokens/sd.config.js",
+    "build:tokens:wireframe": "PRIMER_THEME=wireframe style-dictionary build --config tokens/sd.config.js",
     "watch:tokens": "style-dictionary build --watch --config tokens/sd.config.js",
     "dev": "astro dev",
     "build": "astro build",

@@ -58,10 +58,11 @@
       "semibold":{ "value": "600" }
     },
     "leading": {
-      "tight":  { "value": "1.15" },
-      "snug":   { "value": "1.35" },
-      "normal": { "value": "1.6" },
-      "loose":  { "value": "1.8" }
+      "tight":   { "value": "1.15" },
+      "snug":    { "value": "1.35" },
+      "normal":  { "value": "1.6" },
+      "relaxed": { "value": "1.7" },
+      "loose":   { "value": "1.8" }
     },
     "tracking": {
       "tight":  { "value": "-0.01em" },

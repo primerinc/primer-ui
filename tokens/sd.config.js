@@ -1,8 +1,13 @@
+const theme = process.env.PRIMER_THEME;
+
+const sources = [
+  'tokens/primitives.json',
+  'tokens/semantic.json',
+  ...(theme ? [`tokens/themes/${theme}.json`] : [])
+];
+
 export default {
-  source: [
-    'tokens/primitives.json',
-    'tokens/semantic.json'
-  ],
+  source: sources,
   platforms: {
     css: {
       transformGroup: 'css',
