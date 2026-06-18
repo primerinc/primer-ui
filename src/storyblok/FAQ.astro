@@ -1,0 +1,260 @@
+---
+/**
+ * FAQ
+ * Storyblok block name: faq
+ *
+ * Fields: eyebrow, headline, subheadline, items (blocks → faq_item), include_schema
+ * faq_item fields: question, answer (richtext)
+ */
+import { storyblokEditable, renderRichText } from '@storyblok/astro';
+import type { SbBlokData } from '@storyblok/astro';
+
+interface FaqItem extends SbBlokData {
+  question?: string;
+  answer?: Record<string, unknown>;
+}
+
+const { blok } = Astro.props;
+
+const items: FaqItem[] = blok.items ?? [];
+
+// Extract plain text from Storyblok richtext for JSON-LD (schema must not contain HTML)
+function extractPlainText(richtext: Record<string, unknown> | undefined): string {
+  if (!richtext?.content) return '';
+  const nodes = richtext.content as Array<Record<string, unknown>>;
+  const lines: string[] = [];
+  for (const block of nodes) {
+    const inline = block.content as Array<{ text?: string }> | undefined;
+    if (inline) lines.push(inline.map(n => n.text ?? '').join(''));
+  }
+  return lines.join(' ').trim();
+}
+
+const schemaJson = blok.include_schema
+  ? JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: items
+        .filter(item => item.question && item.answer)
+        .map(item => ({
+          '@type': 'Question',
+          name: item.question,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: extractPlainText(item.answer),
+          },
+        })),
+    })
+  : null;
+
+const uid = `faq-${blok._uid}`;
+---
+
+<section {...storyblokEditable(blok)} class="faq">
+  <div class="faq__inner">
+    {(blok.eyebrow || blok.headline || blok.subheadline) && (
+      <div class="faq__header">
+        {blok.eyebrow && <p class="faq__eyebrow">{blok.eyebrow}</p>}
+        {blok.headline && <h2 class="faq__headline">{blok.headline}</h2>}
+        {blok.subheadline && <p class="faq__sub">{blok.subheadline}</p>}
+      </div>
+    )}
+
+    <dl class="faq__list">
+      {items.map((item, i) => {
+        const answerId = `${uid}-answer-${i}`;
+        const btnId   = `${uid}-btn-${i}`;
+        const html    = item.answer ? renderRichText(item.answer) : '';
+
+        return (
+          <div class="faq__item" {...storyblokEditable(item)}>
+            <dt class="faq__question">
+              <button
+                id={btnId}
+                aria-expanded="false"
+                aria-controls={answerId}
+                class="faq__btn"
+                data-faq-btn
+              >
+                <span>{item.question}</span>
+                <svg class="faq__icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </button>
+            </dt>
+            <dd class="faq__answer" id={answerId} role="region" aria-labelledby={btnId} data-faq-answer>
+              <div class="faq__answer-inner">
+                <Fragment set:html={html} />
+              </div>
+            </dd>
+          </div>
+        );
+      })}
+    </dl>
+  </div>
+</section>
+
+{schemaJson && (
+  <script type="application/ld+json" set:html={schemaJson} />
+)}
+
+<script>
+  document.querySelectorAll('[data-faq-btn]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const expanded = btn.getAttribute('aria-expanded') === 'true';
+      const answer   = document.getElementById(btn.getAttribute('aria-controls')!) as HTMLElement;
+
+      btn.setAttribute('aria-expanded', String(!expanded));
+      answer.classList.toggle('is-open', !expanded);
+    });
+  });
+</script>
+
+<style>
+  .faq {
+    padding: var(--p-space-24) var(--p-space-8);
+    background: var(--p-color-bg-primary);
+  }
+
+  .faq__inner {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  .faq__header {
+    margin-bottom: var(--p-space-12);
+    text-align: center;
+  }
+
+  .faq__eyebrow {
+    font-size: var(--p-font-size-xs);
+    font-weight: var(--p-font-weight-medium);
+    letter-spacing: var(--p-font-tracking-wider);
+    text-transform: uppercase;
+    color: var(--p-color-text-tertiary);
+    margin-bottom: var(--p-space-3);
+  }
+
+  .faq__headline {
+    font-family: var(--p-font-display);
+    font-size: var(--p-font-size-3xl);
+    font-weight: var(--p-font-weight-semibold);
+    line-height: var(--p-font-leading-tight);
+    color: var(--p-color-text-primary);
+    margin-bottom: var(--p-space-4);
+  }
+
+  .faq__sub {
+    font-size: var(--p-font-size-lg);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-secondary);
+    line-height: var(--p-font-leading-normal);
+  }
+
+  /* List */
+  .faq__list {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .faq__item {
+    border-bottom: 1px solid var(--p-color-border-default);
+  }
+
+  .faq__item:first-of-type {
+    border-top: 1px solid var(--p-color-border-default);
+  }
+
+  /* Question button */
+  .faq__question {
+    margin: 0;
+  }
+
+  .faq__btn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--p-space-4);
+    width: 100%;
+    padding: var(--p-space-5) 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--p-font-body);
+    font-size: var(--p-font-size-base);
+    font-weight: var(--p-font-weight-medium);
+    color: var(--p-color-text-primary);
+    text-align: left;
+  }
+
+  .faq__btn:hover {
+    color: var(--p-color-text-accent);
+  }
+
+  /* Chevron */
+  .faq__icon {
+    flex-shrink: 0;
+    color: var(--p-color-text-tertiary);
+    transition: transform 0.25s ease;
+  }
+
+  .faq__btn[aria-expanded='true'] .faq__icon {
+    transform: rotate(180deg);
+  }
+
+  /* Answer — CSS grid expand trick */
+  .faq__answer {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.25s ease;
+    margin: 0;
+  }
+
+  .faq__answer.is-open {
+    grid-template-rows: 1fr;
+  }
+
+  .faq__answer-inner {
+    overflow: hidden;
+  }
+
+  /* Rich text styles inside answer */
+  .faq__answer-inner :global(p) {
+    font-size: var(--p-font-size-base);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-secondary);
+    line-height: var(--p-font-leading-relaxed);
+    margin: 0 0 var(--p-space-4);
+  }
+
+  .faq__answer-inner :global(p:last-child) {
+    margin-bottom: var(--p-space-5);
+  }
+
+  .faq__answer-inner :global(ul),
+  .faq__answer-inner :global(ol) {
+    padding-left: var(--p-space-6);
+    margin-bottom: var(--p-space-4);
+  }
+
+  .faq__answer-inner :global(li) {
+    font-size: var(--p-font-size-base);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-secondary);
+    line-height: var(--p-font-leading-relaxed);
+    margin-bottom: var(--p-space-2);
+  }
+
+  .faq__answer-inner :global(a) {
+    color: var(--p-color-text-accent-strong);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .faq__answer-inner :global(strong) {
+    font-weight: var(--p-font-weight-medium);
+    color: var(--p-color-text-primary);
+  }
+</style>

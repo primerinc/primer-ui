@@ -266,6 +266,27 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 
 ---
 
+## faq
+
+| Field name      | Type    | Required | Options / Notes                              |
+|-----------------|---------|----------|----------------------------------------------|
+| eyebrow         | Text    | No       |                                              |
+| headline        | Text    | No       |                                              |
+| subheadline     | Textarea| No       |                                              |
+| items           | Blocks  | Yes      | Restrict to: faq_item                        |
+| include_schema  | Boolean | No       | Default false — injects FAQPage JSON-LD when enabled |
+
+### faq_item (nested block inside faq)
+
+| Field name | Type     | Required | Notes                                              |
+|------------|----------|----------|----------------------------------------------------|
+| question   | Text     | Yes      | Plain text — used as schema `name` field           |
+| answer     | Richtext | Yes      | Supports bold, links, lists — rendered in panel    |
+
+**Schema note:** When `include_schema` is enabled, a `<script type="application/ld+json">` block is injected with `FAQPage` structured data. Plain text is extracted from the richtext answer automatically — HTML is stripped for the schema output.
+
+---
+
 ## Adding new blocks
 
 When you add a new component to the library:

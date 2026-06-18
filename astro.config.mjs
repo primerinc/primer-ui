@@ -25,6 +25,7 @@ export default defineConfig({
         footer:        'storyblok/Footer',
         team:          'storyblok/Team',
         tabs:          'storyblok/Tabs',
+        faq:           'storyblok/FAQ',
       },
       apiOptions: { region: '' },
     }),
