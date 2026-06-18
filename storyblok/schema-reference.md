@@ -222,6 +222,29 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 
 ---
 
+## team
+
+| Field name  | Type     | Required | Options / Notes                     |
+|-------------|----------|----------|-------------------------------------|
+| eyebrow     | Text     | No       |                                     |
+| headline    | Text     | No       |                                     |
+| subheadline | Textarea | No       |                                     |
+| members     | Blocks   | Yes      | Restrict to: team_member            |
+| columns     | Option   | No       | 2, 3 (default), 4                   |
+| layout      | Option   | No       | card (default), minimal             |
+
+### team_member (nested block inside team)
+
+| Field name   | Type  | Required | Notes                           |
+|--------------|-------|----------|---------------------------------|
+| photo        | Asset | No       | Image only — square crop recommended |
+| name         | Text  | Yes      |                                 |
+| title        | Text  | No       | Job title                       |
+| bio          | Textarea | No    |                                 |
+| linkedin_url | Text  | No       | URL field preferred             |
+
+---
+
 ## Adding new blocks
 
 When you add a new component to the library:

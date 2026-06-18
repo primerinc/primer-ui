@@ -61,6 +61,7 @@ npm run build:tokens
 | CardGrid         | card_grid            | src/storyblok/CardGrid.astro          | complete |
 | Header           | header               | src/storyblok/Header.astro            | complete |
 | Footer           | footer               | src/storyblok/Footer.astro            | complete |
+| Team             | team                 | src/storyblok/Team.astro              | complete |
 
 Update this table every time a component is added or its status changes.
 

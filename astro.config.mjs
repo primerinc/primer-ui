@@ -23,6 +23,7 @@ export default defineConfig({
         button:        'storyblok/Button',
         header:        'storyblok/Header',
         footer:        'storyblok/Footer',
+        team:          'storyblok/Team',
       },
       apiOptions: { region: '' },
     }),
