@@ -245,6 +245,27 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 
 ---
 
+## tabs
+
+| Field name  | Type     | Required | Options / Notes                        |
+|-------------|----------|----------|----------------------------------------|
+| eyebrow     | Text     | No       |                                        |
+| headline    | Text     | No       |                                        |
+| subheadline | Textarea | No       |                                        |
+| items       | Blocks   | Yes      | Restrict to: tab_item                  |
+| layout      | Option   | No       | horizontal (default), vertical         |
+
+### tab_item (nested block inside tabs)
+
+| Field name | Type     | Required | Notes                                    |
+|------------|----------|----------|------------------------------------------|
+| label      | Text     | Yes      | Short tab button label                   |
+| title      | Text     | No       | Panel heading                            |
+| body       | Textarea | No       | Panel body copy                          |
+| image      | Asset    | No       | Optional panel image (3:2 crop recommended) |
+
+---
+
 ## Adding new blocks
 
 When you add a new component to the library:

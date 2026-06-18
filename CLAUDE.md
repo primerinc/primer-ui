@@ -62,6 +62,7 @@ npm run build:tokens
 | Header           | header               | src/storyblok/Header.astro            | complete |
 | Footer           | footer               | src/storyblok/Footer.astro            | complete |
 | Team             | team                 | src/storyblok/Team.astro              | complete |
+| Tabs             | tabs                 | src/storyblok/Tabs.astro              | complete |
 
 Update this table every time a component is added or its status changes.
 

@@ -1,0 +1,356 @@
+---
+/**
+ * Tabs
+ * Storyblok block name: tabs
+ *
+ * Fields: eyebrow, headline, subheadline, items (blocks → tab_item), layout
+ * tab_item fields: label, title, body, image
+ */
+import { storyblokEditable } from '@storyblok/astro';
+import type { SbBlokData } from '@storyblok/astro';
+
+interface TabItem extends SbBlokData {
+  label?: string;
+  title?: string;
+  body?: string;
+  image?: { filename: string; alt?: string };
+}
+
+const { blok } = Astro.props;
+
+const layout = blok.layout || 'horizontal';
+const items: TabItem[] = blok.items ?? [];
+const uid = `tabs-${blok._uid}`;
+---
+
+<section {...storyblokEditable(blok)} class:list={['tabs', `tabs--${layout}`]} data-tabs>
+  <div class="tabs__inner">
+    {(blok.eyebrow || blok.headline || blok.subheadline) && (
+      <div class="tabs__header">
+        {blok.eyebrow && <p class="tabs__eyebrow">{blok.eyebrow}</p>}
+        {blok.headline && <h2 class="tabs__headline">{blok.headline}</h2>}
+        {blok.subheadline && <p class="tabs__sub">{blok.subheadline}</p>}
+      </div>
+    )}
+
+    <div class="tabs__body">
+      <div class="tabs__nav" role="tablist" aria-label={blok.headline ?? 'Tabs'}>
+        {items.map((item, i) => (
+          <button
+            {...storyblokEditable(item)}
+            role="tab"
+            id={`${uid}-tab-${i}`}
+            aria-controls={`${uid}-panel-${i}`}
+            aria-selected={i === 0 ? 'true' : 'false'}
+            class="tabs__tab"
+            tabindex={i === 0 ? 0 : -1}
+            data-tab-btn
+          >
+            {item.label ?? `Tab ${i + 1}`}
+          </button>
+        ))}
+      </div>
+
+      <div class="tabs__panels">
+        {items.map((item, i) => {
+          const imageUrl = item.image?.filename
+            ? `${item.image.filename}/m/900x600/filters:quality(85)`
+            : null;
+
+          return (
+            <div
+              role="tabpanel"
+              id={`${uid}-panel-${i}`}
+              aria-labelledby={`${uid}-tab-${i}`}
+              class="tabs__panel"
+              hidden={i !== 0}
+              data-tab-panel
+            >
+              <div class:list={['tabs__panel-inner', imageUrl && 'tabs__panel-inner--has-image']}>
+                <div class="tabs__panel-text">
+                  {item.title && <h3 class="tabs__panel-title">{item.title}</h3>}
+                  {item.body && <p class="tabs__panel-body">{item.body}</p>}
+                </div>
+                {imageUrl && (
+                  <div class="tabs__panel-media">
+                    <img
+                      src={imageUrl}
+                      alt={item.image?.alt ?? ''}
+                      class="tabs__panel-img"
+                      loading="lazy"
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll('[data-tabs]').forEach((tabs) => {
+    const buttons = tabs.querySelectorAll<HTMLButtonElement>('[data-tab-btn]');
+    const panels  = tabs.querySelectorAll<HTMLElement>('[data-tab-panel]');
+
+    function activate(index: number) {
+      buttons.forEach((btn, i) => {
+        const active = i === index;
+        btn.setAttribute('aria-selected', String(active));
+        btn.tabIndex = active ? 0 : -1;
+      });
+      panels.forEach((panel, i) => {
+        if (i === index) panel.removeAttribute('hidden');
+        else panel.setAttribute('hidden', '');
+      });
+    }
+
+    buttons.forEach((btn, i) => {
+      btn.addEventListener('click', () => activate(i));
+
+      btn.addEventListener('keydown', (e) => {
+        const isVertical = tabs.classList.contains('tabs--vertical');
+        const prev = isVertical ? 'ArrowUp'   : 'ArrowLeft';
+        const next = isVertical ? 'ArrowDown'  : 'ArrowRight';
+
+        if (e.key === prev) {
+          e.preventDefault();
+          const target = (i - 1 + buttons.length) % buttons.length;
+          activate(target);
+          buttons[target].focus();
+        } else if (e.key === next) {
+          e.preventDefault();
+          const target = (i + 1) % buttons.length;
+          activate(target);
+          buttons[target].focus();
+        } else if (e.key === 'Home') {
+          e.preventDefault();
+          activate(0);
+          buttons[0].focus();
+        } else if (e.key === 'End') {
+          e.preventDefault();
+          const last = buttons.length - 1;
+          activate(last);
+          buttons[last].focus();
+        }
+      });
+    });
+  });
+</script>
+
+<style>
+  .tabs {
+    padding: var(--p-space-24) var(--p-space-8);
+    background: var(--p-color-bg-primary);
+  }
+
+  .tabs__inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .tabs__header {
+    max-width: 640px;
+    margin: 0 auto var(--p-space-12);
+    text-align: center;
+  }
+
+  .tabs__eyebrow {
+    font-size: var(--p-font-size-xs);
+    font-weight: var(--p-font-weight-medium);
+    letter-spacing: var(--p-font-tracking-wider);
+    text-transform: uppercase;
+    color: var(--p-color-text-tertiary);
+    margin-bottom: var(--p-space-3);
+  }
+
+  .tabs__headline {
+    font-family: var(--p-font-display);
+    font-size: var(--p-font-size-3xl);
+    font-weight: var(--p-font-weight-semibold);
+    line-height: var(--p-font-leading-tight);
+    color: var(--p-color-text-primary);
+    margin-bottom: var(--p-space-4);
+  }
+
+  .tabs__sub {
+    font-size: var(--p-font-size-lg);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-secondary);
+    line-height: var(--p-font-leading-normal);
+  }
+
+  /* ── Horizontal layout (default) ── */
+  .tabs--horizontal .tabs__body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tabs--horizontal .tabs__nav {
+    display: flex;
+    gap: var(--p-space-1);
+    border-bottom: 2px solid var(--p-color-border-default);
+    margin-bottom: var(--p-space-10);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .tabs--horizontal .tabs__nav::-webkit-scrollbar { display: none; }
+
+  /* ── Vertical layout ── */
+  .tabs--vertical .tabs__body {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: var(--p-space-8);
+    align-items: start;
+  }
+
+  .tabs--vertical .tabs__nav {
+    display: flex;
+    flex-direction: column;
+    gap: var(--p-space-1);
+    border-right: 2px solid var(--p-color-border-default);
+    padding-right: var(--p-space-4);
+  }
+
+  /* ── Tab buttons ── */
+  .tabs__tab {
+    padding: var(--p-space-3) var(--p-space-4);
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-medium);
+    font-family: var(--p-font-body);
+    color: var(--p-color-text-secondary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    border-radius: var(--p-radius-sm) var(--p-radius-sm) 0 0;
+    position: relative;
+    transition: color 0.15s ease;
+  }
+
+  .tabs--vertical .tabs__tab {
+    border-radius: var(--p-radius-sm) 0 0 var(--p-radius-sm);
+    text-align: left;
+    white-space: normal;
+  }
+
+  .tabs__tab::after {
+    content: '';
+    position: absolute;
+    background: var(--p-color-text-accent);
+    transition: opacity 0.15s ease;
+    opacity: 0;
+  }
+
+  .tabs--horizontal .tabs__tab::after {
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+  }
+
+  .tabs--vertical .tabs__tab::after {
+    top: 0;
+    bottom: 0;
+    right: -2px;
+    width: 2px;
+  }
+
+  .tabs__tab[aria-selected='true'] {
+    color: var(--p-color-text-primary);
+  }
+
+  .tabs__tab[aria-selected='true']::after {
+    opacity: 1;
+  }
+
+  .tabs__tab:hover {
+    color: var(--p-color-text-primary);
+  }
+
+  /* ── Panels ── */
+  .tabs__panel {
+    outline: none;
+  }
+
+  .tabs__panel-inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--p-space-8);
+  }
+
+  .tabs__panel-inner--has-image {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: var(--p-space-12);
+  }
+
+  .tabs__panel-title {
+    font-family: var(--p-font-display);
+    font-size: var(--p-font-size-2xl);
+    font-weight: var(--p-font-weight-semibold);
+    line-height: var(--p-font-leading-tight);
+    color: var(--p-color-text-primary);
+    margin-bottom: var(--p-space-4);
+  }
+
+  .tabs__panel-body {
+    font-size: var(--p-font-size-base);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-secondary);
+    line-height: var(--p-font-leading-relaxed);
+  }
+
+  .tabs__panel-media {
+    border-radius: var(--p-radius-card);
+    overflow: hidden;
+    background: var(--p-color-bg-secondary);
+  }
+
+  .tabs__panel-img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .tabs--vertical .tabs__body {
+      grid-template-columns: 1fr;
+    }
+
+    .tabs--vertical .tabs__nav {
+      flex-direction: row;
+      border-right: none;
+      border-bottom: 2px solid var(--p-color-border-default);
+      padding-right: 0;
+      padding-bottom: var(--p-space-1);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .tabs--vertical .tabs__nav::-webkit-scrollbar { display: none; }
+
+    .tabs--vertical .tabs__tab {
+      border-radius: var(--p-radius-sm) var(--p-radius-sm) 0 0;
+      white-space: nowrap;
+    }
+
+    .tabs--vertical .tabs__tab::after {
+      top: auto;
+      right: 0;
+      bottom: -2px;
+      left: 0;
+      width: auto;
+      height: 2px;
+    }
+
+    .tabs__panel-inner--has-image {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
