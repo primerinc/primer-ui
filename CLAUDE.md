@@ -135,6 +135,42 @@ This repo uses Style Dictionary v5. Token references in JSON files use the v5 sy
 
 ---
 
+## Figma design system — component build status
+
+Figma file: https://www.figma.com/design/ePSkKvHKM4v0RdoUYcz2N0/Primer-Design-System
+
+Variables: `primitives` collection (60 vars) + `semantic` collection (31 vars, 2 modes: `semantic` / `Wireframe`).
+Wireframe mode swaps brand/accent colors to blue — Brian applies it per-frame from the Variables panel.
+
+### **RESUME HERE NEXT SESSION — build remaining components in this order:**
+
+> All section components are now done in Figma. Remaining: Stats Bar, Testimonial, Team, Tabs (all have Astro components; Figma counterparts not yet built).
+
+| Component        | Figma page      | Variants                          | Status      | Node ID  |
+|------------------|-----------------|-----------------------------------|-------------|----------|
+| Button           | Button          | Style × State (6 variants)        | ✅ done     | 11:8     |
+| Hero             | Hero            | Layout=Centered/Left-Aligned      | ✅ done     | 14:20    |
+| CTA Banner       | CTA Banner      | Style=Accent/Dark/Light           | ✅ done     | 16:26    |
+| Two Column       | Two Column      | Image Side=Right/Left             | ✅ done     | 18:22    |
+| Logo Bar         | Logo Bar        | Display=Grid/Marquee              | ✅ done     | 24:27    |
+| Feature Grid     | Feature Grid    | Columns=2/3/4                     | ✅ done     | 26:84    |
+| Card Grid        | Card Grid       | Columns=2/3                       | ✅ done     | 28:90    |
+| Header           | Header          | Announcement=False/True           | ✅ done     | 29:38    |
+| Footer           | Footer          | Newsletter=False/True             | ✅ done     | 77:48    |
+| Stats Bar        | Stats Bar       | —                                 | ⬜ queued   | —        |
+| Testimonial      | Testimonial     | Layout=Grid/Carousel              | ✅ done     | 88:23    |
+| Team             | Team            | Layout=Card/Minimal               | ⬜ queued   | —        |
+| Tabs             | Tabs            | Layout=Horizontal/Vertical        | ⬜ queued   | —        |
+| FAQ              | FAQ             | Expanded=False/True               | ✅ done     | 79:91    |
+
+### Figma sizing conventions (learned the hard way)
+- **VERTICAL auto-layout sections** (most section components): after `resize(1440, 1)` set `primaryAxisSizingMode = 'AUTO'` → height hugs children, width stays 1440px
+- **HORIZONTAL auto-layout sections** (Hero, CTA, TwoColumn outer): after `resize(1440, 1)` set `counterAxisSizingMode = 'AUTO'` → height hugs, width stays 1440px
+- `combineAsVariants` stacks all at (0,0) — always manually reposition and resize the set after combining
+- Button component set node ID is always `11:8` — use `figma.getNodeByIdAsync('11:8')` for instances
+
+---
+
 ## Adding a new component — checklist
 - [ ] Create `src/storyblok/[Name].astro` following the standard structure
 - [ ] Use `blok` prop with `storyblokEditable` on the root element
