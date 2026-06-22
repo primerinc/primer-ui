@@ -10,10 +10,11 @@ import type { SbBlokData } from '@storyblok/astro';
 
 const { blok } = Astro.props;
 
-const columns = blok.columns || 3;
+const columns   = blok.columns || 3;
+const textAlign = blok.text_align || 'center';
 ---
 
-<section {...storyblokEditable(blok)} class="features">
+<section {...storyblokEditable(blok)} class:list={['features', `features--align-${textAlign}`]}>
   <div class="features__container">
     <div class="features__header">
       {blok.eyebrow && <p class="features__eyebrow">{blok.eyebrow}</p>}
@@ -78,6 +79,13 @@ const columns = blok.columns || 3;
     font-weight: var(--p-font-weight-light);
     color: var(--p-color-text-secondary);
     line-height: var(--p-font-leading-normal);
+  }
+
+  /* Left-aligned header — removes auto-margin centering */
+  .features--align-left .features__header {
+    margin-left: 0;
+    margin-right: auto;
+    text-align: left;
   }
 
   .features__grid {

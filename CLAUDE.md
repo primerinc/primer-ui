@@ -144,16 +144,16 @@ Wireframe mode swaps brand/accent colors to blue — Brian applies it per-frame 
 
 ### **RESUME HERE NEXT SESSION — build remaining components in this order:**
 
-> All section components are now done in Figma. Remaining: Stats Bar, Testimonial, Team, Tabs (all have Astro components; Figma counterparts not yet built).
+> CTA Banner and Feature Grid now have Align=Left/Center variants (6 variants each). Remaining Figma builds: Stats Bar, Team, Tabs (Testimonial done at 88:23).
 
 | Component        | Figma page      | Variants                          | Status      | Node ID  |
 |------------------|-----------------|-----------------------------------|-------------|----------|
 | Button           | Button          | Style × State (6 variants)        | ✅ done     | 11:8     |
 | Hero             | Hero            | Layout=Centered/Left-Aligned      | ✅ done     | 14:20    |
-| CTA Banner       | CTA Banner      | Style=Accent/Dark/Light           | ✅ done     | 16:26    |
+| CTA Banner       | CTA Banner      | Style=Accent/Dark/Light × Align=Left/Center | ✅ done | 96:33 |
 | Two Column       | Two Column      | Image Side=Right/Left             | ✅ done     | 18:22    |
 | Logo Bar         | Logo Bar        | Display=Grid/Marquee              | ✅ done     | 24:27    |
-| Feature Grid     | Feature Grid    | Columns=2/3/4                     | ✅ done     | 26:84    |
+| Feature Grid     | Feature Grid    | Columns=2/3/4 × Align=Center/Left | ✅ done     | 98:84    |
 | Card Grid        | Card Grid       | Columns=2/3                       | ✅ done     | 28:90    |
 | Header           | Header          | Announcement=False/True           | ✅ done     | 29:38    |
 | Footer           | Footer          | Newsletter=False/True             | ✅ done     | 77:48    |

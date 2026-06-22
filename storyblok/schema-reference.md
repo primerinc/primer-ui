@@ -31,6 +31,7 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 | subheadline  | Textarea| No       |                              |
 | features     | Blocks  | Yes      | Restrict to: feature_item    |
 | columns      | Option  | No       | 2, 3 (default), 4            |
+| text_align   | Option  | No       | center (default), left       |
 
 ### feature_item (nested block inside feature_grid)
 
@@ -64,13 +65,21 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 
 ## cta_banner
 
-| Field name        | Type   | Required | Options / Notes                   |
-|-------------------|--------|----------|-----------------------------------|
-| headline          | Text   | Yes      |                                   |
-| subheadline       | Textarea | No     |                                   |
-| cta_label         | Text   | Yes      |                                   |
-| cta_url           | Text   | Yes      |                                   |
-| background_style  | Option | No       | accent (default), dark, light     |
+| Field name        | Type   | Required | Options / Notes                                       |
+|-------------------|--------|----------|-------------------------------------------------------|
+| headline          | Text   | Yes      |                                                       |
+| subheadline       | Textarea | No     |                                                       |
+| buttons           | Blocks | No       | Restrict to: button                                   |
+| background_style  | Option | No       | accent (default), dark, light                         |
+| text_align        | Option | No       | left (default), center                                |
+
+### button (nested block inside cta_banner)
+
+| Field name | Type | Required | Options / Notes                        |
+|------------|------|----------|----------------------------------------|
+| text       | Text | Yes      | Button label                           |
+| link       | Link | Yes      | Multilink                              |
+| variant    | Option | No     | primary (default), secondary           |
 
 ---
 
