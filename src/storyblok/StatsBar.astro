@@ -9,9 +9,11 @@ import { storyblokEditable } from '@storyblok/astro';
 import type { SbBlokData } from '@storyblok/astro';
 
 const { blok } = Astro.props;
+
+const bg = blok.background || 'secondary';
 ---
 
-<section {...storyblokEditable(blok)} class="stats-bar">
+<section {...storyblokEditable(blok)} class:list={['stats-bar', `stats-bar--bg-${bg}`]}>
   <div class="stats-bar__inner">
     {blok.eyebrow && <p class="stats-bar__eyebrow">{blok.eyebrow}</p>}
     <ul class="stats-bar__list" role="list">
@@ -27,6 +29,9 @@ const { blok } = Astro.props;
 </section>
 
 <style>
+  .stats-bar--bg-primary       { background: var(--p-color-bg-primary); }
+  .stats-bar--bg-accent-subtle { background: var(--p-color-bg-accent); }
+
   .stats-bar {
     padding: var(--p-space-20) var(--p-space-8);
     background: var(--p-color-bg-secondary);

@@ -10,6 +10,7 @@ import { storyblokEditable } from '@storyblok/astro';
 const { blok } = Astro.props;
 
 const imageSide = blok.image_side || 'right';
+const bg        = blok.background || 'primary';
 
 const imageUrl = blok.image?.filename
   ? `${blok.image.filename}/m/1200x0/filters:quality(85)`
@@ -18,7 +19,7 @@ const imageUrl = blok.image?.filename
 
 <section
   {...storyblokEditable(blok)}
-  class:list={['two-col', `two-col--image-${imageSide}`]}
+  class:list={['two-col', `two-col--image-${imageSide}`, `two-col--bg-${bg}`]}
 >
   <div class="two-col__inner">
     <div class="two-col__copy">
@@ -44,6 +45,9 @@ const imageUrl = blok.image?.filename
 </section>
 
 <style>
+  .two-col--bg-secondary     { background: var(--p-color-bg-secondary); }
+  .two-col--bg-accent-subtle { background: var(--p-color-bg-accent); }
+
   .two-col {
     padding: var(--p-space-24) var(--p-space-8);
     background: var(--p-color-bg-primary);

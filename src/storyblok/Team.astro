@@ -20,10 +20,11 @@ interface TeamMember extends SbBlokData {
 const { blok } = Astro.props;
 
 const columns = blok.columns || 3;
-const layout = blok.layout || 'card';
+const layout  = blok.layout || 'card';
+const bg      = blok.background || 'primary';
 ---
 
-<section {...storyblokEditable(blok)} class="team">
+<section {...storyblokEditable(blok)} class:list={['team', `team--bg-${bg}`]}>
   <div class="team__inner">
     {(blok.eyebrow || blok.headline || blok.subheadline) && (
       <div class="team__header">
@@ -67,6 +68,9 @@ const layout = blok.layout || 'card';
 </section>
 
 <style>
+  .team--bg-secondary     { background: var(--p-color-bg-secondary); }
+  .team--bg-accent-subtle { background: var(--p-color-bg-accent); }
+
   .team {
     padding: var(--p-space-24) var(--p-space-8);
     background: var(--p-color-bg-primary);

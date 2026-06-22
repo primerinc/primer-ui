@@ -10,6 +10,7 @@ import { storyblokEditable } from '@storyblok/astro';
 const { blok } = Astro.props;
 
 const layout = blok.layout || 'centered';
+const bg     = blok.background || 'secondary';
 
 const imageUrl = blok.background_image?.filename
   ? `${blok.background_image.filename}/m/1600x0/filters:quality(80)`
@@ -20,7 +21,7 @@ const buttons = blok.buttons || [];
 
 <section
   {...storyblokEditable(blok)}
-  class:list={['hero', `hero--${layout}`]}
+  class:list={['hero', `hero--${layout}`, `hero--bg-${bg}`]}
   style={imageUrl ? `--hero-bg: url('${imageUrl}')` : ''}
 >
   <div class="hero__inner">
@@ -43,6 +44,9 @@ const buttons = blok.buttons || [];
 </section>
 
 <style>
+  .hero--bg-primary       { background-color: var(--p-color-bg-primary); }
+  .hero--bg-accent-subtle { background-color: var(--p-color-bg-accent); }
+
   .hero {
     background-color: var(--p-color-bg-secondary);
     padding: var(--p-space-24) var(--p-space-8);

@@ -17,6 +17,7 @@ interface FaqItem extends SbBlokData {
 const { blok } = Astro.props;
 
 const items: FaqItem[] = blok.items ?? [];
+const bg = blok.background || 'primary';
 
 // Extract plain text from Storyblok richtext for JSON-LD (schema must not contain HTML)
 function extractPlainText(richtext: Record<string, unknown> | undefined): string {
@@ -50,7 +51,7 @@ const schemaJson = blok.include_schema
 const uid = `faq-${blok._uid}`;
 ---
 
-<section {...storyblokEditable(blok)} class="faq">
+<section {...storyblokEditable(blok)} class:list={['faq', `faq--bg-${bg}`]}>
   <div class="faq__inner">
     {(blok.eyebrow || blok.headline || blok.subheadline) && (
       <div class="faq__header">
@@ -111,6 +112,9 @@ const uid = `faq-${blok._uid}`;
 </script>
 
 <style>
+  .faq--bg-secondary     { background: var(--p-color-bg-secondary); }
+  .faq--bg-accent-subtle { background: var(--p-color-bg-accent); }
+
   .faq {
     padding: var(--p-space-24) var(--p-space-8);
     background: var(--p-color-bg-primary);

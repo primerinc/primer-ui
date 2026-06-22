@@ -10,15 +10,19 @@ import { storyblokEditable, renderRichText } from '@storyblok/astro';
 const { blok } = Astro.props;
 
 const html = blok.content ? renderRichText(blok.content) : '';
+const bg   = blok.background || 'primary';
 ---
 
-<section {...storyblokEditable(blok)} class="rich-text">
+<section {...storyblokEditable(blok)} class:list={['rich-text', `rich-text--bg-${bg}`]}>
   <div class="rich-text__inner">
     <Fragment set:html={html} />
   </div>
 </section>
 
 <style>
+  .rich-text--bg-secondary     { background: var(--p-color-bg-secondary); }
+  .rich-text--bg-accent-subtle { background: var(--p-color-bg-accent); }
+
   .rich-text {
     padding: var(--p-space-16) var(--p-space-8);
     background: var(--p-color-bg-primary);

@@ -12,9 +12,10 @@ const { blok } = Astro.props;
 
 const columns   = blok.columns || 3;
 const textAlign = blok.text_align || 'center';
+const bg        = blok.background || 'primary';
 ---
 
-<section {...storyblokEditable(blok)} class:list={['features', `features--align-${textAlign}`]}>
+<section {...storyblokEditable(blok)} class:list={['features', `features--align-${textAlign}`, `features--bg-${bg}`]}>
   <div class="features__container">
     <div class="features__header">
       {blok.eyebrow && <p class="features__eyebrow">{blok.eyebrow}</p>}
@@ -25,9 +26,9 @@ const textAlign = blok.text_align || 'center';
     <ul class:list={['features__grid', `features__grid--${columns}`]} role="list">
       {blok.features?.map((feature: SbBlokData) => (
         <li class="feature-card" {...storyblokEditable(feature)}>
-          {feature.icon && (
+          {(feature.icon as any)?.filename && (
             <div class="feature-card__icon" aria-hidden="true">
-              <Fragment set:html={feature.icon} />
+              <img src={(feature.icon as any).filename} alt="" width="24" height="24" />
             </div>
           )}
           <h3 class="feature-card__title">{feature.title}</h3>
@@ -39,6 +40,9 @@ const textAlign = blok.text_align || 'center';
 </section>
 
 <style>
+  .features--bg-secondary     { background: var(--p-color-bg-secondary); }
+  .features--bg-accent-subtle { background: var(--p-color-bg-accent); }
+
   .features {
     padding: var(--p-space-24) var(--p-space-8);
     background: var(--p-color-bg-primary);
@@ -116,13 +120,13 @@ const textAlign = blok.text_align || 'center';
   .feature-card__icon {
     width: 40px;
     height: 40px;
-    background: var(--p-color-accent-subtle);
-    border-radius: var(--p-radius-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
     margin-bottom: var(--p-space-5);
-    color: var(--p-color-accent-default);
+  }
+
+  .feature-card__icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
   }
 
   .feature-card__title {

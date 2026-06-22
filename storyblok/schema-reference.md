@@ -19,6 +19,7 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 | cta_secondary_url    | Text     | No       | URL field preferred          |
 | background_image     | Asset    | No       | Image only                   |
 | layout               | Option   | No       | centered (default), left-aligned |
+| background           | Option   | No       | secondary (default), primary, accent-subtle |
 
 ---
 
@@ -32,14 +33,15 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 | features     | Blocks  | Yes      | Restrict to: feature_item    |
 | columns      | Option  | No       | 2, 3 (default), 4            |
 | text_align   | Option  | No       | center (default), left       |
+| background   | Option  | No       | primary (default), secondary, accent-subtle |
 
 ### feature_item (nested block inside feature_grid)
 
-| Field name  | Type     | Required | Notes                         |
-|-------------|----------|----------|-------------------------------|
-| icon        | Textarea | No       | Paste inline SVG here         |
-| title       | Text     | Yes      |                               |
-| description | Textarea | Yes      |                               |
+| Field name  | Type     | Required | Notes                              |
+|-------------|----------|----------|------------------------------------|
+| icon        | Asset    | No       | SVG or PNG — rendered as `<img>`   |
+| title       | Text     | Yes      |                                    |
+| description | Textarea | Yes      |                                    |
 
 ---
 
@@ -51,6 +53,7 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 | headline    | Text   | No       |                                |
 | items       | Blocks | Yes      | Restrict to: testimonial_item  |
 | layout      | Option | No       | grid (default), carousel       |
+| background  | Option | No       | primary (default), secondary, accent-subtle |
 
 ### testimonial_item (nested block inside testimonial_block)
 
@@ -111,6 +114,7 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 | cta_url     | Text     | No       |                              |
 | image       | Asset    | No       | Image only                   |
 | image_side  | Option   | No       | right (default), left        |
+| background  | Option   | No       | primary (default), secondary, accent-subtle |
 
 ---
 
@@ -119,6 +123,7 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 | Field name | Type      | Required | Notes                          |
 |------------|-----------|----------|--------------------------------|
 | content    | Richtext  | Yes      | Storyblok richtext field       |
+| background | Option    | No       | primary (default), secondary, accent-subtle |
 
 ---
 
@@ -128,6 +133,7 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 |------------|--------|----------|---------------------------------|
 | eyebrow    | Text   | No       | e.g. "By the numbers"           |
 | stats      | Blocks | Yes      | Restrict to: stat_item          |
+| background | Option | No       | secondary (default), primary, accent-subtle |
 
 ### stat_item (nested block inside stats_bar)
 
@@ -148,6 +154,7 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 | subheadline | Textarea | No       |                              |
 | cards       | Blocks   | Yes      | Restrict to: card_item       |
 | columns     | Option   | No       | 2, 3 (default)               |
+| background  | Option   | No       | primary (default), secondary, accent-subtle |
 
 ### card_item (nested block inside card_grid)
 
@@ -241,6 +248,7 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 | members     | Blocks   | Yes      | Restrict to: team_member            |
 | columns     | Option   | No       | 2, 3 (default), 4                   |
 | layout      | Option   | No       | card (default), minimal             |
+| background  | Option   | No       | primary (default), secondary, accent-subtle |
 
 ### team_member (nested block inside team)
 
@@ -263,6 +271,7 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 | subheadline | Textarea | No       |                                        |
 | items       | Blocks   | Yes      | Restrict to: tab_item                  |
 | layout      | Option   | No       | horizontal (default), vertical         |
+| background  | Option   | No       | primary (default), secondary, accent-subtle |
 
 ### tab_item (nested block inside tabs)
 
@@ -284,6 +293,7 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 | subheadline     | Textarea| No       |                                              |
 | items           | Blocks  | Yes      | Restrict to: faq_item                        |
 | include_schema  | Boolean | No       | Default false — injects FAQPage JSON-LD when enabled |
+| background      | Option  | No       | primary (default), secondary, accent-subtle  |
 
 ### faq_item (nested block inside faq)
 
