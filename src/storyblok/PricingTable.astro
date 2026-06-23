@@ -1,0 +1,405 @@
+---
+/**
+ * PricingTable
+ * Storyblok block name: pricing_table
+ *
+ * Fields: eyebrow, headline, subheadline, plans (blocks → pricing_plan),
+ *         toggle_enabled, toggle_label_monthly, toggle_label_annual, background
+ * pricing_plan fields: name, description, price_monthly, price_annual, price_suffix,
+ *                      features (blocks → pricing_feature), cta_label, cta_url,
+ *                      cta_variant, highlighted, badge
+ * pricing_feature fields: text, included
+ */
+import { storyblokEditable } from '@storyblok/astro';
+import type { SbBlokData } from '@storyblok/astro';
+
+interface PricingFeature extends SbBlokData {
+  text?: string;
+  included?: boolean;
+}
+
+interface PricingPlan extends SbBlokData {
+  name?: string;
+  description?: string;
+  price_monthly?: string;
+  price_annual?: string;
+  price_suffix?: string;
+  features?: PricingFeature[];
+  cta_label?: string;
+  cta_url?: { cached_url?: string } | string;
+  cta_variant?: string;
+  highlighted?: boolean;
+  badge?: string;
+}
+
+const { blok } = Astro.props;
+
+const plans: PricingPlan[] = blok.plans ?? [];
+const bg             = blok.background || 'primary';
+const toggleEnabled  = blok.toggle_enabled ?? false;
+const monthlyLabel   = blok.toggle_label_monthly || 'Monthly';
+const annualLabel    = blok.toggle_label_annual  || 'Annual';
+---
+
+<section {...storyblokEditable(blok)} class:list={['pricing', `pricing--bg-${bg}`]}>
+  <div class="pricing__inner">
+    {(blok.eyebrow || blok.headline || blok.subheadline) && (
+      <div class="pricing__header">
+        {blok.eyebrow    && <p class="pricing__eyebrow">{blok.eyebrow}</p>}
+        {blok.headline   && <h2 class="pricing__headline">{blok.headline}</h2>}
+        {blok.subheadline && <p class="pricing__sub">{blok.subheadline}</p>}
+      </div>
+    )}
+
+    {toggleEnabled && (
+      <div class="pricing__toggle">
+        <span class="pricing__toggle-label">{monthlyLabel}</span>
+        <button
+          class="pricing__toggle-btn"
+          role="switch"
+          aria-checked="false"
+          aria-label={`Switch to ${annualLabel} pricing`}
+          data-pricing-toggle
+        >
+          <span class="pricing__toggle-thumb" />
+        </button>
+        <span class="pricing__toggle-label">{annualLabel}</span>
+      </div>
+    )}
+
+    <ul class="pricing__grid" role="list">
+      {plans.map((plan) => {
+        const href       = typeof plan.cta_url === 'string'
+          ? plan.cta_url
+          : (plan.cta_url as any)?.cached_url ?? '#';
+        const btnVariant = plan.cta_variant || (plan.highlighted ? 'primary' : 'secondary');
+
+        return (
+          <li class:list={['pricing-card', plan.highlighted && 'pricing-card--highlighted']} {...storyblokEditable(plan)}>
+            {plan.badge && <span class="pricing-card__badge">{plan.badge}</span>}
+
+            <div class="pricing-card__header">
+              {plan.name        && <h3 class="pricing-card__name">{plan.name}</h3>}
+              {plan.description && <p  class="pricing-card__desc">{plan.description}</p>}
+            </div>
+
+            <div class="pricing-card__price-wrap">
+              <span
+                class="pricing-card__amount"
+                data-monthly={plan.price_monthly}
+                data-annual={plan.price_annual}
+              >
+                {plan.price_monthly || plan.price_annual}
+              </span>
+              {plan.price_suffix && <span class="pricing-card__suffix">{plan.price_suffix}</span>}
+            </div>
+
+            {plan.features && plan.features.length > 0 && (
+              <ul class="pricing-card__features" role="list">
+                {plan.features.map((f) => (
+                  <li
+                    class:list={['pricing-card__feature', f.included === false && 'pricing-card__feature--excluded']}
+                    {...storyblokEditable(f)}
+                  >
+                    {f.included !== false ? (
+                      <svg class="pricing-card__icon pricing-card__icon--check" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    ) : (
+                      <svg class="pricing-card__icon pricing-card__icon--x" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                      </svg>
+                    )}
+                    <span>{f.text}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <a href={href} class:list={['pricing-card__btn', `pricing-card__btn--${btnVariant}`]}>
+              {plan.cta_label || 'Get started'}
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+</section>
+
+{toggleEnabled && (
+  <script>
+    document.querySelectorAll('[data-pricing-toggle]').forEach((btn) => {
+      const section = btn.closest('.pricing');
+      if (!section) return;
+
+      btn.addEventListener('click', () => {
+        const nowAnnual = btn.getAttribute('aria-checked') !== 'true';
+        btn.setAttribute('aria-checked', String(nowAnnual));
+
+        section.querySelectorAll<HTMLElement>('[data-monthly][data-annual]').forEach((el) => {
+          el.textContent = nowAnnual
+            ? (el.dataset.annual || el.dataset.monthly || '')
+            : (el.dataset.monthly || '');
+        });
+      });
+    });
+  </script>
+)}
+
+<style>
+  .pricing--bg-secondary     { background: var(--p-color-bg-secondary); }
+  .pricing--bg-accent-subtle { background: var(--p-color-bg-accent); }
+
+  .pricing {
+    padding: var(--p-space-24) var(--p-space-8);
+    background: var(--p-color-bg-primary);
+  }
+
+  .pricing__inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .pricing__header {
+    max-width: 640px;
+    margin: 0 auto var(--p-space-12);
+    text-align: center;
+  }
+
+  .pricing__eyebrow {
+    font-size: var(--p-font-size-xs);
+    font-weight: var(--p-font-weight-medium);
+    letter-spacing: var(--p-font-tracking-wider);
+    text-transform: uppercase;
+    color: var(--p-color-text-tertiary);
+    margin-bottom: var(--p-space-3);
+  }
+
+  .pricing__headline {
+    font-family: var(--p-font-display);
+    font-size: var(--p-font-size-3xl);
+    font-weight: var(--p-font-weight-semibold);
+    line-height: var(--p-font-leading-tight);
+    color: var(--p-color-text-primary);
+    margin-bottom: var(--p-space-4);
+  }
+
+  .pricing__sub {
+    font-size: var(--p-font-size-lg);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-secondary);
+    line-height: var(--p-font-leading-normal);
+  }
+
+  /* Toggle */
+  .pricing__toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--p-space-3);
+    margin-bottom: var(--p-space-12);
+  }
+
+  .pricing__toggle-label {
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-medium);
+    color: var(--p-color-text-secondary);
+  }
+
+  .pricing__toggle-btn {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    background: var(--p-color-border-default);
+    border: none;
+    border-radius: var(--p-radius-full);
+    cursor: pointer;
+    transition: background 0.2s ease;
+    padding: 0;
+    flex-shrink: 0;
+  }
+
+  .pricing__toggle-btn[aria-checked='true'] {
+    background: var(--p-color-accent-default);
+  }
+
+  .pricing__toggle-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+    display: block;
+    pointer-events: none;
+  }
+
+  .pricing__toggle-btn[aria-checked='true'] .pricing__toggle-thumb {
+    transform: translateX(20px);
+  }
+
+  /* Grid */
+  .pricing__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--p-space-6);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    align-items: start;
+  }
+
+  /* Card */
+  .pricing-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--p-space-6);
+    padding: var(--p-space-8);
+    background: var(--p-color-bg-primary);
+    border: 1px solid var(--p-color-border-default);
+    border-radius: var(--p-radius-card);
+  }
+
+  .pricing-card--highlighted {
+    background: var(--p-color-bg-accent);
+    border-color: var(--p-color-border-accent);
+    box-shadow: var(--p-shadow-md);
+  }
+
+  /* Badge */
+  .pricing-card__badge {
+    position: absolute;
+    top: -13px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--p-color-accent-default);
+    color: white;
+    font-size: var(--p-font-size-xs);
+    font-weight: var(--p-font-weight-medium);
+    letter-spacing: var(--p-font-tracking-wider);
+    text-transform: uppercase;
+    padding: var(--p-space-1) var(--p-space-3);
+    border-radius: var(--p-radius-badge);
+    white-space: nowrap;
+  }
+
+  .pricing-card__name {
+    font-size: var(--p-font-size-xl);
+    font-weight: var(--p-font-weight-semibold);
+    color: var(--p-color-text-primary);
+    margin-bottom: var(--p-space-2);
+  }
+
+  .pricing-card__desc {
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-secondary);
+    line-height: var(--p-font-leading-normal);
+  }
+
+  /* Price */
+  .pricing-card__price-wrap {
+    display: flex;
+    align-items: baseline;
+    gap: var(--p-space-1);
+    padding-bottom: var(--p-space-6);
+    border-bottom: 1px solid var(--p-color-border-default);
+  }
+
+  .pricing-card--highlighted .pricing-card__price-wrap {
+    border-bottom-color: var(--p-color-border-accent);
+  }
+
+  .pricing-card__amount {
+    font-family: var(--p-font-display);
+    font-size: var(--p-font-size-5xl);
+    font-weight: var(--p-font-weight-semibold);
+    line-height: 1;
+    color: var(--p-color-text-primary);
+  }
+
+  .pricing-card__suffix {
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-tertiary);
+  }
+
+  /* Features */
+  .pricing-card__features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--p-space-3);
+    flex: 1;
+  }
+
+  .pricing-card__feature {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--p-space-3);
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-secondary);
+    line-height: var(--p-font-leading-snug);
+  }
+
+  .pricing-card__feature--excluded {
+    color: var(--p-color-text-tertiary);
+    opacity: 0.5;
+    text-decoration: line-through;
+  }
+
+  .pricing-card__icon {
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .pricing-card__icon--check { color: var(--p-color-text-accent); }
+  .pricing-card__icon--x     { color: var(--p-color-text-tertiary); }
+
+  /* CTA */
+  .pricing-card__btn {
+    display: block;
+    width: 100%;
+    padding: var(--p-space-3) var(--p-space-5);
+    text-align: center;
+    font-family: var(--p-font-body);
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-medium);
+    border-radius: var(--p-radius-button);
+    text-decoration: none;
+    transition: opacity 0.15s ease;
+    margin-top: auto;
+  }
+
+  .pricing-card__btn:hover { opacity: 0.85; }
+
+  .pricing-card__btn--primary {
+    background: var(--p-color-accent-default);
+    color: white;
+    border: 1px solid transparent;
+  }
+
+  .pricing-card__btn--secondary {
+    background: transparent;
+    border: 1px solid var(--p-color-border-default);
+    color: var(--p-color-text-primary);
+  }
+
+  .pricing-card--highlighted .pricing-card__btn--secondary {
+    border-color: var(--p-color-border-accent);
+  }
+
+  @media (max-width: 768px) {
+    .pricing__grid {
+      grid-template-columns: 1fr;
+      max-width: 420px;
+      margin-inline: auto;
+    }
+  }
+</style>

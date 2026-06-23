@@ -306,6 +306,44 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 
 ---
 
+## pricing_table
+
+| Field name             | Type    | Required | Options / Notes                                      |
+|------------------------|---------|----------|------------------------------------------------------|
+| eyebrow                | Text    | No       |                                                      |
+| headline               | Text    | No       |                                                      |
+| subheadline            | Textarea| No       |                                                      |
+| plans                  | Blocks  | Yes      | Restrict to: pricing_plan                            |
+| toggle_enabled         | Boolean | No       | Default false — shows monthly/annual toggle          |
+| toggle_label_monthly   | Text    | No       | Default "Monthly"                                    |
+| toggle_label_annual    | Text    | No       | Default "Annual"                                     |
+| background             | Option  | No       | primary (default), secondary, accent-subtle          |
+
+### pricing_plan (nested block inside pricing_table)
+
+| Field name   | Type    | Required | Notes                                                     |
+|--------------|---------|----------|-----------------------------------------------------------|
+| name         | Text    | Yes      | Plan name e.g. "Starter", "Growth", "Enterprise"         |
+| description  | Text    | No       | Short tagline for the plan                                |
+| price_monthly| Text    | No       | e.g. "$49" — shown when toggle is off                    |
+| price_annual | Text    | No       | e.g. "$39" — shown when toggle is on                     |
+| price_suffix | Text    | No       | e.g. "/mo" — appended after the price amount             |
+| features     | Blocks  | No       | Restrict to: pricing_feature                              |
+| cta_label    | Text    | No       | Button label, default "Get started"                       |
+| cta_url      | Link    | No       | Multilink                                                 |
+| cta_variant  | Option  | No       | primary, secondary (default — primary if highlighted)     |
+| highlighted  | Boolean | No       | Default false — accent background + shadow + badge        |
+| badge        | Text    | No       | e.g. "Most Popular" — shown as pill above highlighted card|
+
+### pricing_feature (nested block inside pricing_plan)
+
+| Field name | Type    | Required | Notes                                              |
+|------------|---------|----------|----------------------------------------------------|
+| text       | Text    | Yes      | Feature description                                |
+| included   | Boolean | No       | Default true — false renders strikethrough + × icon|
+
+---
+
 ## Adding new blocks
 
 When you add a new component to the library:
