@@ -109,6 +109,30 @@ const { blok } = Astro.props;
 - Keep component styles scoped (default Astro behavior)
 - Name CSS classes using kebab-case BEM-lite: `.component-name`, `.component-name__element`
 
+### Background field pattern
+All section components support a `background` Option field in Storyblok. The pattern is identical across every component:
+
+```astro
+const bg = blok.background || 'primary'; // or 'secondary' for Hero/StatsBar
+```
+```html
+<section class:list={['component', `component--bg-${bg}`]}>
+```
+```css
+.component--bg-secondary     { background: var(--p-color-bg-secondary); }
+.component--bg-accent-subtle { background: var(--p-color-bg-accent); }
+```
+
+**Defaults:** Hero and StatsBar default to `secondary` (their original hardcoded background). All other section components default to `primary`. Existing content with no `background` field set renders identically to before.
+
+**Storyblok field:** Type = Option, options: `primary`, `secondary`, `accent-subtle`. Add to: hero, feature_grid, stats_bar, two_column, card_grid, testimonial_block, rich_text, team, tabs, faq.
+
+### Icon field pattern (feature_item)
+`feature_item.icon` is an **Asset** field (not Textarea). Clients upload SVG/PNG files to the media library. Rendered as `<img>` — CSS color control via `currentColor` is not available. If a client needs brand-colored icons, have them export SVGs with the color baked in.
+
+### Text align pattern
+`cta_banner` and `feature_grid` support a `text_align` Option field (`left`/`center` for CTA Banner, `center`/`left` for Feature Grid). Modifier class: `component--align-${textAlign}`.
+
 ---
 
 ## Storyblok block schemas
@@ -144,7 +168,15 @@ Wireframe mode swaps brand/accent colors to blue — Brian applies it per-frame 
 
 ### **RESUME HERE NEXT SESSION — build remaining components in this order:**
 
-> Team done (106:51). Remaining Figma build: Tabs.
+> Team done (106:51). One Figma build remaining: Tabs. After that, Storyblok space setup.
+
+**Tomorrow's checklist:**
+1. **Build Tabs in Figma** — Layout=Horizontal/Vertical on the Tabs page (see Tabs.astro for structure)
+2. **Storyblok space setup** — for each new client space, configure every block per `storyblok/schema-reference.md`. Key manual changes vs. the base schema:
+   - All section blocks: add `background` Option field (primary/secondary/accent-subtle) — see table below
+   - `feature_item.icon`: change from Textarea → **Asset** (was inline SVG paste, now uploaded file)
+   - `cta_banner`: uses `buttons` as **Blocks** (not individual cta_label/cta_url fields) + `text_align` Option
+   - `feature_grid`: add `text_align` Option (center/left)
 
 | Component        | Figma page      | Variants                          | Status      | Node ID  |
 |------------------|-----------------|-----------------------------------|-------------|----------|
