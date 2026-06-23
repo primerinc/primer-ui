@@ -144,7 +144,7 @@ Wireframe mode swaps brand/accent colors to blue — Brian applies it per-frame 
 
 ### **RESUME HERE NEXT SESSION — build remaining components in this order:**
 
-> CTA Banner and Feature Grid now have Align=Left/Center variants (6 variants each). Remaining Figma builds: Stats Bar, Team, Tabs (Testimonial done at 88:23).
+> Team done (106:51). Remaining Figma build: Tabs.
 
 | Component        | Figma page      | Variants                          | Status      | Node ID  |
 |------------------|-----------------|-----------------------------------|-------------|----------|
@@ -157,9 +157,9 @@ Wireframe mode swaps brand/accent colors to blue — Brian applies it per-frame 
 | Card Grid        | Card Grid       | Columns=2/3                       | ✅ done     | 28:90    |
 | Header           | Header          | Announcement=False/True           | ✅ done     | 29:38    |
 | Footer           | Footer          | Newsletter=False/True             | ✅ done     | 77:48    |
-| Stats Bar        | Stats Bar       | —                                 | ⬜ queued   | —        |
+| Stats Bar        | Stats Bar       | —                                 | ✅ done     | 103:25   |
 | Testimonial      | Testimonial     | Layout=Grid/Carousel              | ✅ done     | 88:23    |
-| Team             | Team            | Layout=Card/Minimal               | ⬜ queued   | —        |
+| Team             | Team            | Layout=Card/Minimal               | ✅ done     | 106:51   |
 | Tabs             | Tabs            | Layout=Horizontal/Vertical        | ⬜ queued   | —        |
 | FAQ              | FAQ             | Expanded=False/True               | ✅ done     | 79:91    |
 
