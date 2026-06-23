@@ -168,11 +168,10 @@ Wireframe mode swaps brand/accent colors to blue — Brian applies it per-frame 
 
 ### **RESUME HERE NEXT SESSION — build remaining components in this order:**
 
-> Team done (106:51). One Figma build remaining: Tabs. After that, Storyblok space setup.
+> All Figma components complete. Next: Storyblok space setup for first client.
 
-**Tomorrow's checklist:**
-1. **Build Tabs in Figma** — Layout=Horizontal/Vertical on the Tabs page (see Tabs.astro for structure)
-2. **Storyblok space setup** — for each new client space, configure every block per `storyblok/schema-reference.md`. Key manual changes vs. the base schema:
+**Next session checklist:**
+1. **Storyblok space setup** — for each new client space, configure every block per `storyblok/schema-reference.md`. Key manual changes vs. the base schema:
    - All section blocks: add `background` Option field (primary/secondary/accent-subtle) — see table below
    - `feature_item.icon`: change from Textarea → **Asset** (was inline SVG paste, now uploaded file)
    - `cta_banner`: uses `buttons` as **Blocks** (not individual cta_label/cta_url fields) + `text_align` Option
@@ -192,7 +191,7 @@ Wireframe mode swaps brand/accent colors to blue — Brian applies it per-frame 
 | Stats Bar        | Stats Bar       | —                                 | ✅ done     | 103:25   |
 | Testimonial      | Testimonial     | Layout=Grid/Carousel              | ✅ done     | 88:23    |
 | Team             | Team            | Layout=Card/Minimal               | ✅ done     | 106:51   |
-| Tabs             | Tabs            | Layout=Horizontal/Vertical        | ⬜ queued   | —        |
+| Tabs             | Tabs            | Layout=Horizontal/Vertical        | ✅ done     | 117:54   |
 | FAQ              | FAQ             | Expanded=False/True               | ✅ done     | 79:91    |
 
 ### Figma sizing conventions (learned the hard way)
