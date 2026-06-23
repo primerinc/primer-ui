@@ -13,13 +13,16 @@ import { storyblokEditable } from '@storyblok/astro';
 
 const { blok } = Astro.props;
 
-const layout      = blok.layout       || 'centered';
-const bg          = blok.background   || 'primary';
-const showPhone   = blok.show_phone   ?? false;
-const showCompany = blok.show_company ?? false;
-const submitLabel = blok.submit_label    || 'Send message';
-const successMsg  = blok.success_message || "Thanks — we'll be in touch soon.";
-const formName    = `contact-${blok._uid}`;
+const layout           = blok.layout            || 'centered';
+const bg               = blok.background        || 'primary';
+const showPhone        = blok.show_phone        ?? false;
+const showCompany      = blok.show_company      ?? false;
+const submitLabel      = blok.submit_label      || 'Send message';
+const successMsg       = blok.success_message   || "Thanks — we'll be in touch soon.";
+const formName         = `contact-${blok._uid}`;
+const hubspotPortalId  = blok.hubspot_portal_id || '';
+const hubspotFormId    = blok.hubspot_form_id   || '';
+const useHubspot       = !!(hubspotPortalId && hubspotFormId);
 ---
 
 <section {...storyblokEditable(blok)} class:list={['contact', `contact--${layout}`, `contact--bg-${bg}`]}>
@@ -72,15 +75,19 @@ const formName    = `contact-${blok._uid}`;
       <form
         name={formName}
         method="POST"
-        data-netlify="true"
-        netlify-honeypot="bot-field"
+        data-netlify={useHubspot ? undefined : 'true'}
+        netlify-honeypot={useHubspot ? undefined : 'bot-field'}
         class="contact__form"
         data-contact-form
+        data-hs-portal={hubspotPortalId || undefined}
+        data-hs-form={hubspotFormId || undefined}
       >
-        <input type="hidden" name="form-name" value={formName} />
-        <p class="contact__honeypot" aria-hidden="true">
-          <label>Skip this: <input name="bot-field" tabindex="-1" autocomplete="off" /></label>
-        </p>
+        {!useHubspot && <input type="hidden" name="form-name" value={formName} />}
+        {!useHubspot && (
+          <p class="contact__honeypot" aria-hidden="true">
+            <label>Skip this: <input name="bot-field" tabindex="-1" autocomplete="off" /></label>
+          </p>
+        )}
 
         <div class="contact__fields">
           <div class="contact__field">
@@ -179,24 +186,67 @@ const formName    = `contact-${blok._uid}`;
   document.querySelectorAll('[data-contact-form]').forEach((form) => {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const btn = form.querySelector<HTMLButtonElement>('[type="submit"]');
+      const f   = form as HTMLFormElement;
+      const btn = f.querySelector<HTMLButtonElement>('[type="submit"]');
       if (!btn) return;
 
       const original = btn.textContent ?? '';
       btn.disabled = true;
       btn.textContent = 'Sending…';
 
-      try {
-        await fetch('/', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams(new FormData(form as HTMLFormElement)).toString(),
-        });
+      const portalId = f.dataset.hsPortal;
+      const formId   = f.dataset.hsForm;
 
-        const wrap    = form.closest('.contact__form-wrap');
+      try {
+        if (portalId && formId) {
+          // ── HubSpot Forms API ──────────────────────────────────
+          const fd       = new FormData(f);
+          const fullName = String(fd.get('name') ?? '').trim();
+          const parts    = fullName.split(/\s+/);
+          const firstname = parts[0] ?? '';
+          const lastname  = parts.slice(1).join(' ');
+
+          const fields: { objectTypeId: string; name: string; value: string }[] = [
+            { objectTypeId: '0-1', name: 'firstname', value: firstname },
+            { objectTypeId: '0-1', name: 'lastname',  value: lastname  },
+            { objectTypeId: '0-1', name: 'email',     value: String(fd.get('email')   ?? '') },
+            { objectTypeId: '0-1', name: 'message',   value: String(fd.get('message') ?? '') },
+          ];
+
+          const phone   = fd.get('phone');
+          const company = fd.get('company');
+          if (phone)   fields.push({ objectTypeId: '0-1', name: 'phone',   value: String(phone) });
+          if (company) fields.push({ objectTypeId: '0-1', name: 'company', value: String(company) });
+
+          const res = await fetch(
+            `https://api.hsforms.com/submissions/v3/integration/submit/${portalId}/${formId}`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                submittedAt: Date.now(),
+                fields,
+                context: { pageUri: window.location.href, pageName: document.title },
+              }),
+            }
+          );
+
+          if (!res.ok) throw new Error(`HubSpot ${res.status}`);
+        } else {
+          // ── Netlify Forms fallback ─────────────────────────────
+          const params = new URLSearchParams();
+          new FormData(f).forEach((val, key) => params.append(key, String(val)));
+          await fetch('/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString(),
+          });
+        }
+
+        const wrap    = f.closest('.contact__form-wrap');
         const success = wrap?.querySelector<HTMLElement>('[data-contact-success]');
         if (success) {
-          (form as HTMLElement).hidden = true;
+          f.hidden = true;
           success.removeAttribute('hidden');
         }
       } catch {

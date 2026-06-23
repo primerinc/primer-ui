@@ -359,9 +359,15 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 | contact_address    | Textarea | No       | Displayed in split layout info panel                      |
 | submit_label       | Text     | No       | Default "Send message"                                    |
 | success_message    | Text     | No       | Default "Thanks — we'll be in touch soon."                |
+| hubspot_portal_id  | Text     | No       | HubSpot portal ID (e.g. 12345678). Set both HS fields to enable HubSpot API mode |
+| hubspot_form_id    | Text     | No       | HubSpot form GUID — found in HubSpot → Marketing → Forms → share → Embed Code |
 | background         | Option   | No       | primary (default), secondary, accent-subtle               |
 
-**Note:** Uses Netlify Forms. The Astro project must output static HTML (SSG) for Netlify to detect the form at build time. Each form is named `contact-{uid}` — submissions appear in the Netlify dashboard under Forms.
+**HubSpot mode:** When both `hubspot_portal_id` and `hubspot_form_id` are set, submissions POST to the HubSpot Forms v3 API (CORS-safe, no embed script). Full name splits into `firstname`/`lastname` at the first space. HubSpot property names used: `firstname`, `lastname`, `email`, `message`, `phone`, `company`. Falls back to Netlify Forms when either field is blank.
+
+**Switching to embed later:** Add a `hubspot_embed_code` Textarea and render a target div + inject HubSpot's script — separate code path, no conflict with the API approach.
+
+**Note (Netlify fallback):** Requires static (SSG) output for Netlify to detect the form at build time.
 
 ---
 
