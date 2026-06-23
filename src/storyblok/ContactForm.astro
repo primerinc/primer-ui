@@ -439,6 +439,8 @@ const useHubspot       = !!(hubspotPortalId && hubspotFormId);
   .contact__submit:disabled { opacity: 0.5; cursor: not-allowed; }
 
   /* Success state */
+  .contact__success[hidden] { display: none; }
+
   .contact__success {
     display: flex;
     flex-direction: column;
