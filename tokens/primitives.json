@@ -35,7 +35,7 @@
   },
   "font": {
     "family": {
-      "display": { "value": "'Cormorant Garamond', Georgia, serif" },
+      "display": { "value": "'IBM Plex Sans', system-ui, sans-serif" },
       "body":    { "value": "'Jost', system-ui, sans-serif" },
       "mono":    { "value": "'Fira Code', 'Courier New', monospace" }
     },

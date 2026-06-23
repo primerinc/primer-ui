@@ -49,7 +49,7 @@
   --p-color-status-warning-text: #8A5A0E;
   --p-color-status-danger-bg: #F5ECEC;
   --p-color-status-danger-text: #A83838;
-  --p-font-family-display: 'Cormorant Garamond', Georgia, serif;
+  --p-font-family-display: 'IBM Plex Sans', system-ui, sans-serif;
   --p-font-family-body: 'Jost', system-ui, sans-serif;
   --p-font-family-mono: 'Fira Code', 'Courier New', monospace;
   --p-font-size-2xs: 0.625rem;
@@ -76,7 +76,7 @@
   --p-font-tracking-wide: 0.08em;
   --p-font-tracking-wider: 0.14em;
   --p-font-tracking-widest: 0.22em;
-  --p-font-display: 'Cormorant Garamond', Georgia, serif;
+  --p-font-display: 'IBM Plex Sans', system-ui, sans-serif;
   --p-font-body: 'Jost', system-ui, sans-serif;
   --p-font-mono: 'Fira Code', 'Courier New', monospace;
   --p-space-1: 0.25rem;
