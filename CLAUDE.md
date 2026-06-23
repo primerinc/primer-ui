@@ -170,10 +170,11 @@ Wireframe mode swaps brand/accent colors to blue — Brian applies it per-frame 
 
 ### **RESUME HERE NEXT SESSION — build remaining components in this order:**
 
-> All Figma components complete. Next: Storyblok space setup for first client.
+> ContactForm done (132:56). Next: ProcessSteps component, then Storyblok space setup.
 
 **Next session checklist:**
-1. **Storyblok space setup** — for each new client space, configure every block per `storyblok/schema-reference.md`. Key manual changes vs. the base schema:
+1. **ProcessSteps component** — numbered sequential steps, Horizontal/Vertical layout variants
+2. **Storyblok space setup** — for each new client space, configure every block per `storyblok/schema-reference.md`. Key manual changes vs. the base schema:
    - All section blocks: add `background` Option field (primary/secondary/accent-subtle) — see table below
    - `feature_item.icon`: change from Textarea → **Asset** (was inline SVG paste, now uploaded file)
    - `cta_banner`: uses `buttons` as **Blocks** (not individual cta_label/cta_url fields) + `text_align` Option
@@ -195,10 +196,12 @@ Wireframe mode swaps brand/accent colors to blue — Brian applies it per-frame 
 | Team             | Team            | Layout=Card/Minimal               | ✅ done     | 106:51   |
 | Tabs             | Tabs            | Layout=Horizontal/Vertical        | ✅ done     | 117:54   |
 | FAQ              | FAQ             | Expanded=False/True               | ✅ done     | 79:91    |
+| PricingTable     | Pricing Table   | Plans=2/3                         | ✅ done     | 121:157  |
+| ContactForm      | Contact Form    | Layout=Centered/Split             | ✅ done     | 132:56   |
 
 ### Figma sizing conventions (learned the hard way)
-- **VERTICAL auto-layout sections** (most section components): after `resize(1440, 1)` set `primaryAxisSizingMode = 'AUTO'` → height hugs children, width stays 1440px
-- **HORIZONTAL auto-layout sections** (Hero, CTA, TwoColumn outer): after `resize(1440, 1)` set `counterAxisSizingMode = 'AUTO'` → height hugs, width stays 1440px
+- **VERTICAL auto-layout sections**: append children FIRST, set `primaryAxisSizingMode = 'AUTO'`, then call `resize(1440, node.height)` to fix width without clobbering computed height. Never call `resize()` with a hard-coded height before appending children — it locks the height to that value even in AUTO mode.
+- **HORIZONTAL auto-layout sections** (Hero, CTA, TwoColumn outer): same pattern — children first, then `resize(1440, node.height)`
 - `combineAsVariants` stacks all at (0,0) — always manually reposition and resize the set after combining
 - Button component set node ID is always `11:8` — use `figma.getNodeByIdAsync('11:8')` for instances
 
