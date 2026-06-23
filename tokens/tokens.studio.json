@@ -36,7 +36,7 @@
     },
     "font": {
       "family": {
-        "display": { "value": "Cormorant Garamond", "type": "fontFamilies" },
+        "display": { "value": "IBM Plex Sans", "type": "fontFamilies" },
         "body":    { "value": "Jost", "type": "fontFamilies" },
         "mono":    { "value": "Fira Code", "type": "fontFamilies" }
       },
