@@ -1,0 +1,423 @@
+---
+/**
+ * ContactForm
+ * Storyblok block name: contact_form
+ *
+ * Fields: eyebrow, headline, subheadline, layout, show_phone, show_company,
+ *         contact_email, contact_phone, contact_address,
+ *         submit_label, success_message, background
+ *
+ * Uses Netlify Forms — requires static (SSG) output for Netlify to detect the form at build time.
+ */
+import { storyblokEditable } from '@storyblok/astro';
+
+const { blok } = Astro.props;
+
+const layout      = blok.layout       || 'centered';
+const bg          = blok.background   || 'primary';
+const showPhone   = blok.show_phone   ?? false;
+const showCompany = blok.show_company ?? false;
+const submitLabel = blok.submit_label    || 'Send message';
+const successMsg  = blok.success_message || "Thanks — we'll be in touch soon.";
+const formName    = `contact-${blok._uid}`;
+---
+
+<section {...storyblokEditable(blok)} class:list={['contact', `contact--${layout}`, `contact--bg-${bg}`]}>
+  <div class="contact__inner">
+
+    {layout === 'split' && (
+      <div class="contact__info">
+        {blok.eyebrow    && <p class="contact__eyebrow">{blok.eyebrow}</p>}
+        {blok.headline   && <h2 class="contact__headline">{blok.headline}</h2>}
+        {blok.subheadline && <p class="contact__sub">{blok.subheadline}</p>}
+
+        {(blok.contact_email || blok.contact_phone || blok.contact_address) && (
+          <dl class="contact__details">
+            {blok.contact_email && (
+              <>
+                <dt class="contact__detail-label">Email</dt>
+                <dd class="contact__detail-value">
+                  <a href={`mailto:${blok.contact_email}`}>{blok.contact_email}</a>
+                </dd>
+              </>
+            )}
+            {blok.contact_phone && (
+              <>
+                <dt class="contact__detail-label">Phone</dt>
+                <dd class="contact__detail-value">
+                  <a href={`tel:${blok.contact_phone}`}>{blok.contact_phone}</a>
+                </dd>
+              </>
+            )}
+            {blok.contact_address && (
+              <>
+                <dt class="contact__detail-label">Address</dt>
+                <dd class="contact__detail-value">{blok.contact_address}</dd>
+              </>
+            )}
+          </dl>
+        )}
+      </div>
+    )}
+
+    <div class="contact__form-wrap">
+      {layout === 'centered' && (blok.eyebrow || blok.headline || blok.subheadline) && (
+        <div class="contact__header">
+          {blok.eyebrow    && <p class="contact__eyebrow">{blok.eyebrow}</p>}
+          {blok.headline   && <h2 class="contact__headline">{blok.headline}</h2>}
+          {blok.subheadline && <p class="contact__sub">{blok.subheadline}</p>}
+        </div>
+      )}
+
+      <form
+        name={formName}
+        method="POST"
+        data-netlify="true"
+        netlify-honeypot="bot-field"
+        class="contact__form"
+        data-contact-form
+      >
+        <input type="hidden" name="form-name" value={formName} />
+        <p class="contact__honeypot" aria-hidden="true">
+          <label>Skip this: <input name="bot-field" tabindex="-1" autocomplete="off" /></label>
+        </p>
+
+        <div class="contact__fields">
+          <div class="contact__field">
+            <label class="contact__label" for={`${formName}-name`}>
+              Full name <span class="contact__required" aria-hidden="true">*</span>
+            </label>
+            <input
+              id={`${formName}-name`}
+              type="text"
+              name="name"
+              required
+              autocomplete="name"
+              class="contact__input"
+              placeholder="Jane Smith"
+            />
+          </div>
+
+          <div class="contact__field">
+            <label class="contact__label" for={`${formName}-email`}>
+              Email <span class="contact__required" aria-hidden="true">*</span>
+            </label>
+            <input
+              id={`${formName}-email`}
+              type="email"
+              name="email"
+              required
+              autocomplete="email"
+              class="contact__input"
+              placeholder="jane@company.com"
+            />
+          </div>
+
+          {showPhone && (
+            <div class="contact__field">
+              <label class="contact__label" for={`${formName}-phone`}>Phone</label>
+              <input
+                id={`${formName}-phone`}
+                type="tel"
+                name="phone"
+                autocomplete="tel"
+                class="contact__input"
+                placeholder="+1 (555) 000-0000"
+              />
+            </div>
+          )}
+
+          {showCompany && (
+            <div class="contact__field">
+              <label class="contact__label" for={`${formName}-company`}>Company</label>
+              <input
+                id={`${formName}-company`}
+                type="text"
+                name="company"
+                autocomplete="organization"
+                class="contact__input"
+                placeholder="Acme Inc."
+              />
+            </div>
+          )}
+
+          <div class="contact__field contact__field--full">
+            <label class="contact__label" for={`${formName}-message`}>
+              Message <span class="contact__required" aria-hidden="true">*</span>
+            </label>
+            <textarea
+              id={`${formName}-message`}
+              name="message"
+              required
+              rows="5"
+              class="contact__input contact__input--textarea"
+              placeholder="Tell us about your project..."
+            />
+          </div>
+        </div>
+
+        <button type="submit" class="contact__submit" data-label={submitLabel}>
+          {submitLabel}
+        </button>
+      </form>
+
+      <div class="contact__success" data-contact-success hidden>
+        <div class="contact__success-icon" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </div>
+        <p class="contact__success-msg">{successMsg}</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll('[data-contact-form]').forEach((form) => {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = form.querySelector<HTMLButtonElement>('[type="submit"]');
+      if (!btn) return;
+
+      const original = btn.textContent ?? '';
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+
+      try {
+        await fetch('/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams(new FormData(form as HTMLFormElement)).toString(),
+        });
+
+        const wrap    = form.closest('.contact__form-wrap');
+        const success = wrap?.querySelector<HTMLElement>('[data-contact-success]');
+        if (success) {
+          (form as HTMLElement).hidden = true;
+          success.removeAttribute('hidden');
+        }
+      } catch {
+        btn.disabled = false;
+        btn.textContent = original;
+      }
+    });
+  });
+</script>
+
+<style>
+  .contact {
+    padding: var(--p-space-24) var(--p-space-8);
+    background: var(--p-color-bg-primary);
+  }
+
+  .contact--bg-secondary     { background: var(--p-color-bg-secondary); }
+  .contact--bg-accent-subtle { background: var(--p-color-bg-accent); }
+
+  /* Honeypot — invisible to real users */
+  .contact__honeypot {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  /* ── Centered layout ── */
+  .contact--centered .contact__inner {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .contact__header {
+    text-align: center;
+    margin-bottom: var(--p-space-12);
+  }
+
+  /* ── Split layout ── */
+  .contact--split .contact__inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--p-space-20);
+    align-items: start;
+  }
+
+  .contact__info {
+    padding-top: var(--p-space-4);
+  }
+
+  /* Shared header text */
+  .contact__eyebrow {
+    font-size: var(--p-font-size-xs);
+    font-weight: var(--p-font-weight-medium);
+    letter-spacing: var(--p-font-tracking-wider);
+    text-transform: uppercase;
+    color: var(--p-color-text-tertiary);
+    margin-bottom: var(--p-space-3);
+  }
+
+  .contact__headline {
+    font-family: var(--p-font-display);
+    font-size: var(--p-font-size-3xl);
+    font-weight: var(--p-font-weight-semibold);
+    line-height: var(--p-font-leading-tight);
+    color: var(--p-color-text-primary);
+    margin-bottom: var(--p-space-4);
+  }
+
+  .contact__sub {
+    font-size: var(--p-font-size-lg);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-secondary);
+    line-height: var(--p-font-leading-normal);
+    margin-bottom: var(--p-space-10);
+  }
+
+  /* Contact details (split layout) */
+  .contact__details {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--p-space-2) var(--p-space-6);
+    margin: 0;
+  }
+
+  .contact__detail-label {
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-medium);
+    color: var(--p-color-text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: var(--p-font-tracking-wider);
+    font-size: var(--p-font-size-xs);
+    padding-top: 2px;
+  }
+
+  .contact__detail-value {
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-secondary);
+    line-height: var(--p-font-leading-normal);
+  }
+
+  .contact__detail-value a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .contact__detail-value a:hover {
+    color: var(--p-color-text-accent);
+  }
+
+  /* Form fields grid */
+  .contact__fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--p-space-5);
+    margin-bottom: var(--p-space-5);
+  }
+
+  .contact__field--full {
+    grid-column: 1 / -1;
+  }
+
+  /* Label */
+  .contact__label {
+    display: block;
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-medium);
+    color: var(--p-color-text-primary);
+    margin-bottom: var(--p-space-2);
+  }
+
+  .contact__required {
+    color: var(--p-color-text-accent);
+  }
+
+  /* Input / textarea */
+  .contact__input {
+    width: 100%;
+    padding: var(--p-space-3) var(--p-space-4);
+    font-family: var(--p-font-body);
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-primary);
+    background: var(--p-color-bg-primary);
+    border: 1px solid var(--p-color-border-default);
+    border-radius: var(--p-radius-input);
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    box-sizing: border-box;
+  }
+
+  .contact__input::placeholder {
+    color: var(--p-color-text-tertiary);
+    opacity: 0.7;
+  }
+
+  .contact__input:focus {
+    border-color: var(--p-color-border-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--p-color-accent-default) 15%, transparent);
+  }
+
+  .contact__input--textarea {
+    resize: vertical;
+    min-height: 140px;
+  }
+
+  /* Submit */
+  .contact__submit {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--p-space-2);
+    padding: var(--p-space-3) var(--p-space-8);
+    font-family: var(--p-font-body);
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-medium);
+    color: white;
+    background: var(--p-color-accent-default);
+    border: none;
+    border-radius: var(--p-radius-button);
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+  }
+
+  .contact__submit:hover  { opacity: 0.85; }
+  .contact__submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Success state */
+  .contact__success {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--p-space-4);
+    padding: var(--p-space-16) var(--p-space-8);
+    text-align: center;
+  }
+
+  .contact__success-icon {
+    color: var(--p-color-text-accent);
+  }
+
+  .contact__success-msg {
+    font-size: var(--p-font-size-lg);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-secondary);
+  }
+
+  /* Responsive */
+  @media (max-width: 860px) {
+    .contact--split .contact__inner {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .contact__fields {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

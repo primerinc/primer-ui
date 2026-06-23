@@ -344,6 +344,27 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 
 ---
 
+## contact_form
+
+| Field name         | Type     | Required | Options / Notes                                           |
+|--------------------|----------|----------|-----------------------------------------------------------|
+| eyebrow            | Text     | No       |                                                           |
+| headline           | Text     | No       |                                                           |
+| subheadline        | Textarea | No       |                                                           |
+| layout             | Option   | No       | centered (default), split                                 |
+| show_phone         | Boolean  | No       | Default false — adds phone field to form                  |
+| show_company       | Boolean  | No       | Default false — adds company field to form                |
+| contact_email      | Text     | No       | Displayed in split layout info panel                      |
+| contact_phone      | Text     | No       | Displayed in split layout info panel                      |
+| contact_address    | Textarea | No       | Displayed in split layout info panel                      |
+| submit_label       | Text     | No       | Default "Send message"                                    |
+| success_message    | Text     | No       | Default "Thanks — we'll be in touch soon."                |
+| background         | Option   | No       | primary (default), secondary, accent-subtle               |
+
+**Note:** Uses Netlify Forms. The Astro project must output static HTML (SSG) for Netlify to detect the form at build time. Each form is named `contact-{uid}` — submissions appear in the Netlify dashboard under Forms.
+
+---
+
 ## Adding new blocks
 
 When you add a new component to the library:

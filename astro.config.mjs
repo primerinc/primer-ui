@@ -27,6 +27,7 @@ export default defineConfig({
         tabs:          'storyblok/Tabs',
         faq:           'storyblok/FAQ',
         pricing_table: 'storyblok/PricingTable',
+        contact_form:  'storyblok/ContactForm',
       },
       apiOptions: { region: '' },
     }),

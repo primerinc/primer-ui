@@ -65,6 +65,7 @@ npm run build:tokens
 | Tabs             | tabs                 | src/storyblok/Tabs.astro              | complete |
 | FAQ              | faq                  | src/storyblok/FAQ.astro               | complete |
 | PricingTable     | pricing_table        | src/storyblok/PricingTable.astro      | complete |
+| ContactForm      | contact_form         | src/storyblok/ContactForm.astro       | complete |
 
 Update this table every time a component is added or its status changes.
 
