@@ -161,5 +161,11 @@
     "60":  { "value": "0.60" },
     "80":  { "value": "0.80" },
     "100": { "value": "1" }
+  },
+  "border-width": {
+    "none": { "value": "0" },
+    "sm":   { "value": "1px" },
+    "md":   { "value": "2px" },
+    "lg":   { "value": "4px" }
   }
 }

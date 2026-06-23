@@ -117,6 +117,16 @@
     "modal":      { "value": "{shadow.xl}" },
     "sticky":     { "value": "{shadow.md}" }
   },
+  "border-width": {
+    "default": { "value": "{border-width.sm}" },
+    "focus":   { "value": "{border-width.md}" },
+    "strong":  { "value": "{border-width.lg}" }
+  },
+  "opacity": {
+    "disabled": { "value": "{opacity.40}" },
+    "muted":    { "value": "{opacity.60}" },
+    "overlay":  { "value": "{opacity.80}" }
+  },
   "motion": {
     "fast":        { "value": "{motion.duration.fast}" },
     "base":        { "value": "{motion.duration.base}" },
