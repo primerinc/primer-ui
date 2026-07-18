@@ -31,7 +31,7 @@ export default defineConfig({
         process_steps: 'storyblok/ProcessSteps',
         video:         'storyblok/Video',
       },
-      apiOptions: { region: 'us' },
+      apiOptions: { region: '' },
     }),
   ],
   vite: { plugins: [mkcert()] },
