@@ -424,13 +424,15 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 
 Unlike the nestable blocks above, these are top-level Storyblok **content types** (created under Settings → Content Types) — each one is a full story, not a block nested inside `body`. All three share the same `body` field and render through a single Astro file, `src/storyblok/Page.astro`, which only renders `body` — content-type-specific fields (title, resource_type, seo, etc.) are read by the routing layer (`src/pages/[...slug].astro`), not by the block itself. Register each new content type's technical name in `astro.config.mjs` under `components`.
 
+**Live in Primer Block Space as of 2026-07-22**, built via Management API: `seo` block, `resource` content type, `campaign_page` content type, and `seo` attached to `page`. All three content types' `body` field shares an identical 16-block whitelist (includes `rich_text` and `logo_bar`, which were initially missed). The SEO Metatags app must be installed *and explicitly applied to the space* (Settings → Apps inside the space, not just the account-wide app store) before the `seo` block's `metatags` field can be created — its Management API `field_type` is `seo-metatags` (hyphenated), not `seo_metatags` as the plugin name might suggest.
+
 ### seo (nestable block — Block Library, same place as every other block above)
 
 Storyblok has no cross-content-type "field group" mechanism — the "Group" field type is a purely visual collapse/expand widget scoped to a single component's own schema and doesn't appear in the API response. To genuinely share a field set across `page`, `resource`, and `campaign_page`, build it as an ordinary nestable block (component technical name `seo`) like any other block in this file, then attach it to each content type via a **Blocks** field restricted to just that component, Minimum 1 / Maximum 1. Because it's a Blocks field, it comes back from the API as a one-item array — `story.content.seo?.[0]`, not `story.content.seo` directly.
 
 | Field name    | Type                   | Required | Options / Notes                                                            |
 |---------------|-------------------------|----------|-----------------------------------------------------------------------------|
-| metatags      | Plugin — SEO Metatags   | No       | Storyblok's built-in metatags plugin (Plugin field, custom type `seo_metatags`). Produces `{ title, description, og_image, og_title, og_description, twitter_title, twitter_description, twitter_image }`. Only `title`, `description`, and `og_image` are currently read by the site |
+| metatags      | Plugin — SEO Metatags   | No       | Storyblok's built-in metatags plugin (Plugin field, custom type `seo-metatags`). Produces `{ title, description, og_image, og_title, og_description, twitter_title, twitter_description, twitter_image }`. Only `title`, `description`, and `og_image` are currently read by the site |
 | canonical_url | Text                    | No       | Overrides the auto-computed canonical URL. Leave blank in the normal case — `BaseLayout` already computes canonical from the page's own URL |
 | noindex       | Boolean                 | No       | Default false. Renders `<meta name="robots" content="noindex, nofollow">` when true |
 
