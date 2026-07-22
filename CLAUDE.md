@@ -66,6 +66,8 @@ npm run build:tokens
 | FAQ              | faq                  | src/storyblok/FAQ.astro               | complete |
 | PricingTable     | pricing_table        | src/storyblok/PricingTable.astro      | complete |
 | ContactForm      | contact_form         | src/storyblok/ContactForm.astro       | complete |
+| ProcessSteps     | process_steps        | src/storyblok/ProcessSteps.astro      | complete |
+| Video            | video                | src/storyblok/Video.astro             | complete |
 
 Update this table every time a component is added or its status changes.
 
@@ -121,6 +123,10 @@ const bg = blok.background || 'primary'; // or 'secondary' for Hero/StatsBar
 <section class:list={['component', `component--bg-${bg}`]}>
 ```
 ```css
+/* Base rule FIRST — modifier overrides must come AFTER (equal specificity, cascade order wins) */
+.component {
+  background: var(--p-color-bg-primary);
+}
 .component--bg-secondary     { background: var(--p-color-bg-secondary); }
 .component--bg-accent-subtle { background: var(--p-color-bg-accent); }
 ```
@@ -170,11 +176,10 @@ Wireframe mode swaps brand/accent colors to blue — Brian applies it per-frame 
 
 ### **RESUME HERE NEXT SESSION — build remaining components in this order:**
 
-> ContactForm done (132:56). Next: ProcessSteps component, then Storyblok space setup.
+> Video done (174:16). Next: Storyblok space setup.
 
 **Next session checklist:**
-1. **ProcessSteps component** — numbered sequential steps, Horizontal/Vertical layout variants
-2. **Storyblok space setup** — for each new client space, configure every block per `storyblok/schema-reference.md`. Key manual changes vs. the base schema:
+1. **Storyblok space setup** — for each new client space, configure every block per `storyblok/schema-reference.md`. Key manual changes vs. the base schema:
    - All section blocks: add `background` Option field (primary/secondary/accent-subtle) — see table below
    - `feature_item.icon`: change from Textarea → **Asset** (was inline SVG paste, now uploaded file)
    - `cta_banner`: uses `buttons` as **Blocks** (not individual cta_label/cta_url fields) + `text_align` Option
@@ -198,6 +203,8 @@ Wireframe mode swaps brand/accent colors to blue — Brian applies it per-frame 
 | FAQ              | FAQ             | Expanded=False/True               | ✅ done     | 79:91    |
 | PricingTable     | Pricing Table   | Plans=2/3                         | ✅ done     | 121:157  |
 | ContactForm      | Contact Form    | Layout=Centered/Split             | ✅ done     | 132:56   |
+| ProcessSteps     | Process Steps   | Layout=Horizontal/Vertical        | ✅ done     | 168:2    |
+| Video            | Video           | Source=YouTube/Hosted             | ✅ done     | 174:16   |
 
 ### Figma sizing conventions (learned the hard way)
 - **VERTICAL auto-layout sections**: append children FIRST, set `primaryAxisSizingMode = 'AUTO'`, then call `resize(1440, node.height)` to fix width without clobbering computed height. Never call `resize()` with a hard-coded height before appending children — it locks the height to that value even in AUTO mode.

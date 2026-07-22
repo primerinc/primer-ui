@@ -371,6 +371,55 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 
 ---
 
+## video
+
+| Field name   | Type    | Required | Options / Notes                                                      |
+|--------------|---------|----------|----------------------------------------------------------------------|
+| eyebrow      | Text    | No       |                                                                      |
+| headline     | Text    | No       |                                                                      |
+| subheadline  | Textarea| No       |                                                                      |
+| video_type   | Option  | Yes      | youtube (default), hosted                                            |
+| youtube_url  | Text    | No       | Any YouTube URL format — video ID extracted automatically. Used when `video_type = youtube` |
+| video_file   | Asset   | No       | MP4 file uploaded to Storyblok/CDN. Used when `video_type = hosted` |
+| poster       | Asset   | No       | Thumbnail image. YouTube: shown before play (facade). Hosted: video poster attribute |
+| caption      | Text    | No       | Short description shown below the video                              |
+| autoplay     | Boolean | No       | Default false — hosted only. Forces `muted = true` when enabled     |
+| muted        | Boolean | No       | Default false — hosted only                                          |
+| loop         | Boolean | No       | Default false — hosted only                                          |
+| background   | Option  | No       | primary (default), secondary, accent-subtle                          |
+
+**YouTube privacy:** Uses `youtube-nocookie.com` embed domain. The iframe is not loaded until the user clicks play (facade pattern) — no YouTube cookies are set on page load.
+
+**Autoplay note:** Browsers require `muted` for autoplay to work. Setting `autoplay = true` automatically forces `muted` on the `<video>` element.
+
+---
+
+## process_steps
+
+| Field name   | Type     | Required | Options / Notes                                     |
+|--------------|----------|----------|-----------------------------------------------------|
+| eyebrow      | Text     | No       |                                                     |
+| headline     | Text     | No       |                                                     |
+| subheadline  | Textarea | No       |                                                     |
+| steps        | Blocks   | Yes      | Restrict to: process_step                           |
+| layout       | Option   | No       | horizontal (default), vertical                      |
+| background   | Option   | No       | primary (default), secondary, accent-subtle         |
+
+### process_step (nested block inside process_steps)
+
+| Field name | Type     | Required | Notes                                               |
+|------------|----------|----------|-----------------------------------------------------|
+| title      | Text     | Yes      | Step title                                          |
+| body       | Textarea | Yes      | Step description                                    |
+
+**Step numbers** are auto-generated from array index (01, 02, 03…) — no number field needed.
+
+**Horizontal layout:** Steps in a responsive grid row, badge + title + body centered in each column. Best for 3–4 steps.
+
+**Vertical layout:** Two-column — header panel (sticky left) + stacked steps with badge and connector line (right). Best for 4–6 steps with longer descriptions.
+
+---
+
 ## Adding new blocks
 
 When you add a new component to the library:

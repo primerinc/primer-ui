@@ -1,0 +1,277 @@
+---
+/**
+ * Video
+ * Storyblok block name: video
+ *
+ * Fields: eyebrow, headline, subheadline, video_type, youtube_url, video_file,
+ *         poster, caption, autoplay, muted, loop, background
+ */
+import { storyblokEditable } from '@storyblok/astro';
+
+const { blok } = Astro.props;
+
+const bg        = blok.background  || 'primary';
+const videoType = blok.video_type  || 'youtube';
+
+// Extract YouTube video ID from any common URL format
+function getYouTubeId(url: string): string | null {
+  if (!url) return null;
+  const patterns = [
+    /[?&]v=([^&#]+)/,
+    /youtu\.be\/([^?&#]+)/,
+    /youtube\.com\/embed\/([^?&#]+)/,
+    /youtube\.com\/shorts\/([^?&#]+)/,
+  ];
+  for (const re of patterns) {
+    const m = url.match(re);
+    if (m) return m[1];
+  }
+  return null;
+}
+
+const youtubeId   = videoType === 'youtube' ? getYouTubeId(blok.youtube_url ?? '') : null;
+const embedUrl    = youtubeId ? `https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=1&rel=0` : null;
+const thumbUrl    = youtubeId ? `https://i.ytimg.com/vi/${youtubeId}/maxresdefault.jpg` : null;
+const posterUrl   = blok.poster?.filename
+  ? `${blok.poster.filename}/m/1800x0/filters:quality(85)`
+  : thumbUrl;
+const videoSrc    = blok.video_file?.filename ?? null;
+
+const hasHeader   = blok.eyebrow || blok.headline || blok.subheadline;
+---
+
+<section
+  {...storyblokEditable(blok)}
+  class:list={['video-block', `video-block--bg-${bg}`]}
+>
+  <div class="video-block__inner">
+
+    {hasHeader && (
+      <div class="video-block__header">
+        {blok.eyebrow    && <p class="video-block__eyebrow">{blok.eyebrow}</p>}
+        {blok.headline   && <h2 class="video-block__headline">{blok.headline}</h2>}
+        {blok.subheadline && <p class="video-block__sub">{blok.subheadline}</p>}
+      </div>
+    )}
+
+    <div class="video-block__player-wrap">
+      {videoType === 'youtube' && youtubeId && (
+        <div
+          class="video-block__yt-facade"
+          data-video-id={youtubeId}
+          data-embed-url={embedUrl}
+          role="button"
+          tabindex="0"
+          aria-label={`Play video${blok.headline ? `: ${blok.headline}` : ''}`}
+        >
+          {posterUrl && (
+            <img
+              src={posterUrl}
+              alt={blok.headline ?? 'Video thumbnail'}
+              class="video-block__poster"
+              loading="lazy"
+              decoding="async"
+            />
+          )}
+          <div class="video-block__yt-play" aria-hidden="true">
+            <svg viewBox="0 0 68 48" width="68" height="48" xmlns="http://www.w3.org/2000/svg">
+              <path d="M66.5 7.8a8.5 8.5 0 0 0-6-6C56 0 34 0 34 0S12 0 7.5 1.8a8.5 8.5 0 0 0-6 6C0 12.3 0 24 0 24s0 11.7 1.5 16.2a8.5 8.5 0 0 0 6 6C12 48 34 48 34 48s22 0 26.5-1.8a8.5 8.5 0 0 0 6-6C68 35.7 68 24 68 24s0-11.7-1.5-16.2z" fill="red"/>
+              <path d="M27 34l18-10-18-10v20z" fill="white"/>
+            </svg>
+          </div>
+        </div>
+      )}
+
+      {videoType === 'youtube' && !youtubeId && (
+        <div class="video-block__placeholder">
+          <p>Enter a valid YouTube URL in Storyblok to display the video.</p>
+        </div>
+      )}
+
+      {videoType === 'hosted' && videoSrc && (
+        <video
+          class="video-block__video"
+          src={videoSrc}
+          poster={posterUrl ?? undefined}
+          controls
+          autoplay={blok.autoplay || false}
+          muted={blok.muted || blok.autoplay || false}
+          loop={blok.loop || false}
+          playsinline
+          preload="metadata"
+        />
+      )}
+
+      {videoType === 'hosted' && !videoSrc && (
+        <div class="video-block__placeholder">
+          <p>Upload a video file in Storyblok to display it here.</p>
+        </div>
+      )}
+    </div>
+
+    {blok.caption && <p class="video-block__caption">{blok.caption}</p>}
+
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.video-block__yt-facade').forEach((facade) => {
+    function activate() {
+      const embedUrl = facade.dataset.embedUrl;
+      if (!embedUrl) return;
+
+      const iframe = document.createElement('iframe');
+      iframe.src = embedUrl;
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      iframe.allowFullscreen = true;
+      iframe.title = facade.getAttribute('aria-label') ?? 'YouTube video';
+      iframe.className = 'video-block__iframe';
+      iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;display:block;';
+
+      facade.replaceWith(iframe);
+    }
+
+    facade.addEventListener('click', activate);
+    facade.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); }
+    });
+  });
+</script>
+
+<style>
+  .video-block {
+    padding: var(--p-space-24) var(--p-space-8);
+    background: var(--p-color-bg-primary);
+  }
+
+  .video-block--bg-secondary     { background: var(--p-color-bg-secondary); }
+  .video-block--bg-accent-subtle { background: var(--p-color-bg-accent); }
+
+  .video-block__inner {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--p-space-10);
+  }
+
+  /* ── Header ── */
+  .video-block__header {
+    text-align: center;
+  }
+
+  .video-block__eyebrow {
+    font-size: var(--p-font-size-xs);
+    font-weight: var(--p-font-weight-medium);
+    letter-spacing: var(--p-font-tracking-wider);
+    text-transform: uppercase;
+    color: var(--p-color-text-tertiary);
+    margin-bottom: var(--p-space-3);
+  }
+
+  .video-block__headline {
+    font-family: var(--p-font-display);
+    font-size: var(--p-font-size-3xl);
+    font-weight: var(--p-font-weight-semibold);
+    line-height: var(--p-font-leading-tight);
+    color: var(--p-color-text-primary);
+    margin-bottom: var(--p-space-4);
+  }
+
+  .video-block__sub {
+    font-size: var(--p-font-size-lg);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-secondary);
+    line-height: var(--p-font-leading-relaxed);
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  /* ── Player wrapper (16:9 aspect ratio) ── */
+  .video-block__player-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--p-radius-card);
+    overflow: hidden;
+    background: #0d0d10;
+  }
+
+  /* ── YouTube facade ── */
+  .video-block__yt-facade {
+    position: absolute;
+    inset: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .video-block__poster {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .video-block__yt-play {
+    position: relative;
+    z-index: 1;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
+  }
+
+  .video-block__yt-facade:hover .video-block__yt-play,
+  .video-block__yt-facade:focus-visible .video-block__yt-play {
+    transform: scale(1.08);
+    opacity: 0.95;
+  }
+
+  .video-block__yt-facade:focus-visible {
+    outline: 3px solid var(--p-color-border-focus);
+    outline-offset: 3px;
+  }
+
+  /* ── Injected iframe (created dynamically — :global needed for scoped CSS) ── */
+  :global(.video-block__iframe) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+
+  /* ── Hosted video ── */
+  .video-block__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: contain;
+  }
+
+  /* ── Empty state ── */
+  .video-block__placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.4);
+    font-size: var(--p-font-size-sm);
+    text-align: center;
+    padding: var(--p-space-4);
+  }
+
+  /* ── Caption ── */
+  .video-block__caption {
+    font-size: var(--p-font-size-sm);
+    color: var(--p-color-text-tertiary);
+    text-align: center;
+    line-height: var(--p-font-leading-relaxed);
+  }
+</style>

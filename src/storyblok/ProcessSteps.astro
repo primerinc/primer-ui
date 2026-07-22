@@ -1,0 +1,251 @@
+---
+/**
+ * ProcessSteps
+ * Storyblok block name: process_steps
+ *
+ * Fields: eyebrow, headline, subheadline, steps (blocks → process_step), layout, background
+ * process_step fields: title, body
+ */
+import { storyblokEditable } from '@storyblok/astro';
+import type { SbBlokData } from '@storyblok/astro';
+
+interface ProcessStep extends SbBlokData {
+  title?: string;
+  body?:  string;
+}
+
+const { blok } = Astro.props;
+
+const layout = blok.layout     || 'horizontal';
+const bg     = blok.background || 'primary';
+const steps: ProcessStep[] = blok.steps ?? [];
+---
+
+<section
+  {...storyblokEditable(blok)}
+  class:list={['process-steps', `process-steps--${layout}`, `process-steps--bg-${bg}`]}
+>
+  <div class="process-steps__inner">
+
+    {layout === 'horizontal' && (
+      <>
+        {(blok.eyebrow || blok.headline || blok.subheadline) && (
+          <div class="process-steps__header process-steps__header--centered">
+            {blok.eyebrow    && <p class="process-steps__eyebrow">{blok.eyebrow}</p>}
+            {blok.headline   && <h2 class="process-steps__headline">{blok.headline}</h2>}
+            {blok.subheadline && <p class="process-steps__sub">{blok.subheadline}</p>}
+          </div>
+        )}
+        <div class="process-steps__grid">
+          {steps.map((step, i) => (
+            <div {...storyblokEditable(step)} class="process-steps__step">
+              <div class="process-steps__badge" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </div>
+              {step.title && <h3 class="process-steps__step-title">{step.title}</h3>}
+              {step.body  && <p  class="process-steps__step-body">{step.body}</p>}
+            </div>
+          ))}
+        </div>
+      </>
+    )}
+
+    {layout === 'vertical' && (
+      <div class="process-steps__split">
+        {(blok.eyebrow || blok.headline || blok.subheadline) && (
+          <div class="process-steps__header">
+            {blok.eyebrow    && <p class="process-steps__eyebrow">{blok.eyebrow}</p>}
+            {blok.headline   && <h2 class="process-steps__headline">{blok.headline}</h2>}
+            {blok.subheadline && <p class="process-steps__sub">{blok.subheadline}</p>}
+          </div>
+        )}
+        <div class="process-steps__stack">
+          {steps.map((step, i) => (
+            <div {...storyblokEditable(step)} class:list={['process-steps__step-v', i === steps.length - 1 && 'process-steps__step-v--last']}>
+              <div class="process-steps__badge-col">
+                <div class="process-steps__badge" aria-hidden="true">
+                  {String(i + 1).padStart(2, '0')}
+                </div>
+                {i < steps.length - 1 && <div class="process-steps__connector" aria-hidden="true" />}
+              </div>
+              <div class="process-steps__content">
+                {step.title && <h3 class="process-steps__step-title">{step.title}</h3>}
+                {step.body  && <p  class="process-steps__step-body">{step.body}</p>}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+
+  </div>
+</section>
+
+<style>
+  .process-steps {
+    padding: var(--p-space-24) var(--p-space-8);
+    background: var(--p-color-bg-primary);
+  }
+
+  /* Background variants — must come after base rule (same specificity, cascade order wins) */
+  .process-steps--bg-secondary     { background: var(--p-color-bg-secondary); }
+  .process-steps--bg-accent-subtle { background: var(--p-color-bg-accent); }
+
+  .process-steps__inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  /* ── Shared header ── */
+  .process-steps__eyebrow {
+    font-size: var(--p-font-size-xs);
+    font-weight: var(--p-font-weight-medium);
+    letter-spacing: var(--p-font-tracking-wider);
+    text-transform: uppercase;
+    color: var(--p-color-text-tertiary);
+    margin-bottom: var(--p-space-3);
+  }
+
+  .process-steps__headline {
+    font-family: var(--p-font-display);
+    font-size: var(--p-font-size-3xl);
+    font-weight: var(--p-font-weight-semibold);
+    line-height: var(--p-font-leading-tight);
+    color: var(--p-color-text-primary);
+    margin-bottom: var(--p-space-4);
+  }
+
+  .process-steps__sub {
+    font-size: var(--p-font-size-lg);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-secondary);
+    line-height: var(--p-font-leading-relaxed);
+  }
+
+  /* ── Badge ── */
+  .process-steps__badge {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--p-radius-full);
+    background: var(--p-color-accent-default);
+    color: var(--p-color-text-on-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-semibold);
+    flex-shrink: 0;
+  }
+
+  .process-steps__step-title {
+    font-family: var(--p-font-display);
+    font-size: var(--p-font-size-lg);
+    font-weight: var(--p-font-weight-semibold);
+    color: var(--p-color-text-primary);
+    line-height: var(--p-font-leading-tight);
+    margin-bottom: var(--p-space-2);
+  }
+
+  .process-steps__step-body {
+    font-size: var(--p-font-size-base);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-secondary);
+    line-height: var(--p-font-leading-relaxed);
+  }
+
+  /* ── Horizontal layout ── */
+  .process-steps__header--centered {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto var(--p-space-16);
+  }
+
+  .process-steps__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--p-space-10);
+  }
+
+  .process-steps__step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--p-space-4);
+  }
+
+  /* ── Vertical layout ── */
+  .process-steps__split {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: var(--p-space-20);
+    align-items: start;
+  }
+
+  .process-steps__header {
+    position: sticky;
+    top: var(--p-space-10);
+  }
+
+  .process-steps__header .process-steps__headline {
+    font-size: var(--p-font-size-3xl);
+  }
+
+  .process-steps__stack {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .process-steps__step-v {
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    gap: var(--p-space-6);
+    padding-bottom: var(--p-space-10);
+  }
+
+  .process-steps__step-v--last {
+    padding-bottom: 0;
+  }
+
+  .process-steps__badge-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  .process-steps__connector {
+    flex: 1;
+    width: 2px;
+    min-height: var(--p-space-10);
+    background: var(--p-color-accent-subtle);
+    margin-top: var(--p-space-2);
+  }
+
+  .process-steps__content {
+    padding-top: var(--p-space-3);
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .process-steps--vertical .process-steps__split {
+      grid-template-columns: 1fr;
+    }
+
+    .process-steps--vertical .process-steps__header {
+      position: static;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .process-steps__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 400px) {
+    .process-steps__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
