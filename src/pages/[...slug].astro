@@ -17,33 +17,38 @@ export async function getStaticPaths() {
   }));
 }
 
-interface Seo {
+interface Metatags {
   title?: string;
   description?: string;
   og_image?: string;
 }
 
+interface SeoBlock extends SbBlokData {
+  metatags?: Metatags;
+  canonical_url?: string;
+  noindex?: boolean;
+}
+
 interface Story {
   name: string;
   content: SbBlokData & {
-    seo?: Seo;
-    canonical_url?: string;
-    noindex?: boolean;
+    seo?: SeoBlock[];
     hide_nav?: boolean;
     hide_footer?: boolean;
   };
 }
 
 const { story } = Astro.props as { story: Story };
-const seo = story.content.seo;
+const seo = story.content.seo?.[0];
+const metatags = seo?.metatags;
 ---
 
 <BaseLayout
-  title={seo?.title || story.name}
-  description={seo?.description}
-  ogImage={seo?.og_image}
-  noIndex={story.content.noindex}
-  canonicalUrl={story.content.canonical_url}
+  title={metatags?.title || story.name}
+  description={metatags?.description}
+  ogImage={metatags?.og_image}
+  noIndex={seo?.noindex}
+  canonicalUrl={seo?.canonical_url}
   hideNav={story.content.hide_nav}
   hideFooter={story.content.hide_footer}
 >

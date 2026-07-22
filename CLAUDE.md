@@ -152,7 +152,7 @@ When creating a new Storyblok space for a client:
 3. Configure the visual editor nesting to match the component hierarchy
 
 ### Root content types
-In addition to nestable blocks, the space needs three root content types: `page`, `resource`, `campaign_page`. All three share a `body` Blocks field and a reusable `seo` field group — see the "Root content types" section of `storyblok/schema-reference.md` for exact fields. All three render through `src/storyblok/Page.astro` (registered per content type in `astro.config.mjs`); SEO metadata and `campaign_page`'s `hide_nav`/`hide_footer` are read and applied in `src/pages/[...slug].astro` and `src/layouts/BaseLayout.astro`.
+In addition to nestable blocks, the space needs three root content types: `page`, `resource`, `campaign_page`. All three share a `body` Blocks field and a reusable `seo` block (an ordinary nestable block, attached via a restricted min-1/max-1 Blocks field — Storyblok has no cross-content-type field-group feature) — see the "Root content types" section of `storyblok/schema-reference.md` for exact fields. All three render through `src/storyblok/Page.astro` (registered per content type in `astro.config.mjs`); SEO metadata and `campaign_page`'s `hide_nav`/`hide_footer` are read and applied in `src/pages/[...slug].astro` and `src/layouts/BaseLayout.astro`.
 
 ---
 
