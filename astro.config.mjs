@@ -11,6 +11,8 @@ export default defineConfig({
       accessToken: env.STORYBLOK_TOKEN,
       components: {
         page:          'storyblok/Page',
+        resource:      'storyblok/Page',
+        campaign_page: 'storyblok/Page',
         hero:          'storyblok/Hero',
         feature_grid:  'storyblok/FeatureGrid',
         cta_banner:    'storyblok/CTABanner',

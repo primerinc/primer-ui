@@ -420,6 +420,54 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 
 ---
 
+## Root content types
+
+Unlike the nestable blocks above, these are top-level Storyblok **content types** (created under Settings → Content Types) — each one is a full story, not a block nested inside `body`. All three share the same `body` field and render through a single Astro file, `src/storyblok/Page.astro`, which only renders `body` — content-type-specific fields (title, resource_type, seo, etc.) are read by the routing layer (`src/pages/[...slug].astro`), not by the block itself. Register each new content type's technical name in `astro.config.mjs` under `components`.
+
+### seo (Field Group — Settings → Field Groups)
+
+Create once as a reusable Field Group named `seo`, then attach it to every content type below (content type's field list → "Add existing field group"). Editing the group later propagates to every content type that uses it.
+
+| Field name     | Type                          | Required | Options / Notes                                                            |
+|----------------|-------------------------------|----------|-----------------------------------------------------------------------------|
+| seo            | Plugin — SEO Metatags         | No       | Storyblok's built-in metatags plugin. Produces `{ title, description, og_image, og_title, og_description, twitter_title, twitter_description, twitter_image }`. Only `title`, `description`, and `og_image` are currently read by the site (`src/pages/[...slug].astro`) |
+| canonical_url  | Text                          | No       | Overrides the auto-computed canonical URL. Leave blank in the normal case — `BaseLayout` already computes canonical from the page's own URL |
+| noindex        | Boolean                       | No       | Default false. Renders `<meta name="robots" content="noindex, nofollow">` when true |
+
+**Fallback:** if `seo.title` is blank, the browser `<title>` falls back to the story's own Name field (set in the CMS sidebar, not part of this group).
+
+### page (existing)
+
+| Field name | Type   | Required | Notes                                            |
+|------------|--------|----------|---------------------------------------------------|
+| body       | Blocks | Yes      | Nestable, accepts any block above                 |
+| seo        | —      | No       | Attach the `seo` field group                      |
+
+### resource
+
+| Field name     | Type    | Required | Options / Notes                                                        |
+|----------------|---------|----------|--------------------------------------------------------------------------|
+| title          | Text    | Yes      | Public-facing title. Not rendered on the page itself (the visual headline comes from the first body block, typically hero) — reserved for a future resource-listing/index page, same role as `card_item.title` |
+| resource_type  | Option  | Yes      | blog, case_study, webinar, research                                      |
+| featured       | Boolean | No       | Default false. Reserved for a future resource-listing page — not used on the detail page itself |
+| body           | Blocks  | Yes      | Restrict to the nestable blocks above                                    |
+| seo            | —       | No       | Attach the `seo` field group                                             |
+
+**Not yet built (flagged in the original plan, add only if time allows before demo):** `gated` (Boolean) and `hubspot_form_id` (Text) for gating a resource behind a form.
+
+### campaign_page
+
+| Field name             | Type    | Required | Options / Notes                                                        |
+|------------------------|---------|----------|--------------------------------------------------------------------------|
+| title                  | Text    | Yes      | Internal/SEO-fallback title only — not rendered on the page. Campaign pages are fully built from body blocks (typically starting with hero) |
+| internal_campaign_name | Text    | No       | For internal tracking/reporting only — not rendered anywhere on the site |
+| hide_nav               | Boolean | No       | Default false. Hides the global header for this page (wired in `BaseLayout.astro`) |
+| hide_footer            | Boolean | No       | Default false. Hides the global footer for this page (wired in `BaseLayout.astro`) |
+| body                   | Blocks  | Yes      | Restrict to the nestable blocks above                                    |
+| seo                    | —       | No       | Attach the `seo` field group                                             |
+
+---
+
 ## Adding new blocks
 
 When you add a new component to the library:

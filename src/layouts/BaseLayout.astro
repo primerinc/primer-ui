@@ -8,16 +8,22 @@ interface Props {
   description?: string;
   ogImage?: string;
   noIndex?: boolean;
+  canonicalUrl?: string;
+  hideNav?: boolean;
+  hideFooter?: boolean;
 }
 
 const {
   title,
   description = '',
   ogImage = '',
-  noIndex = false
+  noIndex = false,
+  canonicalUrl = '',
+  hideNav = false,
+  hideFooter = false
 } = Astro.props;
 
-const canonicalURL = Astro.site ? new URL(Astro.url.pathname, Astro.site) : null;
+const canonicalURL = canonicalUrl || (Astro.site ? new URL(Astro.url.pathname, Astro.site) : null);
 
 const storyblokApi = useStoryblokApi();
 let headerBlok = null;
@@ -60,9 +66,9 @@ try {
   />
 </head>
 <body>
-  {headerBlok && <StoryblokComponent blok={headerBlok} />}
+  {!hideNav && headerBlok && <StoryblokComponent blok={headerBlok} />}
   <slot />
-  {footerBlok && <StoryblokComponent blok={footerBlok} />}
+  {!hideFooter && footerBlok && <StoryblokComponent blok={footerBlok} />}
 </body>
 </html>
 

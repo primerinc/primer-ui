@@ -17,14 +17,35 @@ export async function getStaticPaths() {
   }));
 }
 
+interface Seo {
+  title?: string;
+  description?: string;
+  og_image?: string;
+}
+
 interface Story {
   name: string;
-  content: SbBlokData;
+  content: SbBlokData & {
+    seo?: Seo;
+    canonical_url?: string;
+    noindex?: boolean;
+    hide_nav?: boolean;
+    hide_footer?: boolean;
+  };
 }
 
 const { story } = Astro.props as { story: Story };
+const seo = story.content.seo;
 ---
 
-<BaseLayout title={story.name}>
+<BaseLayout
+  title={seo?.title || story.name}
+  description={seo?.description}
+  ogImage={seo?.og_image}
+  noIndex={story.content.noindex}
+  canonicalUrl={story.content.canonical_url}
+  hideNav={story.content.hide_nav}
+  hideFooter={story.content.hide_footer}
+>
   <StoryblokComponent blok={story.content} />
 </BaseLayout>

@@ -151,6 +151,9 @@ When creating a new Storyblok space for a client:
 2. Field names must match the Astro component prop interface exactly
 3. Configure the visual editor nesting to match the component hierarchy
 
+### Root content types
+In addition to nestable blocks, the space needs three root content types: `page`, `resource`, `campaign_page`. All three share a `body` Blocks field and a reusable `seo` field group — see the "Root content types" section of `storyblok/schema-reference.md` for exact fields. All three render through `src/storyblok/Page.astro` (registered per content type in `astro.config.mjs`); SEO metadata and `campaign_page`'s `hide_nav`/`hide_footer` are read and applied in `src/pages/[...slug].astro` and `src/layouts/BaseLayout.astro`.
+
 ---
 
 ## BaseLayout
@@ -176,14 +179,16 @@ Wireframe mode swaps brand/accent colors to blue — Brian applies it per-frame 
 
 ### **RESUME HERE NEXT SESSION — build remaining components in this order:**
 
-> Video done (174:16). Next: Storyblok space setup.
+> Video done (174:16). Region fixed to `eu` (confirmed via space settings, Space ID #293131252124026). Root content-type schemas (`resource`, `campaign_page`, shared `seo` field group) and their code wiring (SEO tags, `hide_nav`/`hide_footer` in BaseLayout) are done — see "Root content types" above. Next: manual Storyblok space setup for Lock 8 Partners demo, then build the two demo entries (one `resource`, one `campaign_page`).
 
 **Next session checklist:**
-1. **Storyblok space setup** — for each new client space, configure every block per `storyblok/schema-reference.md`. Key manual changes vs. the base schema:
+1. **Storyblok space setup** — for each new client space, configure every block per `storyblok/schema-reference.md`, including the new `page`/`resource`/`campaign_page` root content types and the `seo` field group. Key manual changes vs. the base schema:
    - All section blocks: add `background` Option field (primary/secondary/accent-subtle) — see table below
    - `feature_item.icon`: change from Textarea → **Asset** (was inline SVG paste, now uploaded file)
    - `cta_banner`: uses `buttons` as **Blocks** (not individual cta_label/cta_url fields) + `text_align` Option
    - `feature_grid`: add `text_align` Option (center/left)
+   - Note: `two_column` and `card_grid` still use plain `cta_label`/`cta_url` text fields instead of a nested `button` blok, unlike `hero`/`cta_banner` — known inconsistency, not a blocker for the demo
+2. **Demo entries** — one finished `resource` entry with a couple of bloks filled in, and one finished `campaign_page` set up as a duplicate-and-edit starting point for the live demo.
 
 | Component        | Figma page      | Variants                          | Status      | Node ID  |
 |------------------|-----------------|-----------------------------------|-------------|----------|

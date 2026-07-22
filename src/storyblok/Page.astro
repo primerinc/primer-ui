@@ -1,4 +1,11 @@
 ---
+/**
+ * Page
+ * Root renderer for the page, resource, and campaign_page content types.
+ * All three are structurally identical (just a body of Blocks) — content-type-specific
+ * fields like title, resource_type, and seo are read at the routing layer
+ * (src/pages/[...slug].astro), not here.
+ */
 import { storyblokEditable } from '@storyblok/astro';
 import type { SbBlokData } from '@storyblok/astro';
 import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
