@@ -1,21 +1,8 @@
 ---
-import { useStoryblokApi } from '@storyblok/astro';
-import type { SbBlokData } from '@storyblok/astro';
+import { useStoryblokApi, getPayload } from '@storyblok/astro';
+import type { SbBlokData, ISbStoryData } from '@storyblok/astro';
 import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
-
-export async function getStaticPaths() {
-  const api = useStoryblokApi();
-  const { data } = await api.get('cdn/stories', {
-    version: 'draft',
-    excluding_slugs: 'home,config',
-  });
-
-  return data.stories.map((story: { full_slug: string; name: string; content: Record<string, unknown> }) => ({
-    params: { slug: story.full_slug },
-    props: { story },
-  }));
-}
 
 interface Metatags {
   title?: string;
@@ -29,16 +16,37 @@ interface SeoBlock extends SbBlokData {
   noindex?: boolean;
 }
 
-interface Story {
-  name: string;
-  content: SbBlokData & {
-    seo?: SeoBlock[];
-    hide_nav?: boolean;
-    hide_footer?: boolean;
-  };
+interface Story extends ISbStoryData<SbBlokData & {
+  seo?: SeoBlock[];
+  hide_nav?: boolean;
+  hide_footer?: boolean;
+}> {}
+
+const slug = Astro.params.slug || '';
+
+// "config" and "home" are internal/special stories, not real routes —
+// config holds header/footer (fetched separately by BaseLayout), home is served by index.astro.
+if (slug === 'config' || slug === 'home') {
+  return new Response(null, { status: 404 });
 }
 
-const { story } = Astro.props as { story: Story };
+const payload = await getPayload<object, Story>({ locals: Astro.locals });
+let story: Story | undefined = payload?.story;
+
+if (!story) {
+  const api = useStoryblokApi();
+  try {
+    const { data } = await api.get(`cdn/stories/${slug}`, { version: 'draft' });
+    story = data.story;
+  } catch (e) {
+    return new Response(null, { status: 404 });
+  }
+}
+
+if (!story) {
+  return new Response(null, { status: 404 });
+}
+
 const seo = story.content.seo?.[0];
 const metatags = seo?.metatags;
 ---

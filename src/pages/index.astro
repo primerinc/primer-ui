@@ -1,11 +1,20 @@
 ---
-import { useStoryblokApi } from '@storyblok/astro';
+import { useStoryblokApi, getPayload } from '@storyblok/astro';
 import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 
-const api = useStoryblokApi();
-const { data } = await api.get('cdn/stories/home', { version: 'draft' });
-const story = data.story;
+const payload = await getPayload({ locals: Astro.locals });
+let story = payload?.story;
+
+if (!story) {
+  const api = useStoryblokApi();
+  const { data } = await api.get('cdn/stories/home', { version: 'draft' });
+  story = data.story;
+}
+
+if (!story) {
+  return new Response(null, { status: 404 });
+}
 ---
 
 <BaseLayout title={story.name}>
