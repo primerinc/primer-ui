@@ -420,6 +420,44 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 
 ---
 
+## case_study_layout
+
+Two-column layout block for long-form content (case studies, in-depth articles) — a key-takeaways callout, a full richtext content column, and a customizable sticky sidebar. Added to `resource` and `campaign_page`'s `body` whitelist (not `page`'s).
+
+| Field name     | Type     | Required | Options / Notes                                                         |
+|----------------|----------|----------|--------------------------------------------------------------------------|
+| key_takeaways  | Blocks   | No       | Restrict to: key_takeaway_item. Rendered as a highlighted callout box above the content column |
+| content        | Richtext | Yes      | The main article body — supports headings, paragraphs, images, blockquotes, lists, links, and tables (native Storyblok richtext table support) |
+| sidebar        | Blocks   | No       | Restrict to: table_of_contents, sidebar_cta. Add any combination/order/multiples; renders as a sticky column alongside the content |
+| background     | Option   | No       | primary (default), secondary, accent-subtle                             |
+
+**Table of contents is fully automatic** — `table_of_contents` requires no manual link entry. At render time, `src/lib/richtext-toc.ts` walks the `content` richtext JSON, collects every H2/H3, slugifies the heading text into an anchor id (deduping repeats with a numeric suffix), stamps those ids onto the rendered `<h2>`/`<h3>` tags, and feeds the same list to the sidebar widget. Editors just write headings normally in the richtext editor — no plugin or per-heading tagging required.
+
+### key_takeaway_item (nested block inside case_study_layout.key_takeaways)
+
+| Field name | Type     | Required | Notes                          |
+|------------|----------|----------|---------------------------------|
+| text       | Textarea | Yes      | One takeaway line. Icon is a fixed checkmark glyph, not per-item customizable |
+
+### table_of_contents (nested block inside case_study_layout.sidebar)
+
+| Field name | Type | Required | Notes                                                    |
+|------------|------|----------|-----------------------------------------------------------|
+| heading    | Text | No       | Widget title, default "On this page". Links are auto-generated — see above, nothing else to configure |
+
+**Not registered in `astro.config.mjs`** — unlike every other block, `CaseStudyLayout.astro` renders this one directly (not via the generic `StoryblokComponent` resolver) so it can pass the computed `headings` array as a prop. It still carries `storyblokEditable` for visual-editor click-to-select.
+
+### sidebar_cta (nested block inside case_study_layout.sidebar)
+
+| Field name | Type     | Required | Notes                          |
+|------------|----------|----------|---------------------------------|
+| headline   | Text     | No       |                                 |
+| body       | Textarea | No       |                                 |
+| cta_label  | Text     | No       | Button text                    |
+| cta_url    | Text     | No       | Button link                    |
+
+---
+
 ## Root content types
 
 Unlike the nestable blocks above, these are top-level Storyblok **content types** (created under Settings → Content Types) — each one is a full story, not a block nested inside `body`. All three share the same `body` field and render through a single Astro file, `src/storyblok/Page.astro`, which only renders `body` — content-type-specific fields (title, resource_type, seo, etc.) are read by the routing layer (`src/pages/[...slug].astro`), not by the block itself. Register each new content type's technical name in `astro.config.mjs` under `components`.

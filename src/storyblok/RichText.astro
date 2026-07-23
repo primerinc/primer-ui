@@ -110,6 +110,30 @@ const bg   = blok.background || 'primary';
     margin: var(--p-space-8) 0;
   }
 
+  .rich-text__inner :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: var(--p-space-8);
+    font-size: var(--p-font-size-sm);
+  }
+
+  .rich-text__inner :global(th),
+  .rich-text__inner :global(td) {
+    border: 1px solid var(--p-color-border-default);
+    padding: var(--p-space-3) var(--p-space-4);
+    text-align: left;
+  }
+
+  .rich-text__inner :global(th) {
+    font-weight: var(--p-font-weight-medium);
+    color: var(--p-color-text-primary);
+    background: var(--p-color-bg-secondary);
+  }
+
+  .rich-text__inner :global(td) {
+    color: var(--p-color-text-secondary);
+  }
+
   .rich-text__inner :global(*:first-child) {
     margin-top: 0;
   }

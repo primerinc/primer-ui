@@ -1,0 +1,42 @@
+---
+/**
+ * KeyTakeawayItem
+ * Storyblok block name: key_takeaway_item
+ *
+ * Fields: text
+ */
+import { storyblokEditable } from '@storyblok/astro';
+
+const { blok } = Astro.props;
+---
+
+<li {...storyblokEditable(blok)} class="key-takeaway-item">
+  <svg class="key-takeaway-item__icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+    <circle cx="10" cy="10" r="10" fill="currentColor" opacity="0.15" />
+    <path d="M6 10.5l2.5 2.5L14 7.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+  </svg>
+  <span class="key-takeaway-item__text">{blok.text}</span>
+</li>
+
+<style>
+  .key-takeaway-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--p-space-3);
+  }
+
+  .key-takeaway-item__icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    color: var(--p-color-text-accent-strong);
+  }
+
+  .key-takeaway-item__text {
+    font-size: var(--p-font-size-md);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-primary);
+    line-height: var(--p-font-leading-normal);
+  }
+</style>

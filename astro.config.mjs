@@ -1,14 +1,18 @@
 import { defineConfig } from 'astro/config';
 import { storyblok } from '@storyblok/astro';
+import node from '@astrojs/node';
 import mkcert from 'vite-plugin-mkcert';
 import { loadEnv } from 'vite';
 
 const env = loadEnv(process.env.NODE_ENV, process.cwd(), '');
 
 export default defineConfig({
+  output: 'server',
+  adapter: node({ mode: 'standalone' }),
   integrations: [
     storyblok({
       accessToken: env.STORYBLOK_TOKEN,
+      livePreview: true,
       components: {
         page:          'storyblok/Page',
         resource:      'storyblok/Page',
@@ -32,6 +36,9 @@ export default defineConfig({
         contact_form:  'storyblok/ContactForm',
         process_steps: 'storyblok/ProcessSteps',
         video:         'storyblok/Video',
+        case_study_layout: 'storyblok/CaseStudyLayout',
+        key_takeaway_item: 'storyblok/KeyTakeawayItem',
+        sidebar_cta:       'storyblok/SidebarCTA',
       },
       apiOptions: { region: 'eu' },
     }),

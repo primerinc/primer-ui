@@ -68,6 +68,7 @@ npm run build:tokens
 | ContactForm      | contact_form         | src/storyblok/ContactForm.astro       | complete |
 | ProcessSteps     | process_steps        | src/storyblok/ProcessSteps.astro      | complete |
 | Video            | video                | src/storyblok/Video.astro             | complete |
+| CaseStudyLayout  | case_study_layout    | src/storyblok/CaseStudyLayout.astro   | complete |
 
 Update this table every time a component is added or its status changes.
 
@@ -164,6 +165,20 @@ Update the Google Fonts link in BaseLayout for each client's brand fonts.
 
 ---
 
+## Rendering mode: SSR + Storyblok Live Preview (as of 2026-07-22)
+
+This repo runs `output: 'server'` (not static/SSG) with `livePreview: true` on the Storyblok integration, `src/middleware.ts` wiring up the live-preview handler, and `src/pages/[...slug].astro` + `src/pages/index.astro` fetching content per-request via `getPayload()` instead of baking it in via `getStaticPaths`. This is required for Storyblok's Visual Editor to reflect **style/Option-field changes** (background, layout, variant, etc.) live — without it, only plain text fields appeared to update, and style changes required a full dev-server restart to show up (discovered while testing the Lock 8 demo space). This SSR + live-preview setup is the intended permanent architecture for all future client builds, not a demo-only hack — every client will want the same instant-preview editing experience.
+
+**⚠️ MUST DO BEFORE DEPLOYING ANY BUILD OFF LOCALHOST (this project or any future client project cloned from this repo):**
+The adapter currently configured in `astro.config.mjs` is `@astrojs/node` (`mode: 'standalone'`) — this only works for a **self-hosted Node process** (VPS, Docker, a box you run yourself). It will **not** work as-is on Netlify, Vercel, Cloudflare Pages, or similar serverless/edge hosts. Before the first non-localhost deploy:
+1. Confirm the actual hosting target (Netlify, Vercel, Cloudflare, self-hosted, etc.) — not yet decided as of 2026-07-22.
+2. Swap `@astrojs/node` for that platform's official Astro adapter (e.g. `@astrojs/netlify`, `@astrojs/vercel`) in `astro.config.mjs`. The live-preview logic itself (`src/middleware.ts`, `getPayload()` calls) is adapter-agnostic and does not need to change — only the `adapter` line and the corresponding npm package.
+3. Update the Storyblok space's Visual Editor **Location** setting (Settings → Visual Editor) from `https://localhost:4321/` to the deployed URL once live.
+
+As of 2026-07-22, staying on `localhost` intentionally (Primer component work + Lock 8 Partners demo prep) — do not swap the adapter or otherwise treat this as urgent until an actual deploy is imminent.
+
+---
+
 ## Style Dictionary version note
 This repo uses Style Dictionary v5. Token references in JSON files use the v5 syntax:
 `{color.neutral.900}` — **not** `{color.neutral.900.value}` (that is v3/v4 syntax and will break the build).
@@ -177,18 +192,17 @@ Figma file: https://www.figma.com/design/ePSkKvHKM4v0RdoUYcz2N0/Primer-Design-Sy
 Variables: `primitives` collection (60 vars) + `semantic` collection (31 vars, 2 modes: `semantic` / `Wireframe`).
 Wireframe mode swaps brand/accent colors to blue — Brian applies it per-frame from the Variables panel.
 
-### **RESUME HERE NEXT SESSION — build remaining components in this order:**
+### Component build: complete. Lock 8 Partners demo: complete (confirmed via Storyblok Management API, 2026-07-23).
 
-> Video done (174:16). Region fixed to `eu` (confirmed via space settings, Space ID #293131252124026). Root content-type schemas (`resource`, `campaign_page`, shared `seo` field group) and their code wiring (SEO tags, `hide_nav`/`hide_footer` in BaseLayout) are done — see "Root content types" above. Next: manual Storyblok space setup for Lock 8 Partners demo, then build the two demo entries (one `resource`, one `campaign_page`).
+> All 18 components + Video (174:16) built. Root content-type schemas (`resource`, `campaign_page`, shared `seo` field group) and their code wiring (SEO tags, `hide_nav`/`hide_footer` in BaseLayout) are done — see "Root content types" above.
+>
+> **Lock 8 Partners — Demo** Storyblok space (id `294034023399259`, region `eu-central-1`) was duplicated from Primer Block Space on 2026-07-22 and is fully set up: all 41 component schemas present (background/text_align Option fields, `feature_item.icon` as Asset, `cta_banner.buttons` as Blocks, etc.), and both demo entries are built and **published**:
+> - `resource`: "Case Study: Lock 8 Partners Modernization" (`lock-8-partners-case-study-demo`)
+> - `campaign_page`: "Campaign Page Template (Demo)" (`campaign-template-demo`)
+>
+> Ready for the live walkthrough. Known non-blocking inconsistency: `two_column` and `card_grid` still use plain `cta_label`/`cta_url` text fields instead of a nested `button` blok, unlike `hero`/`cta_banner`.
 
-**Next session checklist:**
-1. **Storyblok space setup** — for each new client space, configure every block per `storyblok/schema-reference.md`, including the new `page`/`resource`/`campaign_page` root content types and the `seo` field group. Key manual changes vs. the base schema:
-   - All section blocks: add `background` Option field (primary/secondary/accent-subtle) — see table below
-   - `feature_item.icon`: change from Textarea → **Asset** (was inline SVG paste, now uploaded file)
-   - `cta_banner`: uses `buttons` as **Blocks** (not individual cta_label/cta_url fields) + `text_align` Option
-   - `feature_grid`: add `text_align` Option (center/left)
-   - Note: `two_column` and `card_grid` still use plain `cta_label`/`cta_url` text fields instead of a nested `button` blok, unlike `hero`/`cta_banner` — known inconsistency, not a blocker for the demo
-2. **Demo entries** — one finished `resource` entry with a couple of bloks filled in, and one finished `campaign_page` set up as a duplicate-and-edit starting point for the live demo.
+**Next up:** no outstanding Storyblok setup work. Remaining open item is the [SSR deploy adapter swap](#rendering-mode-ssr--storyblok-live-preview-as-of-2026-07-22) once a hosting target is chosen — currently staying on localhost intentionally.
 
 | Component        | Figma page      | Variants                          | Status      | Node ID  |
 |------------------|-----------------|-----------------------------------|-------------|----------|

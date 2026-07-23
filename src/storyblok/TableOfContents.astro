@@ -1,0 +1,73 @@
+---
+/**
+ * TableOfContents
+ * Storyblok block name: table_of_contents
+ *
+ * Fields: heading
+ *
+ * Not registered as a standalone Storyblok-resolved component — its parent
+ * (CaseStudyLayout) renders it directly so it can pass the `headings` prop
+ * derived from the layout's own richtext `content` field. Auto-generated
+ * from H2/H3s, no per-link editor curation.
+ */
+import { storyblokEditable } from '@storyblok/astro';
+import type { TocHeading } from '../lib/richtext-toc';
+
+const { blok, headings = [] } = Astro.props as { blok: any; headings: TocHeading[] };
+---
+
+{headings.length > 0 && (
+  <nav {...storyblokEditable(blok)} class="toc" aria-label="Table of contents">
+    <p class="toc__heading">{blok.heading || 'On this page'}</p>
+    <ul class="toc__list">
+      {headings.map((h) => (
+        <li class:list={['toc__item', `toc__item--level-${h.level}`]}>
+          <a href={`#${h.slug}`} class="toc__link">{h.text}</a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+)}
+
+<style>
+  .toc {
+    border: 1px solid var(--p-color-border-default);
+    border-radius: var(--p-radius-lg);
+    padding: var(--p-space-6);
+  }
+
+  .toc__heading {
+    font-size: var(--p-font-size-xs);
+    font-weight: var(--p-font-weight-medium);
+    letter-spacing: var(--p-font-tracking-wider);
+    text-transform: uppercase;
+    color: var(--p-color-text-tertiary);
+    margin-bottom: var(--p-space-4);
+  }
+
+  .toc__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .toc__item {
+    margin-bottom: var(--p-space-3);
+  }
+
+  .toc__item--level-3 {
+    padding-left: var(--p-space-4);
+  }
+
+  .toc__link {
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-secondary);
+    text-decoration: none;
+    line-height: var(--p-font-leading-normal);
+  }
+
+  .toc__link:hover {
+    color: var(--p-color-text-accent-strong);
+  }
+</style>

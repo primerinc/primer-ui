@@ -1,0 +1,62 @@
+---
+/**
+ * SidebarCTA
+ * Storyblok block name: sidebar_cta
+ *
+ * Fields: headline, body, cta_label, cta_url
+ */
+import { storyblokEditable } from '@storyblok/astro';
+
+const { blok } = Astro.props;
+---
+
+<div {...storyblokEditable(blok)} class="sidebar-cta">
+  {blok.headline && <p class="sidebar-cta__headline">{blok.headline}</p>}
+  {blok.body && <p class="sidebar-cta__body">{blok.body}</p>}
+  {blok.cta_label && blok.cta_url && (
+    <a href={blok.cta_url} class="sidebar-cta__button">{blok.cta_label}</a>
+  )}
+</div>
+
+<style>
+  .sidebar-cta {
+    background: var(--p-color-bg-accent);
+    border-radius: var(--p-radius-lg);
+    padding: var(--p-space-6);
+  }
+
+  .sidebar-cta__headline {
+    font-family: var(--p-font-display);
+    font-size: var(--p-font-size-lg);
+    font-weight: var(--p-font-weight-semibold);
+    line-height: var(--p-font-leading-tight);
+    color: var(--p-color-text-primary);
+    margin-bottom: var(--p-space-3);
+  }
+
+  .sidebar-cta__body {
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-secondary);
+    line-height: var(--p-font-leading-normal);
+    margin-bottom: var(--p-space-5);
+  }
+
+  .sidebar-cta__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    text-decoration: none;
+    text-align: center;
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-medium);
+    color: var(--p-color-text-on-accent);
+    background: var(--p-color-accent-default);
+    border-radius: var(--p-radius-md);
+    padding: var(--p-space-3) var(--p-space-5);
+    transition: opacity 0.2s ease;
+  }
+
+  .sidebar-cta__button:hover { opacity: 0.85; }
+</style>

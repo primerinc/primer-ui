@@ -1,0 +1,230 @@
+---
+/**
+ * CaseStudyLayout
+ * Storyblok block name: case_study_layout
+ *
+ * Fields: key_takeaways (blocks → key_takeaway_item), content (richtext),
+ * sidebar (blocks → table_of_contents, sidebar_cta), background
+ */
+import { storyblokEditable, renderRichText } from '@storyblok/astro';
+import type { SbBlokData } from '@storyblok/astro';
+import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
+import TableOfContents from './TableOfContents.astro';
+import { extractHeadings, injectHeadingIds } from '../lib/richtext-toc';
+
+const { blok } = Astro.props;
+
+const bg = blok.background || 'primary';
+
+const headings = extractHeadings(blok.content);
+const contentHtml = blok.content
+  ? injectHeadingIds(renderRichText(blok.content), headings)
+  : '';
+---
+
+<section
+  {...storyblokEditable(blok)}
+  class:list={['case-study', `case-study--bg-${bg}`]}
+>
+  <div class="case-study__inner">
+    <div class="case-study__content">
+      {blok.key_takeaways?.length > 0 && (
+        <div class="case-study__takeaways">
+          <p class="case-study__takeaways-heading">Key Takeaways</p>
+          <ul class="case-study__takeaways-list">
+            {blok.key_takeaways.map((item: SbBlokData) => (
+              <StoryblokComponent blok={item} />
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <div class="case-study__body">
+        <Fragment set:html={contentHtml} />
+      </div>
+    </div>
+
+    {blok.sidebar?.length > 0 && (
+      <aside class="case-study__sidebar">
+        {blok.sidebar.map((item: SbBlokData) =>
+          item.component === 'table_of_contents' ? (
+            <TableOfContents blok={item} headings={headings} />
+          ) : (
+            <StoryblokComponent blok={item} />
+          )
+        )}
+      </aside>
+    )}
+  </div>
+</section>
+
+<style>
+  .case-study {
+    padding: var(--p-space-16) var(--p-space-8);
+    background: var(--p-color-bg-primary);
+  }
+
+  .case-study--bg-secondary     { background: var(--p-color-bg-secondary); }
+  .case-study--bg-accent-subtle { background: var(--p-color-bg-accent); }
+
+  .case-study__inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: var(--p-space-16);
+    align-items: start;
+  }
+
+  .case-study__takeaways {
+    background: var(--p-color-bg-accent);
+    border-radius: var(--p-radius-lg);
+    padding: var(--p-space-6) var(--p-space-8);
+    margin-bottom: var(--p-space-10);
+  }
+
+  .case-study__takeaways-heading {
+    font-size: var(--p-font-size-xs);
+    font-weight: var(--p-font-weight-medium);
+    letter-spacing: var(--p-font-tracking-wider);
+    text-transform: uppercase;
+    color: var(--p-color-text-accent-strong);
+    margin-bottom: var(--p-space-4);
+  }
+
+  .case-study__takeaways-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--p-space-4);
+  }
+
+  .case-study__sidebar {
+    position: sticky;
+    top: var(--p-space-8);
+    display: flex;
+    flex-direction: column;
+    gap: var(--p-space-6);
+  }
+
+  /* Prose styles — mirrors RichText.astro since this HTML is injected
+     directly rather than through the rich_text component. */
+  .case-study__body :global(h1),
+  .case-study__body :global(h2),
+  .case-study__body :global(h3),
+  .case-study__body :global(h4) {
+    font-family: var(--p-font-display);
+    font-weight: var(--p-font-weight-semibold);
+    line-height: var(--p-font-leading-tight);
+    color: var(--p-color-text-primary);
+    scroll-margin-top: var(--p-space-8);
+    margin-top: var(--p-space-10);
+    margin-bottom: var(--p-space-4);
+  }
+
+  .case-study__body :global(h1) { font-size: var(--p-font-size-4xl); }
+  .case-study__body :global(h2) { font-size: var(--p-font-size-3xl); }
+  .case-study__body :global(h3) { font-size: var(--p-font-size-2xl); }
+  .case-study__body :global(h4) { font-size: var(--p-font-size-xl); }
+
+  .case-study__body :global(p) {
+    font-size: var(--p-font-size-md);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-secondary);
+    line-height: var(--p-font-leading-normal);
+    margin-bottom: var(--p-space-5);
+  }
+
+  .case-study__body :global(ul),
+  .case-study__body :global(ol) {
+    padding-left: var(--p-space-6);
+    margin-bottom: var(--p-space-5);
+  }
+
+  .case-study__body :global(li) {
+    font-size: var(--p-font-size-md);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-secondary);
+    line-height: var(--p-font-leading-normal);
+    margin-bottom: var(--p-space-2);
+  }
+
+  .case-study__body :global(a) {
+    color: var(--p-color-text-accent-strong);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .case-study__body :global(strong) {
+    font-weight: var(--p-font-weight-medium);
+    color: var(--p-color-text-primary);
+  }
+
+  .case-study__body :global(em) {
+    font-style: italic;
+  }
+
+  .case-study__body :global(blockquote) {
+    border-left: 3px solid var(--p-color-border-accent);
+    padding-left: var(--p-space-6);
+    margin: var(--p-space-8) 0;
+    font-family: var(--p-font-display);
+    font-size: var(--p-font-size-xl);
+    font-style: italic;
+    color: var(--p-color-text-primary);
+  }
+
+  .case-study__body :global(hr) {
+    border: none;
+    border-top: 1px solid var(--p-color-border-default);
+    margin: var(--p-space-10) 0;
+  }
+
+  .case-study__body :global(img) {
+    width: 100%;
+    height: auto;
+    border-radius: var(--p-radius-md);
+    margin: var(--p-space-8) 0;
+  }
+
+  .case-study__body :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: var(--p-space-8);
+    font-size: var(--p-font-size-sm);
+  }
+
+  .case-study__body :global(th),
+  .case-study__body :global(td) {
+    border: 1px solid var(--p-color-border-default);
+    padding: var(--p-space-3) var(--p-space-4);
+    text-align: left;
+  }
+
+  .case-study__body :global(th) {
+    font-weight: var(--p-font-weight-medium);
+    color: var(--p-color-text-primary);
+    background: var(--p-color-bg-secondary);
+  }
+
+  .case-study__body :global(td) {
+    color: var(--p-color-text-secondary);
+  }
+
+  .case-study__body :global(*:first-child) {
+    margin-top: 0;
+  }
+
+  @media (max-width: 900px) {
+    .case-study__inner {
+      grid-template-columns: 1fr;
+    }
+
+    .case-study__sidebar {
+      position: static;
+      order: -1;
+    }
+  }
+</style>
