@@ -210,7 +210,9 @@ This repo uses Style Dictionary v5. Token references in JSON files use the v5 sy
 Figma file: https://www.figma.com/design/ePSkKvHKM4v0RdoUYcz2N0/Primer-Design-System
 
 Variables: `primitives` collection (60 vars) + `semantic` collection (31 vars, 2 modes: `semantic` / `Wireframe`).
-Wireframe mode swaps brand/accent colors to blue — Brian applies it per-frame from the Variables panel.
+Wireframe mode strips brand colour so reviews read as structure, not visual design — Brian applies it per-frame from the Variables panel.
+
+⚠️ **Figma and code currently disagree on wireframe colour.** `tokens/themes/wireframe.json` was made fully greyscale on 2026-07-25 (true neutrals, near-black CTAs), but the Figma `semantic/Wireframe` mode still uses the old blue (`accent.default = #3b82f6`). The two are not synced — the sync script deliberately covers only `primitives/primitives` and `semantic/semantic`, never the Wireframe mode. To bring them back in line, update the Wireframe-mode variables in Figma to match `tokens/themes/wireframe.json`.
 
 ### Component build: complete. Lock 8 Partners demo: complete (confirmed via Storyblok Management API, 2026-07-23).
 
