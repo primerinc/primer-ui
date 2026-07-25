@@ -8,8 +8,9 @@
     "node": ">=22.12.0"
   },
   "scripts": {
-    "build:tokens": "style-dictionary build --config tokens/sd.config.js",
-    "build:tokens:wireframe": "PRIMER_THEME=wireframe style-dictionary build --config tokens/sd.config.js",
+    "sync:tokens": "node tokens/sync-from-studio.js",
+    "build:tokens": "npm run sync:tokens && style-dictionary build --config tokens/sd.config.js",
+    "build:tokens:wireframe": "npm run sync:tokens && PRIMER_THEME=wireframe style-dictionary build --config tokens/sd.config.js",
     "watch:tokens": "style-dictionary build --watch --config tokens/sd.config.js",
     "dev": "astro dev",
     "build": "astro build",
