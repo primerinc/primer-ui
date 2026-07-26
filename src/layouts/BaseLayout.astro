@@ -193,6 +193,10 @@ const siteSchema = siteName
 
       function revealNow(el: HTMLElement) {
         el.classList.add('is-revealed');
+        // Images inside this section may have finished downloading long before
+        // the section itself scrolled into view — showImage() below withholds
+        // them until now, so release whichever are already loaded.
+        el.querySelectorAll<HTMLImageElement>('img').forEach(showImage);
       }
 
       function initReveals() {
@@ -224,19 +228,34 @@ const siteSchema = siteName
       }
 
       /**
-       * Fade images in once decoded. Anything already complete (cached, or a
-       * repeat visit) is marked before paint so it never flashes.
+       * Reveals an image's blur-up crossfade — but only once its enclosing
+       * section has actually revealed. Without this gate, a cached or
+       * fast-loading image fires its 'load' event, and therefore its whole
+       * blur-to-sharp transition, while still hidden behind the section's own
+       * opacity:0 — so by the time you scroll to it, it's already sharp and the
+       * blur-up is invisible. Downloaded and on-screen are different moments;
+       * this only shows the image once both have happened.
+       */
+      function showImage(img: HTMLImageElement) {
+        if (img.dataset.loaded !== 'true') return;
+        const section = img.closest<HTMLElement>('[data-reveal]');
+        if (section && !section.classList.contains('is-revealed')) return;
+        img.classList.add('is-loaded');
+      }
+
+      /**
+       * Tracks decode state as data-loaded rather than revealing immediately, so
+       * revealNow() can release the image later if its section hasn't shown yet.
+       * Anything already complete (cached, or a repeat visit) is marked before
+       * paint so it never flashes.
        */
       function initImageFade() {
-        document.querySelectorAll<HTMLImageElement>('img:not(.is-loaded)').forEach((img) => {
-          if (img.complete) {
-            img.classList.add('is-loaded');
-            return;
-          }
-          const done = () => img.classList.add('is-loaded');
-          img.addEventListener('load', done, { once: true });
+        document.querySelectorAll<HTMLImageElement>('img:not([data-loaded])').forEach((img) => {
+          const mark = () => { img.dataset.loaded = 'true'; showImage(img); };
+          if (img.complete) { mark(); return; }
+          img.addEventListener('load', mark, { once: true });
           // A broken image should still be visible rather than left at zero.
-          img.addEventListener('error', done, { once: true });
+          img.addEventListener('error', mark, { once: true });
         });
       }
 
