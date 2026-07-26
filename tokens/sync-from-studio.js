@@ -24,6 +24,10 @@ import { dirname, join } from 'node:path';
 const OWNED_BY_FIGMA = [
   ['color'],           // lossless — the layer designers actually iterate on
   ['font', 'family'],  // fallback stack re-attached below
+  ['radius'],          // component-scoped: radius.button/card/input etc. exist in
+                       // both layers, so a designer can round one component without
+                       // touching the rest. Exported in rem rather than px — same
+                       // rendered size, and radius.full arrives as 624.938rem.
 ];
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
