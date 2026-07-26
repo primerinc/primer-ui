@@ -214,7 +214,7 @@ const annualLabel    = blok.toggle_label_annual  || 'Annual';
     border: none;
     border-radius: var(--p-radius-full);
     cursor: pointer;
-    transition: background 0.2s ease;
+    transition: background var(--p-motion-base) var(--p-motion-ease);
     padding: 0;
     flex-shrink: 0;
   }
@@ -231,7 +231,7 @@ const annualLabel    = blok.toggle_label_annual  || 'Annual';
     height: 18px;
     background: white;
     border-radius: 50%;
-    transition: transform 0.2s ease;
+    transition: transform var(--p-motion-base) var(--p-motion-ease);
     display: block;
     pointer-events: none;
   }
@@ -373,7 +373,7 @@ const annualLabel    = blok.toggle_label_annual  || 'Annual';
     font-weight: var(--p-font-weight-medium);
     border-radius: var(--p-radius-button);
     text-decoration: none;
-    transition: opacity 0.15s ease;
+    transition: opacity var(--p-motion-hover) var(--p-motion-ease);
     margin-top: auto;
   }
 

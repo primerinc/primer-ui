@@ -351,6 +351,9 @@
     },
     "stagger": {
       "value": "120ms"
+    },
+    "hover": {
+      "value": "150ms"
     }
   }
 }

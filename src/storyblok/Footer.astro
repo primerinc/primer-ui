@@ -183,7 +183,7 @@ const socialIcons: Record<string, string> = {
     height: 36px;
     border-radius: var(--p-radius-sm);
     color: rgba(255,255,255,0.6);
-    transition: color 0.15s ease, background 0.15s ease;
+    transition: color var(--p-motion-hover) var(--p-motion-ease), background var(--p-motion-hover) var(--p-motion-ease);
     text-decoration: none;
   }
 
@@ -224,7 +224,7 @@ const socialIcons: Record<string, string> = {
     font-weight: var(--p-font-weight-regular);
     color: rgba(255,255,255,0.7);
     text-decoration: none;
-    transition: color 0.15s ease;
+    transition: color var(--p-motion-hover) var(--p-motion-ease);
   }
 
   .footer-col__link:hover { color: var(--p-color-text-inverse); }
@@ -260,7 +260,7 @@ const socialIcons: Record<string, string> = {
     font-size: var(--p-font-size-sm);
     font-weight: var(--p-font-weight-medium);
     cursor: pointer;
-    transition: opacity 0.2s ease;
+    transition: opacity var(--p-motion-base) var(--p-motion-ease);
   }
 
   .newsletter-form__btn:hover { opacity: 0.85; }
@@ -295,7 +295,7 @@ const socialIcons: Record<string, string> = {
     font-size: var(--p-font-size-xs);
     color: rgba(255,255,255,0.4);
     text-decoration: none;
-    transition: color 0.15s ease;
+    transition: color var(--p-motion-hover) var(--p-motion-ease);
   }
 
   .site-footer__legal-link:hover { color: rgba(255,255,255,0.7); }

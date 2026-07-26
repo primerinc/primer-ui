@@ -201,7 +201,7 @@ const uid = `faq-${blok._uid}`;
   .faq__icon {
     flex-shrink: 0;
     color: var(--p-color-text-tertiary);
-    transition: transform 0.25s ease;
+    transition: transform var(--p-motion-base) var(--p-motion-ease);
   }
 
   .faq__btn[aria-expanded='true'] .faq__icon {
@@ -212,7 +212,7 @@ const uid = `faq-${blok._uid}`;
   .faq__answer {
     display: grid;
     grid-template-rows: 0fr;
-    transition: grid-template-rows 0.25s ease;
+    transition: grid-template-rows var(--p-motion-base) var(--p-motion-ease);
     margin: 0;
   }
 

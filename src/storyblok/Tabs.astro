@@ -74,7 +74,7 @@ const uid = `tabs-${blok._uid}`;
                   {item.body && <p class="tabs__panel-body">{item.body}</p>}
                 </div>
                 {imageUrl && (
-                  <div class="tabs__panel-media">
+                  <div class="tabs__panel-media" data-blur-up style={item.image?.filename ? `background-image:url('${item.image.filename}/m/24x0/filters:blur(12)')` : undefined}>
                     <img {...imageSize(item.image?.filename, 900, 600)}
                       src={imageUrl}
                       alt={item.image?.alt ?? ''}
@@ -233,7 +233,7 @@ const uid = `tabs-${blok._uid}`;
     white-space: nowrap;
     border-radius: var(--p-radius-sm) var(--p-radius-sm) 0 0;
     position: relative;
-    transition: color 0.15s ease;
+    transition: color var(--p-motion-hover) var(--p-motion-ease);
   }
 
   .tabs--vertical .tabs__tab {
@@ -246,7 +246,7 @@ const uid = `tabs-${blok._uid}`;
     content: '';
     position: absolute;
     background: var(--p-color-text-accent);
-    transition: opacity 0.15s ease;
+    transition: opacity var(--p-motion-hover) var(--p-motion-ease);
     opacity: 0;
   }
 

@@ -33,7 +33,7 @@ const imageUrl = blok.image?.filename
     </div>
 
     {imageUrl && (
-      <div class="two-col__media" data-blur-up style={blok.image?.filename ? `background-image:url(${blok.image?.filename}/m/24x0/filters:blur(12))` : undefined}>
+      <div class="two-col__media" data-blur-up style={blok.image?.filename ? `background-image:url('${blok.image?.filename}/m/24x0/filters:blur(12)')` : undefined}>
         <img {...imageSize(blok.image?.filename, 1200, 0)}
           src={imageUrl}
           alt={blok.image?.alt || ''}
@@ -102,7 +102,7 @@ const imageUrl = blok.image?.filename
     color: var(--p-color-text-accent-strong);
     border-bottom: 1px solid var(--p-color-border-accent);
     padding-bottom: var(--p-space-1);
-    transition: opacity 0.2s ease;
+    transition: opacity var(--p-motion-base) var(--p-motion-ease);
   }
 
   .two-col__cta:hover { opacity: 0.7; }

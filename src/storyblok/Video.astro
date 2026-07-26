@@ -64,7 +64,7 @@ const hasHeader   = blok.eyebrow || blok.headline || blok.subheadline;
       </div>
     )}
 
-    <div class="video-block__player-wrap">
+    <div class="video-block__player-wrap" data-blur-up style={blok.poster?.filename ? `background-image:url('${blok.poster.filename}/m/24x0/filters:blur(12)')` : undefined}>
       {videoType === 'youtube' && youtubeId && (
         <div
           class="video-block__yt-facade"
@@ -229,7 +229,7 @@ const hasHeader   = blok.eyebrow || blok.headline || blok.subheadline;
   .video-block__yt-play {
     position: relative;
     z-index: 1;
-    transition: transform 0.15s ease, opacity 0.15s ease;
+    transition: transform var(--p-motion-hover) var(--p-motion-ease), opacity var(--p-motion-hover) var(--p-motion-ease);
     filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
   }
 

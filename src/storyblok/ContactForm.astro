@@ -399,7 +399,7 @@ const useHubspot       = !!(hubspotPortalId && hubspotFormId);
     border: 1px solid var(--p-color-border-default);
     border-radius: var(--p-radius-input);
     outline: none;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    transition: border-color var(--p-motion-hover) var(--p-motion-ease), box-shadow var(--p-motion-hover) var(--p-motion-ease);
     box-sizing: border-box;
   }
 
@@ -432,7 +432,7 @@ const useHubspot       = !!(hubspotPortalId && hubspotFormId);
     border: none;
     border-radius: var(--p-radius-button);
     cursor: pointer;
-    transition: opacity 0.15s ease;
+    transition: opacity var(--p-motion-hover) var(--p-motion-ease);
   }
 
   .contact__submit:hover  { opacity: 0.85; }
