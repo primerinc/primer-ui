@@ -22,12 +22,72 @@ const { blok, headings = [] } = Astro.props as { blok: any; headings: TocHeading
     <ul class="toc__list">
       {headings.map((h) => (
         <li class:list={['toc__item', `toc__item--level-${h.level}`]}>
-          <a href={`#${h.slug}`} class="toc__link">{h.text}</a>
+          <a href={`#${h.slug}`} class="toc__link" data-toc-link={h.slug}>{h.text}</a>
         </li>
       ))}
     </ul>
   </nav>
 )}
+
+<script>
+  /**
+   * Marks the section currently being read. Rather than firing on whichever
+   * heading last crossed a line — which flickers when several are on screen and
+   * goes blank when none are — this tracks every heading's position and picks
+   * the last one above a reading line near the top of the viewport.
+   */
+  function initTocHighlight() {
+    const toc = document.querySelector<HTMLElement>('.toc');
+    if (!toc) return;
+
+    const links = Array.from(toc.querySelectorAll<HTMLAnchorElement>('[data-toc-link]'));
+    const headings = links
+      .map((link) => document.getElementById(link.dataset.tocLink ?? ''))
+      .filter((el): el is HTMLElement => el !== null);
+    if (!headings.length) return;
+
+    let current = '';
+
+    const sync = () => {
+      const line = window.innerHeight * 0.25;
+      let active = headings[0];
+      for (const heading of headings) {
+        if (heading.getBoundingClientRect().top <= line) active = heading;
+      }
+
+      // Past the end of the article the last item should stay lit, not reset.
+      if (active.id === current) return;
+      current = active.id;
+
+      links.forEach((link) => {
+        const on = link.dataset.tocLink === current;
+        link.classList.toggle('is-active', on);
+        // Screen readers get the same signal the highlight gives sighted users.
+        if (on) link.setAttribute('aria-current', 'true');
+        else link.removeAttribute('aria-current');
+      });
+    };
+
+    // Scroll fires far more often than paint; coalesce to one update per frame.
+    let queued = false;
+    const onScroll = () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => { queued = false; sync(); });
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    sync();
+  }
+
+  document.addEventListener('astro:page-load', initTocHighlight);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTocHighlight, { once: true });
+  } else {
+    initTocHighlight();
+  }
+</script>
 
 <style>
   .toc {
@@ -55,8 +115,41 @@ const { blok, headings = [] } = Astro.props as { blok: any; headings: TocHeading
     margin-bottom: var(--p-space-3);
   }
 
-  .toc__item--level-3 {
+  /* The marker rail sits outside the text so switching sections doesn't
+     reflow the list — only colour and the marker's opacity change. */
+  .toc__item {
+    position: relative;
     padding-left: var(--p-space-4);
+  }
+
+  .toc__item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.45em;
+    width: 2px;
+    height: 0.9em;
+    border-radius: var(--p-radius-full);
+    background: var(--p-color-accent-default);
+    opacity: 0;
+    transform: scaleY(0.4);
+    transform-origin: center;
+    transition:
+      opacity   var(--p-motion-base) var(--p-motion-ease),
+      transform var(--p-motion-base) var(--p-motion-ease);
+  }
+
+  .toc__item:has(.toc__link.is-active)::before {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+
+  .toc__item--level-3 {
+    padding-left: var(--p-space-8);
+  }
+
+  .toc__item--level-3::before {
+    left: var(--p-space-4);
   }
 
   .toc__link {
@@ -65,9 +158,16 @@ const { blok, headings = [] } = Astro.props as { blok: any; headings: TocHeading
     color: var(--p-color-text-secondary);
     text-decoration: none;
     line-height: var(--p-font-leading-normal);
+    transition: color var(--p-motion-base) var(--p-motion-ease);
   }
 
   .toc__link:hover {
     color: var(--p-color-text-accent-strong);
+  }
+
+  /* Colour only — bolding the active item would change its width and make the
+     whole list twitch as you scroll. The rail carries the emphasis instead. */
+  .toc__link.is-active {
+    color: var(--p-color-text-primary);
   }
 </style>

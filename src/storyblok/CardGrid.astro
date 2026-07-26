@@ -44,7 +44,7 @@ const bg      = blok.background || 'primary';
         return (
           <li class="card" {...storyblokEditable(card)}>
             {imageUrl && (
-              <div class="card__media">
+              <div class="card__media" data-blur-up style={card.image?.filename ? `background-image:url(${card.image?.filename}/m/24x0/filters:blur(12))` : undefined}>
                 <img {...imageSize(card.image?.filename, 800, 600)}
                   src={imageUrl}
                   alt={card.image?.alt ?? ''}
@@ -58,7 +58,7 @@ const bg      = blok.background || 'primary';
               <h3 class="card__title">{card.title}</h3>
               {card.description && <p class="card__desc">{card.description}</p>}
               {card.cta_label && card.cta_url && (
-                <a href={String(card.cta_url)} class="card__cta">{card.cta_label} →</a>
+                <a href={String(card.cta_url)} class="card__cta">{card.cta_label}</a>
               )}
             </div>
           </li>
@@ -209,4 +209,23 @@ const bg      = blok.background || 'primary';
   }
 
   .card__cta:hover { opacity: 0.7; }
+
+  /* Arrow lives in a pseudo-element so it can move without shifting the label.
+     translate3d keeps it on the compositor; a plain margin change would reflow. */
+  .card__cta::after {
+    content: '\2192';
+    display: inline-block;
+    margin-left: 0.4em;
+    transition: transform var(--p-motion-base) var(--p-motion-ease);
+  }
+
+  .card__cta:hover::after,
+  .card__cta:focus-visible::after {
+    transform: translate3d(0.22em, 0, 0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card__cta::after { transition: none; }
+    .card__cta:hover::after { transform: none; }
+  }
 </style>

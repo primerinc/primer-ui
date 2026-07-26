@@ -33,7 +33,7 @@ const imageUrl = blok.image?.filename
     </div>
 
     {imageUrl && (
-      <div class="two-col__media">
+      <div class="two-col__media" data-blur-up style={blok.image?.filename ? `background-image:url(${blok.image?.filename}/m/24x0/filters:blur(12))` : undefined}>
         <img {...imageSize(blok.image?.filename, 1200, 0)}
           src={imageUrl}
           alt={blok.image?.alt || ''}
@@ -128,5 +128,24 @@ const imageUrl = blok.image?.filename
     .two-col--image-left .two-col__media {
       order: unset;
     }
+  }
+
+  /* Arrow lives in a pseudo-element so it can move without shifting the label.
+     translate3d keeps it on the compositor; a plain margin change would reflow. */
+  .two-col__cta::after {
+    content: '\2192';
+    display: inline-block;
+    margin-left: 0.4em;
+    transition: transform var(--p-motion-base) var(--p-motion-ease);
+  }
+
+  .two-col__cta:hover::after,
+  .two-col__cta:focus-visible::after {
+    transform: translate3d(0.22em, 0, 0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .two-col__cta::after { transition: none; }
+    .two-col__cta:hover::after { transform: none; }
   }
 </style>

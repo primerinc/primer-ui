@@ -36,6 +36,15 @@ const thumbUrl    = youtubeId ? `https://i.ytimg.com/vi/${youtubeId}/maxresdefau
 const posterUrl   = blok.poster?.filename
   ? `${blok.poster.filename}/m/1800x0/filters:quality(85)`
   : thumbUrl;
+
+/**
+ * A custom poster's size comes from the Storyblok URL; the YouTube fallback
+ * carries no dimensions, but its thumbnails are always 16:9 — declare that so
+ * the player doesn't reflow the page as it loads.
+ */
+const posterSize  = blok.poster?.filename
+  ? imageSize(blok.poster.filename, 1800, 0)
+  : { width: 1280, height: 720 };
 const videoSrc    = blok.video_file?.filename ?? null;
 
 const hasHeader   = blok.eyebrow || blok.headline || blok.subheadline;
@@ -66,7 +75,7 @@ const hasHeader   = blok.eyebrow || blok.headline || blok.subheadline;
           aria-label={`Play video${blok.headline ? `: ${blok.headline}` : ''}`}
         >
           {posterUrl && (
-            <img {...imageSize(blok.poster?.filename, 1800, 0)}
+            <img {...posterSize}
               src={posterUrl}
               alt={blok.headline ?? 'Video thumbnail'}
               class="video-block__poster"

@@ -184,13 +184,32 @@ try {
         targets.forEach((el) => observer.observe(el));
       }
 
+      /**
+       * Fade images in once decoded. Anything already complete (cached, or a
+       * repeat visit) is marked before paint so it never flashes.
+       */
+      function initImageFade() {
+        document.querySelectorAll<HTMLImageElement>('img:not(.is-loaded)').forEach((img) => {
+          if (img.complete) {
+            img.classList.add('is-loaded');
+            return;
+          }
+          const done = () => img.classList.add('is-loaded');
+          img.addEventListener('load', done, { once: true });
+          // A broken image should still be visible rather than left at zero.
+          img.addEventListener('error', done, { once: true });
+        });
+      }
+
       // astro:page-load covers both first paint and ClientRouter navigations.
       document.addEventListener('astro:page-load', initReveals);
+      document.addEventListener('astro:page-load', initImageFade);
       // …but it never fires if the router is absent, so cover that too.
+      const start = () => { initReveals(); initImageFade(); };
       if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initReveals, { once: true });
+        document.addEventListener('DOMContentLoaded', start, { once: true });
       } else {
-        initReveals();
+        start();
       }
     </script>
   )}
@@ -309,6 +328,58 @@ try {
   ::selection {
     background: var(--p-color-accent-subtle);
     color: var(--p-color-text-accent-strong);
+  }
+
+  /* ---- image loading ------------------------------------------------------
+     Images resolve in rather than popping. Scoped to .has-reveal so a failed
+     script can never leave them permanently transparent, and images already in
+     cache are marked loaded before paint so there's no flash on repeat visits. */
+  .has-reveal img {
+    opacity: 0;
+    transition: opacity var(--p-motion-duration-slow) var(--p-motion-easing-ease-out);
+  }
+
+  .has-reveal img.is-loaded {
+    opacity: 1;
+  }
+
+  /* Media wrappers hold a blurred thumbnail behind the real file, so large
+     images fade from a soft impression of themselves rather than from nothing. */
+  [data-blur-up] {
+    background-size: cover;
+    background-position: center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .has-reveal img { opacity: 1; transition: none; }
+  }
+
+  /* ---- link underline -----------------------------------------------------
+     A gradient underline grown from the left, rather than a colour swap. Sized
+     in em so it tracks the type it belongs to. */
+  .prose-link,
+  .rich-text__inner :global(a),
+  .case-study__body :global(a) {
+    text-decoration: none;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 0% 1px;
+    transition: background-size var(--p-motion-duration-slow) var(--p-motion-easing-ease-out);
+    padding-bottom: 0.08em;
+  }
+
+  .prose-link:hover,
+  .rich-text__inner :global(a:hover),
+  .case-study__body :global(a:hover) {
+    background-size: 100% 1px;
+  }
+
+  /* Keyboard users get the underline too — hover isn't available to them. */
+  .prose-link:focus-visible,
+  .rich-text__inner :global(a:focus-visible),
+  .case-study__body :global(a:focus-visible) {
+    background-size: 100% 1px;
   }
 
   /* ---- focus --------------------------------------------------------------
