@@ -17,7 +17,8 @@
     "preview": "astro preview",
     "check:contrast": "node tokens/check-contrast.js",
     "check:storyblok-drift": "node --env-file=.env storyblok/check-drift.js",
-    "check:build-safety": "node storyblok/check-build-safety.js"
+    "check:build-safety": "node storyblok/check-build-safety.js",
+    "bootstrap:client-space": "node --env-file=.env storyblok/bootstrap-client-space.js"
   },
   "keywords": [
     "astro",
