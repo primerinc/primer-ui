@@ -138,6 +138,12 @@ try {
        */
       function markStaggerGroups() {
         document.querySelectorAll<HTMLElement>('[data-reveal-stagger]').forEach((group) => {
+          // Sections opt in from Page.astro, so a stagger group almost always
+          // sits inside one. Hold the cascade until that wrapper has mostly
+          // landed, otherwise both fades run at once and neither reads.
+          const nested = group.closest('[data-reveal]') !== null;
+          if (nested) group.style.setProperty('--reveal-offset', 'var(--p-motion-duration-slow)');
+
           Array.from(group.children).forEach((child, i) => {
             if (!(child instanceof HTMLElement)) return;
             child.setAttribute('data-reveal', '');
@@ -170,9 +176,9 @@ try {
               observer.unobserve(entry.target);
             });
           },
-          // Fire a little before the element is fully in view so the motion
-          // reads as the page arriving rather than reacting to the scroll.
-          { rootMargin: '0px 0px -8% 0px', threshold: 0.05 },
+          // Hold until the element is properly into the viewport. Triggering at
+          // the very edge means the animation is over before it's been looked at.
+          { rootMargin: '0px 0px -12% 0px', threshold: 0.05 },
         );
 
         targets.forEach((el) => observer.observe(el));
@@ -241,10 +247,16 @@ try {
     opacity: 1;
     transform: none;
     transition:
-      opacity   var(--p-motion-duration-slower) var(--p-motion-easing-ease-out),
-      transform var(--p-motion-duration-slower) var(--p-motion-easing-ease-out);
-    /* --reveal-i is set per child inside a stagger group; 0 everywhere else. */
-    transition-delay: calc(var(--reveal-i, 0) * 60ms);
+      opacity   var(--p-motion-reveal) var(--p-motion-easing-ease-out),
+      transform var(--p-motion-reveal) var(--p-motion-easing-ease-out);
+    /*
+      --reveal-i is the child's position in a stagger group (0 elsewhere).
+      --reveal-offset holds a staggered group back until its section wrapper has
+      largely finished; without it the parent and children fade simultaneously,
+      their opacities multiply, and the cascade is lost in the mush.
+    */
+    transition-delay:
+      calc(var(--reveal-offset, 0ms) + var(--reveal-i, 0) * var(--p-motion-stagger));
   }
 
   /* Honour the OS setting: cut the motion, keep the swap instant rather than

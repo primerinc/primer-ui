@@ -345,6 +345,12 @@
     },
     "spring": {
       "value": "{motion.easing.spring}"
+    },
+    "reveal": {
+      "value": "{motion.duration.slowest}"
+    },
+    "stagger": {
+      "value": "120ms"
     }
   }
 }

@@ -359,6 +359,9 @@
       },
       "slower": {
         "value": "500ms"
+      },
+      "slowest": {
+        "value": "800ms"
       }
     },
     "easing": {
