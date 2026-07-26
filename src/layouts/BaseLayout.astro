@@ -1,7 +1,42 @@
 ---
 import '../../tokens/dist/tokens.css';
+import { ClientRouter } from 'astro:transitions';
 import { useStoryblokApi } from '@storyblok/astro';
 import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
+
+/**
+ * Page transition — a short lift-and-fade rather than a plain crossfade.
+ * Written as an Astro animation object rather than raw ::view-transition-* CSS so
+ * the same definition drives the JS fallback in browsers without the View
+ * Transitions API. Durations/easings come from the motion tokens, so the feel is
+ * tunable from the design system rather than hard-coded here.
+ *
+ * Out is deliberately faster than in (accelerate away, decelerate back), which
+ * reads as responsive; a symmetrical curve feels sluggish at these durations.
+ */
+/**
+ * Storyblok's Visual Editor loads the site in an iframe and drives it with the
+ * bridge script. Client-side routing swaps the DOM out from under that, so the
+ * router is skipped there: editors get plain, predictable navigation, and real
+ * visitors still get the transition. Detected server-side from the query param
+ * the editor always appends.
+ */
+const inVisualEditor = Astro.url.searchParams.has('_storyblok');
+
+const pageTransition = {
+  forwards: {
+    old: { name: 'primer-page-out', duration: 'var(--p-motion-duration-base)',
+           easing: 'var(--p-motion-easing-ease-in)', fillMode: 'both' },
+    new: { name: 'primer-page-in',  duration: 'var(--p-motion-duration-slow)',
+           easing: 'var(--p-motion-easing-ease-out)', fillMode: 'both' },
+  },
+  backwards: {
+    old: { name: 'primer-page-out', duration: 'var(--p-motion-duration-base)',
+           easing: 'var(--p-motion-easing-ease-in)', fillMode: 'both' },
+    new: { name: 'primer-page-in',  duration: 'var(--p-motion-duration-slow)',
+           easing: 'var(--p-motion-easing-ease-out)', fillMode: 'both' },
+  },
+};
 
 interface Props {
   title: string;
@@ -64,11 +99,27 @@ try {
     href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
     rel="stylesheet"
   />
+
+  {!inVisualEditor && <ClientRouter fallback="animate" />}
 </head>
 <body>
-  {!hideNav && headerBlok && <StoryblokComponent blok={headerBlok} />}
-  <slot />
-  {!hideFooter && footerBlok && <StoryblokComponent blok={footerBlok} />}
+  {/* transition:persist keeps the real header/footer nodes across navigations, so
+      they never flash or re-animate — only the page body moves. */}
+  {!hideNav && headerBlok && (
+    <div transition:persist="site-header">
+      <StoryblokComponent blok={headerBlok} />
+    </div>
+  )}
+
+  <div class="page-body" transition:animate={pageTransition}>
+    <slot />
+  </div>
+
+  {!hideFooter && footerBlok && (
+    <div transition:persist="site-footer">
+      <StoryblokComponent blok={footerBlok} />
+    </div>
+  )}
 </body>
 </html>
 
@@ -83,6 +134,42 @@ try {
     font-size: 16px;
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
+  }
+
+  /* ---- page transitions ---------------------------------------------------
+     Keyframes for the animation defined in the frontmatter. The lift is small
+     on purpose: a few pixels reads as intentional, while a large travel starts
+     to feel like a slideshow and delays the content people came for. */
+  @keyframes primer-page-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  @keyframes primer-page-out {
+    from { opacity: 1; transform: none; }
+    to   { opacity: 0; transform: translateY(-6px); }
+  }
+
+  /* The snapshot pair is composited over the same ground, so paint the root
+     to stop the underlying page showing through mid-transition. */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    background: var(--p-color-bg-primary);
+  }
+
+  /* Honour the OS setting: cut the motion, keep the swap instant rather than
+     leaving a half-faded frame. This covers the native path and Astro's
+     JS fallback, hence the broad selector. */
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+      animation: none !important;
+    }
+
+    .page-body { animation: none !important; }
   }
 
   body {
