@@ -68,17 +68,37 @@ const storyblokApi = useStoryblokApi();
 let headerBlok = null;
 let footerBlok = null;
 let siteName: string | null = null;
+let gtmContainerId: string | null = null;
+let headScripts: string | null = null;
+let bodyScripts: string | null = null;
 
 try {
   const { data } = await storyblokApi.get('cdn/stories/config', {
     version: 'draft',
   });
-  headerBlok = data?.story?.content?.header?.[0] ?? null;
-  footerBlok = data?.story?.content?.footer?.[0] ?? null;
-  siteName   = data?.story?.content?.site_name ?? null;
+  headerBlok     = data?.story?.content?.header?.[0] ?? null;
+  footerBlok     = data?.story?.content?.footer?.[0] ?? null;
+  siteName       = data?.story?.content?.site_name ?? null;
+  gtmContainerId = data?.story?.content?.gtm_container_id || null;
+  headScripts    = data?.story?.content?.head_scripts || null;
+  bodyScripts    = data?.story?.content?.body_scripts || null;
 } catch (e) {
   // Config story not found — header/footer render nothing
 }
+
+/**
+ * head_scripts is deliberately rendered BEFORE the GTM snippet below, not after.
+ * If a client needs cookie consent, their CMP (Cookiebot/OneTrust/CookieYes/etc.)
+ * snippet — or a bare Google Consent Mode default-state call — goes in
+ * head_scripts, so consent defaults are established before GTM loads and reads
+ * them. Getting this ordering right is the whole reason GTM has its own
+ * first-class field instead of just being one more thing pasted into
+ * head_scripts: it fixes the load order by construction rather than relying on
+ * every client remembering to paste things in the right sequence.
+ */
+const gtmSnippet = gtmContainerId
+  ? `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer',${JSON.stringify(gtmContainerId)});`
+  : null;
 
 /**
  * Site-wide structured data. The organisation is described once per page and
@@ -135,6 +155,12 @@ const siteSchema = siteName
 
   {siteSchema && <script type="application/ld+json" is:inline set:html={siteSchema} />}
 
+  {/* Order matters: a client's consent-management snippet (Cookiebot/OneTrust/
+      CookieYes/a bare Consent Mode default call) belongs in head_scripts, and it
+      must run before GTM reads consent state — see the comment above gtmSnippet. */}
+  {!inVisualEditor && headScripts && <Fragment set:html={headScripts} />}
+  {!inVisualEditor && gtmSnippet && <script is:inline set:html={gtmSnippet} />}
+
   {!inVisualEditor && <ClientRouter fallback="animate" />}
 
   {/* Marks the document as reveal-capable before first paint. The hidden state is
@@ -143,6 +169,20 @@ const siteSchema = siteName
   {!inVisualEditor && <script is:inline>document.documentElement.classList.add('has-reveal');</script>}
 </head>
 <body>
+  {/* Per Google's own placement guidance, as high in body as the markup allows —
+      covers visitors with JS disabled, for whom the head script never ran. */}
+  {!inVisualEditor && gtmContainerId && (
+    <noscript>
+      <iframe
+        src={`https://www.googletagmanager.com/ns.html?id=${encodeURIComponent(gtmContainerId)}`}
+        height="0"
+        width="0"
+        style="display:none;visibility:hidden"
+      />
+    </noscript>
+  )}
+  {!inVisualEditor && bodyScripts && <Fragment set:html={bodyScripts} />}
+
   {/* First focusable element on the page, so keyboard and switch users can jump
       past a long nav on every page rather than tabbing through it each time. */}
   <a class="skip-link" href="#main-content">Skip to content</a>

@@ -548,6 +548,50 @@ wrapping `Page.astro`'s body render. It is lead-capture, not content security.
 
 ---
 
+## config
+
+Not one of the three `body`-driven content types above — a separate singleton
+story, slug `config`, fetched once per page by `src/layouts/BaseLayout.astro`
+via `cdn/stories/config`. Create it as its own content type with no `body`
+field of its own.
+
+| Field name        | Type     | Required | Options / Notes                                                          |
+|--------------------|----------|----------|---------------------------------------------------------------------------|
+| site_name          | Text     | No       | Used in structured data (Organization/WebSite) and as a fallback         |
+| header             | Blocks   | No       | Restrict to `header`, min 1 / max 1                                      |
+| footer             | Blocks   | No       | Restrict to `footer`, min 1 / max 1                                      |
+| gtm_container_id   | Text     | No       | e.g. `GTM-XXXXXXX`. First-class field (not just pasted into head_scripts) so BaseLayout can place the head snippet and the `<body>` noscript iframe correctly and so consent-mode ordering is guaranteed — see "Third-party scripts" below |
+| head_scripts       | Textarea | No       | Raw HTML/script, injected via `set:html` near the top of `<head>`, **before** the GTM snippet. This is where a client's consent-management platform (Cookiebot/OneTrust/CookieYes) snippet or a bare Google Consent Mode default-state call goes |
+| body_scripts       | Textarea | No       | Raw HTML/script, injected via `set:html` at the very top of `<body>`, after the GTM noscript iframe |
+
+### Third-party scripts & consent
+
+`gtm_container_id`, `head_scripts`, and `body_scripts` cover the two shapes
+this comes up in:
+
+- **Just GTM, no consent requirements** (most client sites so far): set
+  `gtm_container_id` and stop there. `BaseLayout` builds the standard head
+  snippet and `<body>` noscript iframe from it.
+- **A client that does need cookie consent**: paste their CMP's snippet (or a
+  bare `gtag('consent', 'default', {...})` Google Consent Mode call, if no
+  CMP is being used) into `head_scripts`, not `head_scripts` *and*
+  `gtm_container_id` in some ad-hoc order — `head_scripts` always renders
+  before the GTM snippet, specifically so consent defaults are established
+  before GTM (and any tags inside it) read them. GTM's own tags/triggers then
+  handle which tags actually fire based on the consent signal — that logic
+  lives in the GTM container itself (configured in the GTM UI), not in this
+  codebase.
+- Anything needing arbitrary markup at the top of `<body>` (e.g. a CMP that
+  injects a banner element rather than just a script) goes in `body_scripts`.
+
+Both script fields render raw, unsanitized HTML from a trusted CMS editor —
+same trust level as a WordPress admin pasting a script into a theme's header,
+not a public input. Both are skipped inside the Storyblok Visual Editor
+(`inVisualEditor`), so editors previewing a draft don't fire analytics events
+or duplicate-load a CMP inside the editor iframe.
+
+---
+
 ## Adding new blocks
 
 When you add a new component to the library:

@@ -190,6 +190,11 @@ All client Astro projects use this layout as their base.
 
 Update the Google Fonts link in BaseLayout for each client's brand fonts.
 
+Third-party scripts (GTM, consent management platforms, etc.) are configured
+per-client via the singleton `config` story, not hardcoded here — see the
+`config` section and "Third-party scripts & consent" in
+`storyblok/schema-reference.md`.
+
 ---
 
 ## Rendering mode: SSR + Storyblok Live Preview (as of 2026-07-22)
