@@ -4,6 +4,7 @@ import type { SbBlokData, ISbStoryData } from '@storyblok/astro';
 import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { article, parseCustomSchema, type SchemaNode } from '../lib/schema';
+import { isPageStory } from '../lib/storyblok-payload';
 
 interface Metatags {
   title?: string;
@@ -33,6 +34,11 @@ if (slug === 'config' || slug === 'home') {
 
 const payload = await getPayload<object, Story>({ locals: Astro.locals });
 let story: Story | undefined = payload?.story;
+
+// A live-preview payload can be a non-page singleton (e.g. `config`, opened
+// directly in the Visual Editor) — discard it and fetch the story for this
+// URL's own slug instead of trying to render it as one.
+if (!isPageStory(story)) story = undefined;
 
 if (!story) {
   const api = useStoryblokApi();

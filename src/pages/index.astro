@@ -2,9 +2,15 @@
 import { useStoryblokApi, getPayload } from '@storyblok/astro';
 import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { isPageStory } from '../lib/storyblok-payload';
 
 const payload = await getPayload({ locals: Astro.locals });
 let story = payload?.story;
+
+// A live-preview payload can be a non-page singleton (e.g. `config`, opened
+// directly in the Visual Editor) — discard it and fetch the real page
+// instead of trying to render it as one. See src/lib/storyblok-payload.ts.
+if (!isPageStory(story)) story = undefined;
 
 if (!story) {
   const api = useStoryblokApi();
