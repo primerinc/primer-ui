@@ -36,8 +36,14 @@ Gather before doing anything:
 
 1. Clone primer-ui into a fresh local directory named for the client slug.
 2. Strip `.git` and `git init` fresh — a client repo doesn't need primer-ui's full commit history, and starting clean avoids any future accidental cross-client leakage through old commits.
-3. Confirm the GitHub destination (org/account, repo name, private/public) with the user.
-4. `gh repo create <org>/<slug> --private --source=. --push` (or public, per confirmation).
+3. **De-primer the identity, not the engineering conventions.** The client repo should be named/described as the client's project, not carry `primer-ui` branding forward — but most of what currently says "Primer" is genuine, still-valid engineering guidance (the token layer rules, component structure conventions), not identity, and should stay:
+   - `package.json`: rename `"name"` from `@primer-inc/ui` to `@primer-inc/<slug>` (keep the `@primer-inc` scope — Primer the agency maintains/builds these, the scope denotes that, not the client's own org) and update `"description"` to describe this specific client's site.
+   - `README.md`: retitle from `# primer-ui` to `# <client name>` and rewrite its description line; the structural sections below (`tokens/`, `storyblok/`, setup commands) stay as-is, they're still accurate.
+   - `CLAUDE.md`: rewrite the title and the "What this repo is" / `Repository:` lines to describe this client's repo — leave the rest (token system, component conventions, coding rules) untouched, it's still the operative guidance for anyone (human or Claude) working in this fork.
+   - `package-lock.json`: don't hand-edit — just rerun `npm install` after the `package.json` rename and it regenerates consistently.
+   - `astro.config.mjs`'s `primer:watch-tokens` Vite plugin label is cosmetic (an internal dev-server log tag, no external visibility) — rename it if convenient, not worth a separate pass if not.
+4. Confirm the GitHub destination (org/account, repo name, private/public) with the user.
+5. `gh repo create <org>/<slug> --private --source=. --push` (or public, per confirmation).
 
 Confirm specifically before the `gh repo create`/push step — everything before it is local and reversible.
 
