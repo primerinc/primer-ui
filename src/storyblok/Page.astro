@@ -7,10 +7,15 @@
  * (src/pages/[...slug].astro), not here.
  */
 import { storyblokEditable } from '@storyblok/astro';
-import type { SbBlokData } from '@storyblok/astro';
-import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
+import ContentGate from './ContentGate.astro';
+import BodyBlocks from './BodyBlocks.astro';
 
 const { blok } = Astro.props;
+
+// gate_enabled only exists on resource/campaign_page's schema — undefined
+// (falsy) on plain `page` entries, so this is a no-op there.
+const gated = Boolean(blok.gate_enabled);
+const gateKey = `hubspot_gate_${Astro.url.pathname}`;
 ---
 
 {/*
@@ -20,12 +25,16 @@ const { blok } = Astro.props;
   a stagger separately, via data-reveal-stagger on the item container.
 
   The first block is excluded: it's above the fold on arrival, and fading in
-  the hero would delay the very thing the visitor came for.
+  the hero would delay the very thing the visitor came for. That exclusion
+  still applies when the page is gated — the whole body sits behind the gate
+  either way, but individual blocks keep their own reveal timing once unlocked.
 */}
 <main {...storyblokEditable(blok)}>
-  {blok.body?.map((b: SbBlokData, i: number) => (
-    <div data-reveal={i === 0 ? undefined : ''}>
-      <StoryblokComponent blok={b} />
-    </div>
-  ))}
+  {gated ? (
+    <ContentGate blok={blok} gateKey={gateKey}>
+      <BodyBlocks body={blok.body} />
+    </ContentGate>
+  ) : (
+    <BodyBlocks body={blok.body} />
+  )}
 </main>

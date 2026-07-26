@@ -1,0 +1,275 @@
+---
+/**
+ * ContentGate
+ * Not a Storyblok blok — a wrapper Page.astro reaches for when a resource or
+ * campaign_page has gate_enabled set. See storyblok-component-scaffold's
+ * references/gating-pattern.md for the full rationale.
+ *
+ * This is a SOFT gate: the wrapped content ships in the static HTML at build
+ * time and is only hidden/shown client-side. It captures leads; it is not
+ * content security. Do not reach for this if a request actually needs content
+ * withheld from unauthenticated visitors — that's a different, SSR-based
+ * pattern.
+ *
+ * Fields (read from the resource/campaign_page content type, not a nested blok):
+ *   gate_enabled, gate_hubspot_portal_id, gate_hubspot_form_id,
+ *   gate_headline, gate_description
+ */
+import { storyblokEditable } from '@storyblok/astro';
+import type { SbBlokData } from '@storyblok/astro';
+
+interface Props {
+  blok: SbBlokData;
+  gateKey: string;
+}
+
+const { blok, gateKey } = Astro.props;
+
+const portalId    = String(blok.gate_hubspot_portal_id ?? '');
+const formId      = String(blok.gate_hubspot_form_id ?? '');
+const headline    = String(blok.gate_headline || 'Unlock this resource');
+const description = String(blok.gate_description ?? '');
+const ready       = Boolean(portalId && formId);
+---
+
+{ready ? (
+  <div
+    class="content-gate"
+    data-gate-state="locked"
+    data-gate-key={gateKey}
+    {...storyblokEditable(blok)}
+  >
+    {/*
+      Runs synchronously, before the browser paints, so a returning visitor who
+      already unlocked never sees the overlay flash in first. Astro's default
+      script processing defers as type="module"; is:inline is what keeps this
+      blocking, same technique as a dark-mode class added before first paint.
+    */}
+    <script is:inline define:vars={{ gateKey }}>
+      (function () {
+        var el = document.currentScript.closest('[data-gate-state]');
+        if (el && localStorage.getItem(gateKey)) {
+          el.setAttribute('data-gate-state', 'unlocked');
+        }
+      })();
+    </script>
+
+    <div class="content-gate__overlay">
+      <div class="content-gate__card">
+        {headline && <h2 class="content-gate__headline">{headline}</h2>}
+        {description && <p class="content-gate__description">{description}</p>}
+
+        <form class="content-gate__form" data-gate-form data-hs-portal={portalId} data-hs-form={formId}>
+          <div class="content-gate__field">
+            <label for="gate-name">Name</label>
+            <input id="gate-name" name="name" type="text" autocomplete="name" required />
+          </div>
+          <div class="content-gate__field">
+            <label for="gate-email">Email</label>
+            <input id="gate-email" name="email" type="email" autocomplete="email" required />
+          </div>
+
+          <button type="submit" class="content-gate__submit">Unlock</button>
+          <p class="content-gate__error" data-gate-error hidden>
+            Something went wrong — please try again.
+          </p>
+        </form>
+      </div>
+    </div>
+
+    {/* inert removes the locked content from both the tab order and the
+        accessibility tree in one step — a keyboard or screen reader user can't
+        land on a headline they can't yet read, same pattern as the mobile menu. */}
+    <div class="content-gate__body" inert>
+      <slot />
+    </div>
+  </div>
+) : (
+  // Misconfigured (enabled with a missing portal/form id) — never trap a
+  // visitor behind a gate that can't be unlocked. Content just renders plainly.
+  <slot />
+)}
+
+<script>
+  /**
+   * Submits the same way ContactForm.astro does — a plain form posting to
+   * HubSpot's Forms API — rather than loading HubSpot's embed script. No new
+   * script type on the page, so no shared-loader singleton to build or forget.
+   */
+  document.querySelectorAll<HTMLFormElement>('[data-gate-form]').forEach((form) => {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const gate = form.closest<HTMLElement>('[data-gate-state]');
+      const btn  = form.querySelector<HTMLButtonElement>('[type="submit"]');
+      const errorEl = form.querySelector<HTMLElement>('[data-gate-error]');
+      if (!gate || !btn) return;
+
+      const portalId = form.dataset.hsPortal;
+      const formId   = form.dataset.hsForm;
+      if (!portalId || !formId) return;
+
+      const original = btn.textContent ?? '';
+      btn.disabled = true;
+      btn.textContent = 'Unlocking…';
+      errorEl?.setAttribute('hidden', '');
+
+      try {
+        const fd = new FormData(form);
+        const fullName = String(fd.get('name') ?? '').trim();
+        const [firstname, ...rest] = fullName.split(/\s+/);
+
+        const res = await fetch(
+          `https://api.hsforms.com/submissions/v3/integration/submit/${portalId}/${formId}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              submittedAt: Date.now(),
+              fields: [
+                { objectTypeId: '0-1', name: 'firstname', value: firstname ?? '' },
+                { objectTypeId: '0-1', name: 'lastname', value: rest.join(' ') },
+                { objectTypeId: '0-1', name: 'email', value: String(fd.get('email') ?? '') },
+              ],
+              context: { pageUri: window.location.href, pageName: document.title },
+            }),
+          },
+        );
+
+        if (!res.ok) throw new Error(`HubSpot ${res.status}`);
+
+        const gateKey = gate.dataset.gateKey;
+        if (gateKey) localStorage.setItem(gateKey, '1');
+
+        // No page reload and no dependency on a HubSpot redirect setting —
+        // flip the attribute directly so the unlock is instant.
+        gate.setAttribute('data-gate-state', 'unlocked');
+        gate.querySelector<HTMLElement>('.content-gate__body')?.removeAttribute('inert');
+      } catch {
+        if (errorEl) errorEl.removeAttribute('hidden');
+        btn.disabled = false;
+        btn.textContent = original;
+      }
+    });
+  });
+</script>
+
+<style>
+  .content-gate {
+    position: relative;
+  }
+
+  .content-gate__body {
+    filter: blur(6px);
+    user-select: none;
+    pointer-events: none;
+    transition: filter var(--p-motion-duration-slow) var(--p-motion-easing-ease-out);
+  }
+
+  .content-gate[data-gate-state='unlocked'] .content-gate__body {
+    filter: none;
+  }
+
+  .content-gate[data-gate-state='unlocked'] .content-gate__overlay {
+    display: none;
+  }
+
+  .content-gate__overlay {
+    position: sticky;
+    top: var(--p-space-16);
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    padding: var(--p-space-8);
+    margin-bottom: calc(-1 * var(--p-space-16));
+  }
+
+  .content-gate__card {
+    width: 100%;
+    max-width: 440px;
+    background: var(--p-color-bg-primary);
+    border: 1px solid var(--p-color-border-default);
+    border-radius: var(--p-radius-card);
+    box-shadow: var(--p-shadow-xl);
+    padding: var(--p-space-8);
+    text-align: center;
+  }
+
+  .content-gate__headline {
+    font-family: var(--p-font-display);
+    font-size: var(--p-font-size-2xl);
+    font-weight: var(--p-font-weight-semibold);
+    line-height: var(--p-font-leading-tight);
+    color: var(--p-color-text-primary);
+    margin-bottom: var(--p-space-3);
+  }
+
+  .content-gate__description {
+    font-size: var(--p-font-size-md);
+    color: var(--p-color-text-secondary);
+    line-height: var(--p-font-leading-normal);
+    margin-bottom: var(--p-space-6);
+  }
+
+  .content-gate__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--p-space-4);
+    text-align: left;
+  }
+
+  .content-gate__field label {
+    display: block;
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-medium);
+    color: var(--p-color-text-primary);
+    margin-bottom: var(--p-space-2);
+  }
+
+  .content-gate__field input {
+    width: 100%;
+    font: inherit;
+    font-size: var(--p-font-size-md);
+    color: var(--p-color-text-primary);
+    background: var(--p-color-bg-primary);
+    border: 1px solid var(--p-color-border-default);
+    border-radius: var(--p-radius-input);
+    padding: var(--p-space-3) var(--p-space-4);
+    transition: border-color var(--p-motion-hover) var(--p-motion-ease);
+  }
+
+  .content-gate__field input:focus-visible {
+    border-color: var(--p-color-border-focus);
+  }
+
+  .content-gate__submit {
+    font: inherit;
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-medium);
+    color: var(--p-color-text-on-accent);
+    background: var(--p-color-accent-default);
+    border: none;
+    border-radius: var(--p-radius-button);
+    padding: var(--p-space-3) var(--p-space-5);
+    cursor: pointer;
+    transition: background var(--p-motion-hover) var(--p-motion-ease);
+  }
+
+  .content-gate__submit:hover {
+    background: var(--p-color-accent-hover);
+  }
+
+  .content-gate__submit:disabled {
+    opacity: var(--p-opacity-disabled);
+    cursor: not-allowed;
+  }
+
+  .content-gate__error {
+    font-size: var(--p-font-size-sm);
+    color: var(--p-color-status-danger-text);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .content-gate__body { transition: none; }
+  }
+</style>

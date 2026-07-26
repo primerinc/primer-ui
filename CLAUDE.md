@@ -92,6 +92,13 @@ npm run build:tokens
 
 Update this table every time a component is added or its status changes.
 
+`src/storyblok/ContentGate.astro` and `BodyBlocks.astro` aren't in the table above —
+they're internal helpers `Page.astro` reaches for, not registered Storyblok bloks.
+`ContentGate` implements the soft-gate pattern (`gate_enabled` etc. on `resource`/
+`campaign_page` — see "Content gating" in `storyblok/schema-reference.md`); `BodyBlocks`
+is just the shared body-rendering loop, factored out so it can be used both directly
+and nested inside `ContentGate` without duplicating the scroll-reveal wrapper logic.
+
 ---
 
 ## Coding conventions

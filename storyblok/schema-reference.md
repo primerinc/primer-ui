@@ -494,8 +494,11 @@ Storyblok has no cross-content-type "field group" mechanism — the "Group" fiel
 | featured       | Boolean | No       | Default false. Reserved for a future resource-listing page — not used on the detail page itself |
 | body           | Blocks  | Yes      | Restrict to the nestable blocks above                                    |
 | seo            | Blocks  | No       | Restrict to `seo`, min 1 / max 1                                         |
-
-**Not yet built (flagged in the original plan, add only if time allows before demo):** `gated` (Boolean) and `hubspot_form_id` (Text) for gating a resource behind a form.
+| gate_enabled              | Boolean  | No | Default false. See "Content gating" below                          |
+| gate_hubspot_portal_id    | Text     | No | HubSpot Portal ID for the gate form                                 |
+| gate_hubspot_form_id      | Text     | No | HubSpot Form ID for the gate form                                   |
+| gate_headline             | Text     | No | Default "Unlock this resource"                                     |
+| gate_description          | Textarea | No | Optional supporting copy on the gate card                           |
 
 ### campaign_page
 
@@ -507,6 +510,41 @@ Storyblok has no cross-content-type "field group" mechanism — the "Group" fiel
 | hide_footer            | Boolean | No       | Default false. Hides the global footer for this page (wired in `BaseLayout.astro`) |
 | body                   | Blocks  | Yes      | Restrict to the nestable blocks above                                    |
 | seo                    | Blocks  | No       | Restrict to `seo`, min 1 / max 1                                         |
+| gate_enabled              | Boolean  | No | Default false. See "Content gating" below                          |
+| gate_hubspot_portal_id    | Text     | No | HubSpot Portal ID for the gate form                                 |
+| gate_hubspot_form_id      | Text     | No | HubSpot Form ID for the gate form                                   |
+| gate_headline             | Text     | No | Default "Unlock this resource"                                     |
+| gate_description          | Textarea | No | Optional supporting copy on the gate card                           |
+
+### Content gating (soft gate)
+
+`resource` and `campaign_page` can require a HubSpot form fill before the rest
+of the content is visible — set `gate_enabled` plus the two HubSpot ids. This is
+a **soft gate**: the full body ships in the static HTML at build time (needed
+for SEO/AEO — see the structured-data section — and for the SSR/live-preview
+setup) and is only hidden/shown client-side via `src/storyblok/ContentGate.astro`,
+wrapping `Page.astro`'s body render. It is lead-capture, not content security.
+
+- Locked state is the default in the markup (`data-gate-state="locked"`), so
+  there's no server-side branching and no flash of gated content — a returning
+  visitor's unlock is detected and applied by an `is:inline` script that runs
+  before paint, keyed to `localStorage` under `hubspot_gate_{pathname}` (per-page,
+  not a single site-wide unlock).
+- The gate form submits directly to HubSpot's Forms API via `fetch()` — the
+  same pattern `ContactForm.astro` already uses — rather than loading HubSpot's
+  embed script (`js.hsforms.net/forms/embed/v2.js`). That was a deliberate
+  choice: it avoids introducing a second HubSpot integration style, and with it,
+  the need for a shared script-loader singleton to prevent duplicate embeds if
+  more than one HubSpot-embedding component ever lands on the same page.
+- If `gate_enabled` is on but either HubSpot id is blank, the gate is skipped
+  entirely and the content renders normally — a visitor should never be
+  trapped behind a gate that has nothing to submit to.
+- The whole body sits behind the gate; there's currently no "show this much,
+  then gate" partial-teaser option. If a page needs a visible teaser above the
+  gate, that's a `ContentGate` prop addition, not yet built.
+- Gated content gets `inert` while locked, removing it from both the tab order
+  and the accessibility tree in one step — same pattern as the mobile nav in
+  `Header.astro`.
 
 ---
 

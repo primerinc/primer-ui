@@ -1,0 +1,18 @@
+---
+/**
+ * BodyBlocks
+ * Renders a content type's `body` Blocks array with the standard scroll-reveal
+ * wrapper. Pulled out of Page.astro so it can be used both directly and inside
+ * ContentGate without duplicating the mapping in two branches.
+ */
+import type { SbBlokData } from '@storyblok/astro';
+import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
+
+const { body = [] } = Astro.props as { body?: SbBlokData[] };
+---
+
+{body.map((b: SbBlokData, i: number) => (
+  <div data-reveal={i === 0 ? undefined : ''}>
+    <StoryblokComponent blok={b} />
+  </div>
+))}
