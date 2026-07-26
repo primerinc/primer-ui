@@ -1,0 +1,11 @@
+{
+  "text": ["Text"],
+  "textarea": ["Textarea"],
+  "bloks": ["Blocks"],
+  "boolean": ["Boolean"],
+  "asset": ["Asset"],
+  "option": ["Option"],
+  "multilink": ["Link", "Multilink"],
+  "richtext": ["Richtext"],
+  "custom": ["Plugin"]
+}
