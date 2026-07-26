@@ -23,7 +23,7 @@ const bg        = blok.background || 'primary';
       {blok.subheadline && <p class="features__sub">{blok.subheadline}</p>}
     </div>
 
-    <ul class:list={['features__grid', `features__grid--${columns}`]} role="list">
+    <ul class:list={['features__grid', `features__grid--${columns}`]} role="list" data-reveal-stagger>
       {blok.features?.map((feature: SbBlokData) => (
         <li class="feature-card" {...storyblokEditable(feature)}>
           {(feature.icon as any)?.filename && (

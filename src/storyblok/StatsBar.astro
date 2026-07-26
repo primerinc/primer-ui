@@ -16,7 +16,7 @@ const bg = blok.background || 'secondary';
 <section {...storyblokEditable(blok)} class:list={['stats-bar', `stats-bar--bg-${bg}`]}>
   <div class="stats-bar__inner">
     {blok.eyebrow && <p class="stats-bar__eyebrow">{blok.eyebrow}</p>}
-    <ul class="stats-bar__list" role="list">
+    <ul class="stats-bar__list" role="list" data-reveal-stagger>
       {blok.stats?.map((stat: SbBlokData) => (
         <li class="stat" {...storyblokEditable(stat)}>
           <span class="stat__number">{stat.number}</span>

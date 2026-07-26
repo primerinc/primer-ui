@@ -31,7 +31,7 @@ const bg     = blok.background || 'primary';
       </div>
     )}
 
-    <ul class="testimonials__grid" role="list">
+    <ul class="testimonials__grid" role="list" data-reveal-stagger>
       {(blok.items as TestimonialItem[])?.map((item) => (
         <li class="testimonial-card" {...storyblokEditable(item)}>
           <blockquote class="testimonial-card__quote">

@@ -67,7 +67,7 @@ const annualLabel    = blok.toggle_label_annual  || 'Annual';
       </div>
     )}
 
-    <ul class="pricing__grid" role="list">
+    <ul class="pricing__grid" role="list" data-reveal-stagger>
       {plans.map((plan) => {
         const href       = typeof plan.cta_url === 'string'
           ? plan.cta_url

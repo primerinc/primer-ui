@@ -36,7 +36,7 @@ const steps: ProcessStep[] = blok.steps ?? [];
             {blok.subheadline && <p class="process-steps__sub">{blok.subheadline}</p>}
           </div>
         )}
-        <div class="process-steps__grid">
+        <div class="process-steps__grid" data-reveal-stagger>
           {steps.map((step, i) => (
             <div {...storyblokEditable(step)} class="process-steps__step">
               <div class="process-steps__badge" aria-hidden="true">

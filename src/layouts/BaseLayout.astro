@@ -101,6 +101,11 @@ try {
   />
 
   {!inVisualEditor && <ClientRouter fallback="animate" />}
+
+  {/* Marks the document as reveal-capable before first paint. The hidden state is
+      scoped to this class, so if scripting is unavailable the content simply
+      renders — it can never be left invisible by a script that didn't run. */}
+  {!inVisualEditor && <script is:inline>document.documentElement.classList.add('has-reveal');</script>}
 </head>
 <body>
   {/* transition:persist keeps the real header/footer nodes across navigations, so
@@ -119,6 +124,69 @@ try {
     <div transition:persist="site-footer">
       <StoryblokComponent blok={footerBlok} />
     </div>
+  )}
+
+  {!inVisualEditor && (
+    <script>
+      /**
+       * Scroll reveals. IntersectionObserver rather than CSS animation-timeline:
+       * scroll-driven animations are still behind a flag in Firefox stable, and
+       * the failure mode there would be permanently invisible content.
+       *
+       * Reveals once and stops observing — re-animating on scroll-up is the
+       * tell of a cheap effect.
+       */
+      function markStaggerGroups() {
+        document.querySelectorAll<HTMLElement>('[data-reveal-stagger]').forEach((group) => {
+          Array.from(group.children).forEach((child, i) => {
+            if (!(child instanceof HTMLElement)) return;
+            child.setAttribute('data-reveal', '');
+            child.style.setProperty('--reveal-i', String(i));
+          });
+        });
+      }
+
+      function revealNow(el: HTMLElement) {
+        el.classList.add('is-revealed');
+      }
+
+      function initReveals() {
+        markStaggerGroups();
+
+        const targets = document.querySelectorAll<HTMLElement>('[data-reveal]:not(.is-revealed)');
+        if (!targets.length) return;
+
+        const noMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (noMotion || !('IntersectionObserver' in window)) {
+          targets.forEach(revealNow);
+          return;
+        }
+
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (!entry.isIntersecting || !(entry.target instanceof HTMLElement)) return;
+              revealNow(entry.target);
+              observer.unobserve(entry.target);
+            });
+          },
+          // Fire a little before the element is fully in view so the motion
+          // reads as the page arriving rather than reacting to the scroll.
+          { rootMargin: '0px 0px -8% 0px', threshold: 0.05 },
+        );
+
+        targets.forEach((el) => observer.observe(el));
+      }
+
+      // astro:page-load covers both first paint and ClientRouter navigations.
+      document.addEventListener('astro:page-load', initReveals);
+      // …but it never fires if the router is absent, so cover that too.
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initReveals, { once: true });
+      } else {
+        initReveals();
+      }
+    </script>
   )}
 </body>
 </html>
@@ -157,6 +225,28 @@ try {
     background: var(--p-color-bg-primary);
   }
 
+  /* ---- scroll reveals ------------------------------------------------------
+     Hidden state is scoped to .has-reveal, which only exists once the inline
+     script runs — no script, no hiding. Elements opt in with [data-reveal];
+     a [data-reveal-stagger] container opts its children in as a cascade. */
+  /* No will-change here on purpose: it creates a containing block, which
+     interferes with position:sticky descendants (the case-study sidebar), and
+     the jank it would save on an opacity/transform pair is negligible. */
+  .has-reveal [data-reveal] {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  .has-reveal [data-reveal].is-revealed {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity   var(--p-motion-duration-slower) var(--p-motion-easing-ease-out),
+      transform var(--p-motion-duration-slower) var(--p-motion-easing-ease-out);
+    /* --reveal-i is set per child inside a stagger group; 0 everywhere else. */
+    transition-delay: calc(var(--reveal-i, 0) * 60ms);
+  }
+
   /* Honour the OS setting: cut the motion, keep the swap instant rather than
      leaving a half-faded frame. This covers the native path and Astro's
      JS fallback, hence the broad selector. */
@@ -170,6 +260,12 @@ try {
     }
 
     .page-body { animation: none !important; }
+
+    .has-reveal [data-reveal] {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
   }
 
   body {

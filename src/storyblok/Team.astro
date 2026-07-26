@@ -34,7 +34,7 @@ const bg      = blok.background || 'primary';
       </div>
     )}
 
-    <ul class:list={['team__list', `team__list--${columns}`, `team__list--${layout}`]} role="list">
+    <ul class:list={['team__list', `team__list--${columns}`, `team__list--${layout}`]} role="list" data-reveal-stagger>
       {(blok.members as TeamMember[])?.map((member) => {
         const photoUrl = member.photo?.filename
           ? `${member.photo.filename}/m/400x400/filters:quality(85)`

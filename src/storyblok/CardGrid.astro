@@ -34,7 +34,7 @@ const bg      = blok.background || 'primary';
       </div>
     )}
 
-    <ul class:list={['card-grid__list', `card-grid__list--${columns}`]} role="list">
+    <ul class:list={['card-grid__list', `card-grid__list--${columns}`]} role="list" data-reveal-stagger>
       {(blok.cards as CardItem[])?.map((card) => {
         const imageUrl = card.image?.filename
           ? `${card.image.filename}/m/800x600/filters:quality(85)`

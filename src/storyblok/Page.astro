@@ -13,6 +13,19 @@ import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
 const { blok } = Astro.props;
 ---
 
+{/*
+  Each top-level section opts into a scroll reveal here rather than in the
+  components themselves, so every block — including ones added later — gets it
+  without repeating the attribute nineteen times. Grids opt their children into
+  a stagger separately, via data-reveal-stagger on the item container.
+
+  The first block is excluded: it's above the fold on arrival, and fading in
+  the hero would delay the very thing the visitor came for.
+*/}
 <main {...storyblokEditable(blok)}>
-  {blok.body?.map((b: SbBlokData) => <StoryblokComponent blok={b} />)}
+  {blok.body?.map((b: SbBlokData, i: number) => (
+    <div data-reveal={i === 0 ? undefined : ''}>
+      <StoryblokComponent blok={b} />
+    </div>
+  ))}
 </main>
