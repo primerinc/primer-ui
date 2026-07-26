@@ -264,7 +264,7 @@
       "value": "{radius.lg}"
     },
     "button": {
-      "value": "{radius.md}"
+      "value": "{radius.full}"
     },
     "input": {
       "value": "{radius.md}"
