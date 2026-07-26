@@ -16,6 +16,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { parseSchemaReferenceMd, parseAstroConfigComponents } from './lib/schema-reference.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -102,59 +103,6 @@ function splitTopLevel(str) {
 function tokenToFieldName(tok) {
   const m = tok.match(/^([A-Za-z_][A-Za-z0-9_]*)/);
   return m ? m[1] : null;
-}
-
-function parseSchemaReferenceMd(path) {
-  const lines = readFileSync(path, 'utf8').split('\n');
-  const sections = [];
-  let current = null;
-
-  for (const line of lines) {
-    const h2 = line.match(/^##\s+(.+)$/);
-    const h3 = !h2 && line.match(/^###\s+(.+)$/);
-    if (h2 || h3) {
-      if (current) sections.push(current);
-      const headerText = (h2 ? h2[1] : h3[1]).trim();
-      current = { name: headerText.split(/\s/)[0], level: h2 ? 2 : 3, fields: [] };
-      continue;
-    }
-    if (current && line.trim().startsWith('|')) {
-      const cells = line.split('|').slice(1, -1).map((c) => c.trim());
-      if (cells.length < 2) continue;
-      if (cells[0] === 'Field name') continue; // header row
-      if (/^-+$/.test(cells[0].replace(/[: ]/g, ''))) continue; // separator row
-      if (cells[0]) current.fields.push({ field: cells[0], type: cells[1] });
-    }
-  }
-  if (current) sections.push(current);
-
-  // Only sections that actually parsed a field table are real components —
-  // prose subsections (e.g. "### Content gating (soft gate)") get dropped.
-  return sections.filter((s) => s.fields.length > 0);
-}
-
-function parseAstroConfigComponents(path) {
-  const text = readFileSync(path, 'utf8');
-  const startIdx = text.indexOf('components: {');
-  if (startIdx === -1) throw new Error('Could not find `components: {` in astro.config.mjs');
-  let depth = 0;
-  let end = -1;
-  for (let i = startIdx + 'components:'.length; i < text.length; i++) {
-    if (text[i] === '{') depth++;
-    if (text[i] === '}') {
-      depth--;
-      if (depth === 0) {
-        end = i;
-        break;
-      }
-    }
-  }
-  const block = text.slice(startIdx, end + 1);
-  const map = {};
-  const re = /([A-Za-z_][A-Za-z0-9_]*)\s*:\s*'([^']+)'/g;
-  let m;
-  while ((m = re.exec(block))) map[m[1]] = m[2];
-  return map;
 }
 
 function parseClaudeComponentTable(path) {
