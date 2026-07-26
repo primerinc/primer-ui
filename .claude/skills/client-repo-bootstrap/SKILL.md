@@ -23,10 +23,23 @@ adapter swap is parked until a hosting platform is chosen (CLAUDE.md's SSR
 deploy note). Stop after Phase 5 and report the repo is ready for local dev;
 do not touch `astro.config.mjs`'s `adapter` line or guess a hosting platform.
 
+**What "no Primer branding" actually means here — confirmed with James:**
+the internal repo/package naming (`package.json`'s `@primer-inc/ui`,
+`README.md`, `CLAUDE.md`) can stay as-is — the client never sees a
+`package.json` name or a README title. What matters is anywhere the client
+actually looks or edits, which in practice is **only the Storyblok
+editor/CMS** (they never touch the codebase). That's why Phase 4 doesn't
+sync stories from Primer Block Space wholesale — confirmed by direct
+inspection that its `config` story has real Primer branding baked in
+(`site_name: "Primer"`, footer `tagline: "Primer Inc"`) and the space also
+holds other clients' demo content (Lock 8's), which a blanket story sync
+would have copied straight into every new client's CMS.
+
 ## Phase 1 — Client brief
 
 Gather before doing anything:
 - **Client slug** — kebab-case, matches `tokens/themes/` naming convention (`tokens/themes/README.md`).
+- **Client display name** — the real site name (e.g. "Acme Corp"), seeded into the new Storyblok space's `config` story as `site_name`. This is the client-facing name a content editor will actually see, unlike the slug.
 - **Full 8-step brand color ramp** — keys `100/200/300/400/500/600/700/900`, matching `tokens/primitives.json`'s `color.brand.*` shape (confirmed against `tokens/themes/wireframe.json`, which overrides this same primitive-shaped subtree, not semantic.json). **Do not auto-generate this from a single accent color** — there's no color-ramp-generation tooling in this repo, and an algorithmic tint/shade ramp is a real design-quality risk for a real brand. Get the full ramp from the client's brand guidelines or design file. If they only have one brand color, say so explicitly and ask for the ramp rather than inventing one.
 - **Brand font** — for the `BaseLayout.astro` Google Fonts `<link>` swap (CLAUDE.md already calls this out as the one hand-edit per client).
 - **Destination GitHub org/account** — where the new repo gets created.
@@ -36,12 +49,7 @@ Gather before doing anything:
 
 1. Clone primer-ui into a fresh local directory named for the client slug.
 2. Strip `.git` and `git init` fresh — a client repo doesn't need primer-ui's full commit history, and starting clean avoids any future accidental cross-client leakage through old commits.
-3. **De-primer the identity, not the engineering conventions.** The client repo should be named/described as the client's project, not carry `primer-ui` branding forward — but most of what currently says "Primer" is genuine, still-valid engineering guidance (the token layer rules, component structure conventions), not identity, and should stay:
-   - `package.json`: rename `"name"` from `@primer-inc/ui` to `@primer-inc/<slug>` (keep the `@primer-inc` scope — Primer the agency maintains/builds these, the scope denotes that, not the client's own org) and update `"description"` to describe this specific client's site.
-   - `README.md`: retitle from `# primer-ui` to `# <client name>` and rewrite its description line; the structural sections below (`tokens/`, `storyblok/`, setup commands) stay as-is, they're still accurate.
-   - `CLAUDE.md`: rewrite the title and the "What this repo is" / `Repository:` lines to describe this client's repo — leave the rest (token system, component conventions, coding rules) untouched, it's still the operative guidance for anyone (human or Claude) working in this fork.
-   - `package-lock.json`: don't hand-edit — just rerun `npm install` after the `package.json` rename and it regenerates consistently.
-   - `astro.config.mjs`'s `primer:watch-tokens` Vite plugin label is cosmetic (an internal dev-server log tag, no external visibility) — rename it if convenient, not worth a separate pass if not.
+3. Internal naming (`package.json`'s `@primer-inc/ui`, `README.md`, `CLAUDE.md`) does **not** need to change — confirmed with James this is fine to leave as-is, since the client never sees any of it. Don't spend a step on it unless asked.
 4. Confirm the GitHub destination (org/account, repo name, private/public) with the user.
 5. `gh repo create <org>/<slug> --private --source=. --push` (or public, per confirmation).
 
@@ -59,9 +67,9 @@ Using the brand ramp from Phase 1:
 This is the one mechanical piece, scripted in `storyblok/bootstrap-client-space.js`:
 
 1. Confirm with the user before running it — it creates a real (billing-relevant) Storyblok space.
-2. Run `npm run bootstrap:client-space -- <slug> [--region eu]` (needs `STORYBLOK_MANAGEMENT_TOKEN` in `.env`, and `storyblok login` done at least once for the CLI's own auth — the script's sync step shells out to the `storyblok` CLI, which does not read `STORYBLOK_MANAGEMENT_TOKEN` itself).
-3. It creates an empty space, then runs `storyblok sync --type components --source <primer-block-space-id> --target <new-space-id>` (ports all ~47 schemas in one step — the same mechanism already validated for porting a demo space's schema back, not field-by-field Management API calls) and `storyblok sync --type stories` for a starter set.
-4. **Verify a `config` story exists in the new space afterward** — `BaseLayout.astro` hard-depends on one at that slug; without it, header/footer silently render nothing (no error, just missing chrome). If the story sync didn't produce one, create it by hand before moving on.
+2. Run `npm run bootstrap:client-space -- <slug> <site-name> [--region eu]` (needs `STORYBLOK_MANAGEMENT_TOKEN` in `.env`, and `storyblok login` done at least once for the CLI's own auth — the script's component-sync step shells out to the `storyblok` CLI, which does not read `STORYBLOK_MANAGEMENT_TOKEN` itself).
+3. It creates an empty space, syncs **component schemas only** from Primer Block Space (`storyblok sync --type components` — the same mechanism already validated for porting a demo space's schema back, ports all ~47 schemas in one step instead of field-by-field), then creates one clean `config` story directly via the Management API — seeded with only `site_name` (the client display name from Phase 1); `header`/`footer` are left genuinely empty, not pre-filled with placeholder nav links or Primer's own branding.
+4. **Stories are deliberately not synced from Primer Block Space at all** — its actual `config` story carries real Primer branding, and the space also holds other clients' demo content. Don't "fix" this by syncing stories with a broader filter; the empty-header/footer `config` story this script creates is the safe baseline, and the client's own header/footer content gets added through the Storyblok editor afterward, same as any other content.
 5. Take the space ID and preview token (Settings → API Keys in the Storyblok UI) the script prints, and write `STORYBLOK_TOKEN` + the space ID into the **client repo's** `.env` (never commit `.env`). Prompt the user to add a Management API token by hand if the client repo will need one later — that's a personal, account-level token, not something to mint or store automatically.
 
 ## Phase 5 — Branding + stop
@@ -73,4 +81,5 @@ This is the one mechanical piece, scripted in `storyblok/bootstrap-client-space.
 
 - Before ever running this for a real client, dry-run Phases 1-3 against a throwaway slug (e.g. `test-client`) without actually calling `gh repo create` or hitting the Storyblok API — confirm the sequence and confirmation gates make sense.
 - `storyblok/bootstrap-client-space.js` should fail loudly (non-zero exit, clear message) if `STORYBLOK_MANAGEMENT_TOKEN` is missing, or if the `storyblok` CLI isn't authenticated (`storyblok login`) — same posture as `check-drift.js`.
+- After a real run, open the new space's `config` story in Storyblok and confirm `site_name` is the client's name (not "Primer") and `header`/`footer` are empty, not carrying over any Primer Block Space content.
 - Treat the first real run as a trial: scrutinize each confirmation gate rather than assuming the sequence is correct just because it read fine on paper. In particular, verify the space actually landed in the requested region (the create-space API call used here doesn't confirm one was passed/honored — check in the Storyblok UI after creation).
