@@ -13,13 +13,10 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 |----------------------|----------|----------|------------------------------|
 | headline             | Text     | Yes      |                              |
 | subheadline          | Textarea | No       |                              |
-| cta_primary_label    | Text     | No       |                              |
-| cta_primary_url      | Text     | No       | URL field preferred          |
-| cta_secondary_label  | Text     | No       |                              |
-| cta_secondary_url    | Text     | No       | URL field preferred          |
+| buttons              | Blocks   | No       | Restrict to: button, max 2 — replaced the old cta_primary_label/cta_primary_url/cta_secondary_label/cta_secondary_url text fields |
 | background_image     | Asset    | No       | Image only                   |
 | layout               | Option   | No       | centered (default), left-aligned |
-| background           | Option   | No       | secondary (default), primary, accent-subtle |
+| background           | Option   | No       | secondary (default), primary, accent-subtle — `dark` also exists live but has no matching CSS rule in `Hero.astro` yet; picking it falls back to the base (secondary) look. Add a `.hero--bg-dark` rule before using it, or remove the option live |
 
 ---
 
@@ -92,6 +89,7 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 |------------|--------|----------|-----------------------------|
 | eyebrow    | Text   | No       | e.g. "Trusted by"           |
 | logos      | Blocks | Yes      | Restrict to: logo_item      |
+| display    | Option | No       | grid (default), marquee     |
 
 ### logo_item
 
