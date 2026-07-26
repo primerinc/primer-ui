@@ -108,6 +108,10 @@ try {
   {!inVisualEditor && <script is:inline>document.documentElement.classList.add('has-reveal');</script>}
 </head>
 <body>
+  {/* First focusable element on the page, so keyboard and switch users can jump
+      past a long nav on every page rather than tabbing through it each time. */}
+  <a class="skip-link" href="#main-content">Skip to content</a>
+
   {/* transition:persist keeps the real header/footer nodes across navigations, so
       they never flash or re-animate — only the page body moves. */}
   {!hideNav && headerBlok && (
@@ -116,12 +120,12 @@ try {
     </div>
   )}
 
-  <div class="page-body" transition:animate={pageTransition}>
+  <div class="page-body" id="main-content" tabindex="-1" transition:animate={pageTransition}>
     <slot />
   </div>
 
   {!hideFooter && footerBlok && (
-    <div transition:persist="site-footer">
+    <div id="site-footer" transition:persist="site-footer">
       <StoryblokComponent blok={footerBlok} />
     </div>
   )}
@@ -200,6 +204,18 @@ try {
           img.addEventListener('error', done, { once: true });
         });
       }
+
+      /**
+       * A client-side navigation swaps the document without moving focus, so a
+       * keyboard user's position stays on the old page's link and the next Tab
+       * resumes from nowhere meaningful. Move focus to the top of the new
+       * content — astro:after-swap only fires on navigation, never first load,
+       * so this can't hijack focus on arrival.
+       */
+      document.addEventListener('astro:after-swap', () => {
+        const main = document.getElementById('main-content');
+        if (main) main.focus({ preventScroll: true });
+      });
 
       // astro:page-load covers both first paint and ClientRouter navigations.
       document.addEventListener('astro:page-load', initReveals);
@@ -328,6 +344,36 @@ try {
   ::selection {
     background: var(--p-color-accent-subtle);
     color: var(--p-color-text-accent-strong);
+  }
+
+  /* ---- skip link ----------------------------------------------------------
+     Off-screen until focused rather than display:none, which would take it out
+     of the tab order entirely and defeat the point. */
+  .skip-link {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 999;
+    transform: translateY(-120%);
+    background: var(--p-color-bg-primary);
+    color: var(--p-color-text-accent-strong);
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-medium);
+    padding: var(--p-space-3) var(--p-space-5);
+    border: 1px solid var(--p-color-border-focus);
+    border-radius: 0 0 var(--p-radius-md) 0;
+    text-decoration: none;
+    transition: transform var(--p-motion-hover) var(--p-motion-ease);
+  }
+
+  .skip-link:focus {
+    transform: translateY(0);
+  }
+
+  /* The skip target is only focusable programmatically, so it should never
+     draw a ring of its own when focus lands there. */
+  #main-content:focus {
+    outline: none;
   }
 
   /* ---- image loading ------------------------------------------------------

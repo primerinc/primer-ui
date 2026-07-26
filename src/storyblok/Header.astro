@@ -232,11 +232,41 @@ const announcementHref  = blok.announcement_link_url?.url || blok.announcement_l
   const mobileNav = document.querySelector('[data-mobile-nav]') as HTMLElement;
   const header    = document.querySelector('.site-header') as HTMLElement;
 
+  /**
+   * The open menu covers the page, so everything behind it is marked inert:
+   * that removes it from the tab order and the accessibility tree in one step,
+   * which is what keeps focus inside the menu without hand-rolling a trap.
+   */
+  function setMenu(open: boolean) {
+    if (!hamburger) return;
+
+    hamburger.setAttribute('aria-expanded', String(open));
+    hamburger.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    mobileNav?.setAttribute('aria-hidden', String(!open));
+    header?.classList.toggle('mobile-open', open);
+
+    // Stop the page behind the overlay from scrolling with it.
+    document.body.style.overflow = open ? 'hidden' : '';
+
+    ['main-content', 'site-footer'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (open) el.setAttribute('inert', '');
+      else el.removeAttribute('inert');
+    });
+
+    // Closing by any route should hand focus back to the control that opened it.
+    if (!open) hamburger.focus();
+    else mobileNav?.querySelector<HTMLElement>('a, button')?.focus();
+  }
+
   hamburger?.addEventListener('click', () => {
-    const isOpen = hamburger.getAttribute('aria-expanded') === 'true';
-    hamburger.setAttribute('aria-expanded', String(!isOpen));
-    mobileNav?.setAttribute('aria-hidden', String(isOpen));
-    header?.classList.toggle('mobile-open', !isOpen);
+    setMenu(hamburger.getAttribute('aria-expanded') !== 'true');
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (hamburger?.getAttribute('aria-expanded') === 'true') setMenu(false);
   });
 
   // Mobile sub-menu toggles

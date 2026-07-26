@@ -14,7 +14,8 @@
     "watch:tokens": "style-dictionary build --watch --config tokens/sd.config.js",
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "check:contrast": "node tokens/check-contrast.js"
   },
   "keywords": [
     "astro",
