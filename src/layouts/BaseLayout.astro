@@ -3,6 +3,7 @@ import '../../tokens/dist/tokens.css';
 import { ClientRouter } from 'astro:transitions';
 import { useStoryblokApi } from '@storyblok/astro';
 import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
+import { organization, website, graph, type SchemaNode } from '../lib/schema';
 
 /**
  * Page transition — a short lift-and-fade rather than a plain crossfade.
@@ -46,6 +47,8 @@ interface Props {
   canonicalUrl?: string;
   hideNav?: boolean;
   hideFooter?: boolean;
+  /** Page-specific JSON-LD nodes (e.g. an Article) merged into the site graph. */
+  schemaNodes?: SchemaNode[];
 }
 
 const {
@@ -55,7 +58,8 @@ const {
   noIndex = false,
   canonicalUrl = '',
   hideNav = false,
-  hideFooter = false
+  hideFooter = false,
+  schemaNodes = [],
 } = Astro.props;
 
 const canonicalURL = canonicalUrl || (Astro.site ? new URL(Astro.url.pathname, Astro.site) : null);
@@ -63,6 +67,7 @@ const canonicalURL = canonicalUrl || (Astro.site ? new URL(Astro.url.pathname, A
 const storyblokApi = useStoryblokApi();
 let headerBlok = null;
 let footerBlok = null;
+let siteName: string | null = null;
 
 try {
   const { data } = await storyblokApi.get('cdn/stories/config', {
@@ -70,9 +75,37 @@ try {
   });
   headerBlok = data?.story?.content?.header?.[0] ?? null;
   footerBlok = data?.story?.content?.footer?.[0] ?? null;
+  siteName   = data?.story?.content?.site_name ?? null;
 } catch (e) {
   // Config story not found — header/footer render nothing
 }
+
+/**
+ * Site-wide structured data. The organisation is described once per page and
+ * referenced by @id from anything else in the graph, so an Article says who
+ * published it without restating the publisher's details.
+ *
+ * Social profiles come from the footer the client already fills in, rather than
+ * a second set of fields that would inevitably drift out of sync with it.
+ */
+const origin = Astro.site?.origin ?? Astro.url.origin;
+
+const sameAs = (footerBlok?.social_links ?? [])
+  .map((s: any) => s?.url?.url || s?.url?.cached_url)
+  .filter(Boolean);
+
+const siteSchema = siteName
+  ? graph([
+      organization({
+        origin,
+        name: siteName,
+        logo: footerBlok?.logo?.filename || undefined,
+        sameAs,
+      }),
+      website(origin, siteName),
+      ...schemaNodes,
+    ])
+  : graph(schemaNodes);
 ---
 
 <!DOCTYPE html>
@@ -99,6 +132,8 @@ try {
     href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
     rel="stylesheet"
   />
+
+  {siteSchema && <script type="application/ld+json" is:inline set:html={siteSchema} />}
 
   {!inVisualEditor && <ClientRouter fallback="animate" />}
 

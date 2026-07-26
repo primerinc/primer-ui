@@ -3,6 +3,7 @@ import { useStoryblokApi, getPayload } from '@storyblok/astro';
 import type { SbBlokData, ISbStoryData } from '@storyblok/astro';
 import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { article, parseCustomSchema, type SchemaNode } from '../lib/schema';
 
 interface Metatags {
   title?: string;
@@ -49,6 +50,37 @@ if (!story) {
 
 const seo = story.content.seo?.[0];
 const metatags = seo?.metatags;
+
+/**
+ * Structured data for this page, merged into the site-wide graph in BaseLayout.
+ *
+ * Only `resource` entries become an Article — a marketing or campaign page isn't
+ * an article, and claiming otherwise is the kind of thing that gets structured
+ * data ignored wholesale rather than rewarded.
+ */
+const origin = Astro.site?.origin ?? Astro.url.origin;
+const pageUrl = `${origin}${Astro.url.pathname}`;
+
+const schemaNodes = [
+  story.content.component === 'resource'
+    ? article({
+        origin,
+        url: pageUrl,
+        headline: String(story.content.title || story.name),
+        description: metatags?.description,
+        image: metatags?.og_image || undefined,
+        // first_published_at is when it went live; published_at moves on each
+        // republish, which is exactly what dateModified should track.
+        datePublished: story.first_published_at ?? undefined,
+        dateModified: story.published_at ?? undefined,
+        resourceType: String(story.content.resource_type ?? ''),
+      })
+    : null,
+  // Editor-supplied JSON-LD for anything the system doesn't model.
+  parseCustomSchema(typeof seo?.custom_schema === 'string' ? seo.custom_schema : undefined),
+]
+  .flatMap((n) => (Array.isArray(n) ? n : [n]))
+  .filter((n): n is SchemaNode => Boolean(n));
 ---
 
 <BaseLayout
@@ -59,6 +91,7 @@ const metatags = seo?.metatags;
   canonicalUrl={seo?.canonical_url}
   hideNav={story.content.hide_nav}
   hideFooter={story.content.hide_footer}
+  schemaNodes={schemaNodes}
 >
   <StoryblokComponent blok={story.content} />
 </BaseLayout>
