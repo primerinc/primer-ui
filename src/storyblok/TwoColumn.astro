@@ -6,6 +6,7 @@
  * Fields: eyebrow, headline, body, cta_label, cta_url, image, image_side
  */
 import { storyblokEditable } from '@storyblok/astro';
+import { imageSize } from '../lib/storyblok-image';
 
 const { blok } = Astro.props;
 
@@ -33,7 +34,7 @@ const imageUrl = blok.image?.filename
 
     {imageUrl && (
       <div class="two-col__media">
-        <img
+        <img {...imageSize(blok.image?.filename, 1200, 0)}
           src={imageUrl}
           alt={blok.image?.alt || ''}
           class="two-col__img"

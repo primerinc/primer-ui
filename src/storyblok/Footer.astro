@@ -7,6 +7,7 @@
  *         newsletter_enabled, newsletter_heading, copyright, legal_links (→ nav_link)
  */
 import { storyblokEditable } from '@storyblok/astro';
+import { imageSize } from '../lib/storyblok-image';
 
 const { blok } = Astro.props;
 
@@ -34,7 +35,7 @@ const socialIcons: Record<string, string> = {
       <div class="site-footer__brand">
         <a href="/" class="site-footer__logo">
           {logoUrl
-            ? <img src={`${logoUrl}/m/200x0`} alt={logoAlt} width="160" height="40" />
+            ? <img src={`${logoUrl}/m/200x0`} alt={logoAlt} {...imageSize(logoUrl, 200, 0)} />
             : <span class="site-footer__logo-text">{logoAlt}</span>
           }
         </a>

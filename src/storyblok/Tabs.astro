@@ -8,6 +8,7 @@
  */
 import { storyblokEditable } from '@storyblok/astro';
 import type { SbBlokData } from '@storyblok/astro';
+import { imageSize } from '../lib/storyblok-image';
 
 interface TabItem extends SbBlokData {
   label?: string;
@@ -74,7 +75,7 @@ const uid = `tabs-${blok._uid}`;
                 </div>
                 {imageUrl && (
                   <div class="tabs__panel-media">
-                    <img
+                    <img {...imageSize(item.image?.filename, 900, 600)}
                       src={imageUrl}
                       alt={item.image?.alt ?? ''}
                       class="tabs__panel-img"

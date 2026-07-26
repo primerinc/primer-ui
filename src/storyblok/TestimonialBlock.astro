@@ -8,6 +8,7 @@
  */
 import { storyblokEditable } from '@storyblok/astro';
 import type { SbBlokData } from '@storyblok/astro';
+import { imageSize } from '../lib/storyblok-image';
 
 interface TestimonialItem extends SbBlokData {
   quote?: string;
@@ -39,7 +40,7 @@ const bg     = blok.background || 'primary';
           </blockquote>
           <footer class="testimonial-card__footer">
             {item.avatar?.filename && (
-              <img
+              <img {...imageSize(item.avatar?.filename, 80, 80)}
                 src={`${item.avatar.filename}/m/80x80/filters:quality(85)`}
                 alt={item.author ?? ''}
                 class="testimonial-card__avatar"

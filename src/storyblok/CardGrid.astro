@@ -8,6 +8,7 @@
  */
 import { storyblokEditable } from '@storyblok/astro';
 import type { SbBlokData } from '@storyblok/astro';
+import { imageSize } from '../lib/storyblok-image';
 
 interface CardItem extends SbBlokData {
   image?: { filename: string; alt?: string };
@@ -44,7 +45,7 @@ const bg      = blok.background || 'primary';
           <li class="card" {...storyblokEditable(card)}>
             {imageUrl && (
               <div class="card__media">
-                <img
+                <img {...imageSize(card.image?.filename, 800, 600)}
                   src={imageUrl}
                   alt={card.image?.alt ?? ''}
                   class="card__img"

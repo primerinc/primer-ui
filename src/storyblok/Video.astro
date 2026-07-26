@@ -7,6 +7,7 @@
  *         poster, caption, autoplay, muted, loop, background
  */
 import { storyblokEditable } from '@storyblok/astro';
+import { imageSize } from '../lib/storyblok-image';
 
 const { blok } = Astro.props;
 
@@ -65,7 +66,7 @@ const hasHeader   = blok.eyebrow || blok.headline || blok.subheadline;
           aria-label={`Play video${blok.headline ? `: ${blok.headline}` : ''}`}
         >
           {posterUrl && (
-            <img
+            <img {...imageSize(blok.poster?.filename, 1800, 0)}
               src={posterUrl}
               alt={blok.headline ?? 'Video thumbnail'}
               class="video-block__poster"

@@ -8,6 +8,7 @@
  */
 import { storyblokEditable } from '@storyblok/astro';
 import type { SbBlokData } from '@storyblok/astro';
+import { imageSize } from '../lib/storyblok-image';
 
 interface TeamMember extends SbBlokData {
   photo?: { filename: string; alt?: string };
@@ -44,7 +45,7 @@ const bg      = blok.background || 'primary';
           <li class="member" {...storyblokEditable(member)}>
             <div class="member__photo-wrap">
               {photoUrl
-                ? <img src={photoUrl} alt={member.photo?.alt ?? member.name ?? ''} class="member__photo" loading="lazy" />
+                ? <img {...imageSize(member.photo?.filename, 400, 400)} src={photoUrl} alt={member.photo?.alt ?? member.name ?? ''} class="member__photo" loading="lazy" />
                 : <div class="member__photo-placeholder" aria-hidden="true" />
               }
             </div>

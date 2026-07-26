@@ -156,19 +156,19 @@
         "value": "1.125rem"
       },
       "xl": {
-        "value": "1.375rem"
+        "value": "clamp(1.125rem, 1.037rem + 0.3756vw, 1.375rem)"
       },
       "2xl": {
-        "value": "1.75rem"
+        "value": "clamp(1.375rem, 1.243rem + 0.5634vw, 1.75rem)"
       },
       "3xl": {
-        "value": "2.25rem"
+        "value": "clamp(1.75rem, 1.574rem + 0.7512vw, 2.25rem)"
       },
       "4xl": {
-        "value": "3rem"
+        "value": "clamp(2.0rem, 1.648rem + 1.502vw, 3.0rem)"
       },
       "5xl": {
-        "value": "4rem"
+        "value": "clamp(2.5rem, 1.972rem + 2.254vw, 4.0rem)"
       }
     },
     "weight": {

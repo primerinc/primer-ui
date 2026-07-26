@@ -8,6 +8,7 @@
  *         login_label, login_link, cta_button (→ button, max 1), sticky
  */
 import { storyblokEditable } from '@storyblok/astro';
+import { imageSize } from '../lib/storyblok-image';
 
 const { blok } = Astro.props;
 
@@ -46,7 +47,7 @@ const announcementHref  = blok.announcement_link_url?.url || blok.announcement_l
 
     <a href="/" class="site-header__logo">
       {logoUrl
-        ? <img src={`${logoUrl}/m/200x0`} alt={logoAlt} width="160" height="40" />
+        ? <img src={`${logoUrl}/m/200x0`} alt={logoAlt} {...imageSize(logoUrl, 200, 0)} />
         : <span class="site-header__logo-text">{logoAlt}</span>
       }
     </a>

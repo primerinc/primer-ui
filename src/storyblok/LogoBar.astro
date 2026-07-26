@@ -6,6 +6,7 @@
  * Fields: eyebrow, logos (blocks → logo_item: image, alt, url), display
  */
 import { storyblokEditable } from '@storyblok/astro';
+import { imageSize } from '../lib/storyblok-image';
 
 interface LogoItem {
   _uid: string;
@@ -37,11 +38,11 @@ function imgSrc(logo: LogoItem) {
           <li class="logo-bar__item">
             {logo.url && (
               <a href={logo.url} class="logo-bar__link" aria-label={logo.alt} tabindex={i >= logos.length ? -1 : 0}>
-                <img src={imgSrc(logo)} alt={logo.alt ?? ''} class="logo-bar__img" loading="lazy" />
+                <img {...imageSize(logo.image?.filename, 200, 80)} src={imgSrc(logo)} alt={logo.alt ?? ''} class="logo-bar__img" loading="lazy" />
               </a>
             )}
             {!logo.url && (
-              <img src={imgSrc(logo)} alt={i < logos.length ? (logo.alt ?? '') : ''} class="logo-bar__img" loading="lazy" />
+              <img {...imageSize(logo.image?.filename, 200, 80)} src={imgSrc(logo)} alt={i < logos.length ? (logo.alt ?? '') : ''} class="logo-bar__img" loading="lazy" />
             )}
           </li>
         ))}
@@ -56,11 +57,11 @@ function imgSrc(logo: LogoItem) {
           <li class="logo-bar__item" {...storyblokEditable(logo as any)}>
             {logo.url && (
               <a href={logo.url} class="logo-bar__link" aria-label={logo.alt}>
-                <img src={imgSrc(logo)} alt={logo.alt ?? ''} class="logo-bar__img" loading="lazy" />
+                <img {...imageSize(logo.image?.filename, 200, 80)} src={imgSrc(logo)} alt={logo.alt ?? ''} class="logo-bar__img" loading="lazy" />
               </a>
             )}
             {!logo.url && (
-              <img src={imgSrc(logo)} alt={logo.alt ?? ''} class="logo-bar__img" loading="lazy" />
+              <img {...imageSize(logo.image?.filename, 200, 80)} src={imgSrc(logo)} alt={logo.alt ?? ''} class="logo-bar__img" loading="lazy" />
             )}
           </li>
         ))}

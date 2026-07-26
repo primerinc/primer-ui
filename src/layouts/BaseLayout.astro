@@ -288,6 +288,44 @@ try {
     line-height: var(--p-font-leading-normal);
   }
 
+  /* ---- typesetting --------------------------------------------------------
+     balance evens the line lengths of a headline instead of leaving one word
+     stranded on the last line; pretty does the narrower job of preventing
+     orphans in body copy. Both degrade to normal wrapping where unsupported. */
+  h1, h2, h3, h4, h5, h6 {
+    text-wrap: balance;
+  }
+
+  p, li, blockquote, figcaption, dd {
+    text-wrap: pretty;
+  }
+
+  /* Large display type is set tighter — tracking that reads as generous at
+     16px reads as loose at 64px. */
+  h1, h2 {
+    letter-spacing: var(--p-font-tracking-tight);
+  }
+
+  ::selection {
+    background: var(--p-color-accent-subtle);
+    color: var(--p-color-text-accent-strong);
+  }
+
+  /* ---- focus --------------------------------------------------------------
+     :focus-visible only, so pointer users never see a ring but keyboard users
+     always do. Two-tone: the accent ring plus a background-coloured gap, so it
+     stays legible on any surface the ring lands on. */
+  :focus-visible {
+    outline: 2px solid var(--p-color-border-focus);
+    outline-offset: 2px;
+    border-radius: var(--p-radius-xs);
+  }
+
+  /* Clicking a heading anchor shouldn't leave the target under a sticky header. */
+  :target {
+    scroll-margin-top: var(--p-space-16);
+  }
+
   img, video {
     max-width: 100%;
     height: auto;
