@@ -16,7 +16,7 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 | buttons              | Blocks   | No       | Restrict to: button, max 2 — replaced the old cta_primary_label/cta_primary_url/cta_secondary_label/cta_secondary_url text fields |
 | background_image     | Asset    | No       | Image only                   |
 | layout               | Option   | No       | centered (default), left-aligned |
-| background           | Option   | No       | secondary (default), primary, accent-subtle — `dark` also exists live but has no matching CSS rule in `Hero.astro` yet; picking it falls back to the base (secondary) look. Add a `.hero--bg-dark` rule before using it, or remove the option live |
+| background           | Option   | No       | secondary (default), primary, accent-subtle, dark |
 
 ---
 
@@ -42,7 +42,7 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 
 ---
 
-## testimonial_block
+## testimonials
 
 | Field name  | Type   | Required | Notes                          |
 |-------------|--------|----------|--------------------------------|
@@ -52,7 +52,9 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 | layout      | Option | No       | grid (default), carousel       |
 | background  | Option | No       | primary (default), secondary, accent-subtle |
 
-### testimonial_item (nested block inside testimonial_block)
+**Astro component:** `TestimonialBlock.astro` — the file/component name predates the Storyblok technical name `testimonials` and the two were never reconciled; not worth a rename, just noting it so the mismatch doesn't look like a second bug.
+
+### testimonial_item (nested block inside testimonials)
 
 | Field name | Type  | Required | Notes               |
 |------------|-------|----------|---------------------|
@@ -471,6 +473,7 @@ Storyblok has no cross-content-type "field group" mechanism — the "Group" fiel
 | metatags      | Plugin — SEO Metatags   | No       | Storyblok's built-in metatags plugin (Plugin field, custom type `seo-metatags`). Produces `{ title, description, og_image, og_title, og_description, twitter_title, twitter_description, twitter_image }`. Only `title`, `description`, and `og_image` are currently read by the site |
 | canonical_url | Text                    | No       | Overrides the auto-computed canonical URL. Leave blank in the normal case — `BaseLayout` already computes canonical from the page's own URL |
 | noindex       | Boolean                 | No       | Default false. Renders `<meta name="robots" content="noindex, nofollow">` when true |
+| custom_schema | Textarea                | No       | Optional raw JSON-LD (e.g. Product, Event, LocalBusiness), merged into the page's structured-data graph via `parseCustomSchema()`/`graph()` in `src/lib/schema.ts`, read in `src/pages/[...slug].astro`. Invalid JSON is silently dropped (logged, not thrown) rather than breaking the page |
 
 **Fallback:** if `metatags.title` is blank, the browser `<title>` falls back to the story's own Name field (set in the CMS sidebar, not part of this block).
 

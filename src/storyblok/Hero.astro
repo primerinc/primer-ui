@@ -46,12 +46,29 @@ const buttons = blok.buttons || [];
 <style>
   .hero {
     background-color: var(--p-color-bg-secondary);
+    background-image: var(--hero-bg, none);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     padding: var(--p-space-24) var(--p-space-8);
     position: relative;
   }
 
   .hero--bg-primary       { background-color: var(--p-color-bg-primary); }
   .hero--bg-accent-subtle { background-color: var(--p-color-bg-accent); }
+  .hero--bg-dark          { background-color: var(--p-color-bg-inverse); }
+
+  /* Base text/border colors assume a light section background — flip them
+     for the dark variant instead of introducing separate light/dark markup. */
+  .hero--bg-dark .hero__headline,
+  .hero--bg-dark .hero__sub {
+    color: var(--p-color-text-on-dark);
+  }
+
+  .hero--bg-dark .btn--secondary {
+    color: var(--p-color-text-on-dark);
+    border-color: var(--p-color-text-on-dark);
+  }
 
   .hero__inner {
     max-width: 860px;
