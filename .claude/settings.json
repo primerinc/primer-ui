@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx astro check)",
+      "Bash(npm run build:tokens)",
+      "Bash(npm run build)",
+      "Bash(npm run dev)",
+      "Bash(node --env-file=.env storyblok/check-drift.js)",
+      "Bash(node storyblok/check-build-safety.js)",
+      "Bash(npm run build:tokens:wireframe)",
+      "Bash(node --check *)",
+      "Bash(npm run preview)",
+      "Bash(npm view *)"
+    ]
+  }
+}
