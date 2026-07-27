@@ -81,7 +81,7 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 |------------|------|----------|----------------------------------------|
 | text       | Text | Yes      | Button label                           |
 | link       | Link | Yes      | Multilink                              |
-| variant    | Option | No     | primary (default), secondary           |
+| variant    | Option | No     | primary (default), secondary, text     |
 
 ---
 

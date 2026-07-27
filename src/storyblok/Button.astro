@@ -3,7 +3,7 @@
  * Button
  * Storyblok block name: button
  *
- * Fields: text, link (Multilink), variant (primary | secondary)
+ * Fields: text, link (Multilink), variant (primary | secondary | text)
  */
 import { storyblokEditable } from '@storyblok/astro';
 
@@ -46,5 +46,19 @@ const variant = blok.variant || 'primary';
     background: transparent;
     color: var(--p-color-text-primary);
     border: 1px solid var(--p-color-border-default);
+  }
+
+  /* Same padding/border-width as the other variants (border just goes
+     transparent rather than being removed) so it sits level in a row next
+     to primary/secondary buttons instead of looking vertically offset. */
+  .btn--text {
+    background: transparent;
+    color: var(--p-color-text-primary);
+    border: 1px solid transparent;
+  }
+
+  .btn--text:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 </style>
