@@ -29,7 +29,7 @@
   "author": "Primer <hello@primerinc.com>",
   "dependencies": {
     "@astrojs/node": "^10.1.4",
-    "@storyblok/astro": "^10.2.2",
+    "@storyblok/astro": "^9.0.12",
     "astro": "^6.4.6",
     "style-dictionary": "^5.4.4"
   },
