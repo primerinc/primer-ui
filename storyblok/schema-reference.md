@@ -54,6 +54,8 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 
 **Astro component:** `TestimonialBlock.astro` — the file/component name predates the Storyblok technical name `testimonials` and the two were never reconciled; not worth a rename, just noting it so the mismatch doesn't look like a second bug.
 
+**`layout: carousel`:** one testimonial visible at a time, cross-fading to the next automatically every 5s. Auto-rotation pauses on hover *and* on keyboard focus (so keyboard users aren't stranded mid-read), and is skipped entirely for `prefers-reduced-motion: reduce`. Dot navigation lets a visitor jump directly to any testimonial; clicking a dot restarts the rotation timer from that point rather than letting a near-due auto-advance immediately override the click. Needs 2+ items to render dots/rotate at all — a single-item carousel just shows that one item statically.
+
 ### testimonial_item (nested block inside testimonials)
 
 | Field name | Type  | Required | Notes               |

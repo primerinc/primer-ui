@@ -32,9 +32,19 @@ const bg     = blok.background || 'primary';
       </div>
     )}
 
-    <ul class="testimonials__grid" role="list" data-reveal-stagger>
-      {(blok.items as TestimonialItem[])?.map((item) => (
-        <li class="testimonial-card" {...storyblokEditable(item)}>
+    <ul
+      class="testimonials__grid"
+      role="list"
+      data-reveal-stagger
+      data-testimonial-track
+    >
+      {(blok.items as TestimonialItem[])?.map((item, i) => (
+        <li
+          class="testimonial-card"
+          {...storyblokEditable(item)}
+          data-testimonial-slide
+          aria-hidden={layout === 'carousel' && i !== 0 ? 'true' : undefined}
+        >
           <blockquote class="testimonial-card__quote">
             <p>"{item.quote}"</p>
           </blockquote>
@@ -55,8 +65,89 @@ const bg     = blok.background || 'primary';
         </li>
       ))}
     </ul>
+
+    {layout === 'carousel' && (blok.items as TestimonialItem[])?.length > 1 && (
+      <div class="testimonials__dots" role="tablist" aria-label="Testimonials" data-testimonial-dots>
+        {(blok.items as TestimonialItem[]).map((item, i) => (
+          <button
+            type="button"
+            class="testimonials__dot"
+            role="tab"
+            aria-selected={i === 0 ? 'true' : 'false'}
+            aria-label={`Show testimonial from ${item.author ?? `slide ${i + 1}`}`}
+            data-testimonial-dot
+          />
+        ))}
+      </div>
+    )}
   </div>
 </section>
+
+{layout === 'carousel' && (
+  <script>
+    // One <script> runs once for the whole page and wires up every carousel
+    // section on it — several testimonial blocks can appear on one page.
+    const ROTATE_MS = 5000;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    document.querySelectorAll<HTMLElement>('.testimonials--carousel').forEach((section) => {
+      const track = section.querySelector<HTMLElement>('[data-testimonial-track]');
+      const slides = Array.from(section.querySelectorAll<HTMLElement>('[data-testimonial-slide]'));
+      const dots = Array.from(section.querySelectorAll<HTMLButtonElement>('[data-testimonial-dot]'));
+      if (!track || slides.length < 2) return;
+
+      let index = 0;
+      let timer: ReturnType<typeof setInterval> | null = null;
+
+      function show(next: number) {
+        slides[index].classList.remove('is-active');
+        slides[index].setAttribute('aria-hidden', 'true');
+        dots[index]?.setAttribute('aria-selected', 'false');
+
+        index = (next + slides.length) % slides.length;
+
+        slides[index].classList.add('is-active');
+        slides[index].removeAttribute('aria-hidden');
+        dots[index]?.setAttribute('aria-selected', 'true');
+      }
+
+      function start() {
+        if (reduceMotion || timer) return;
+        timer = setInterval(() => show(index + 1), ROTATE_MS);
+      }
+
+      function stop() {
+        if (timer) {
+          clearInterval(timer);
+          timer = null;
+        }
+      }
+
+      slides[0].classList.add('is-active');
+
+      dots.forEach((dot, i) => {
+        dot.addEventListener('click', () => {
+          show(i);
+          // A manual pick is a deliberate interruption — restart the clock
+          // from here rather than letting a near-due rotation fire right
+          // after, which would read as the click being ignored.
+          stop();
+          start();
+        });
+      });
+
+      // Hover and keyboard focus both count as "the user is engaging with
+      // this" — pausing only on hover would strand keyboard users on a
+      // slide that keeps changing out from under them mid-read.
+      section.addEventListener('mouseenter', stop);
+      section.addEventListener('mouseleave', start);
+      section.addEventListener('focusin', stop);
+      section.addEventListener('focusout', start);
+
+      start();
+    });
+  </script>
+)}
 
 <style>
   .testimonials {
@@ -110,6 +201,53 @@ const bg     = blok.background || 'primary';
 
   @media (max-width: 580px) {
     .testimonials__grid { grid-template-columns: 1fr; }
+  }
+
+  /* Carousel: every slide occupies the same grid cell (stacked, not laid
+     out side by side), so the container's height is simply the tallest
+     slide — no JS height measurement needed to avoid layout jump. Only
+     .is-active is visible; the rest are cross-faded out and unclickable. */
+  .testimonials--carousel .testimonials__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  .testimonials--carousel .testimonial-card {
+    grid-area: 1 / 1;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity var(--p-motion-duration-slow) var(--p-motion-ease);
+  }
+
+  .testimonials--carousel .testimonial-card.is-active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .testimonials__dots {
+    display: flex;
+    justify-content: center;
+    gap: var(--p-space-3);
+    margin-top: var(--p-space-8);
+  }
+
+  .testimonials__dot {
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    border: none;
+    border-radius: var(--p-radius-full);
+    background: var(--p-color-border-default);
+    cursor: pointer;
+    transition: background var(--p-motion-base) var(--p-motion-ease);
+  }
+
+  .testimonials__dot[aria-selected='true'] {
+    background: var(--p-color-accent-default);
   }
 
   .testimonial-card {
