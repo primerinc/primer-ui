@@ -19,7 +19,24 @@ const { blok } = Astro.props;
 
 const isMarquee = (blok.display ?? 'grid') === 'marquee';
 const logos: LogoItem[] = blok.logos ?? [];
-const marqueeLogos: LogoItem[] = [...logos, ...logos];
+
+// A single duplication (2x) only fills the animated band if the logo set is
+// already wide — with few/narrow logos (a handful of small SVGs is the
+// common case) two copies together can be much narrower than the viewport,
+// so the track runs out of content partway through the loop and leaves a
+// visible gap. The seamless-loop technique needs HALF the total repeated
+// track (i.e. repeats/2 copies of the logo set) to be at least as wide as
+// the viewport, or there's a gap at some point in every cycle — not just
+// wider than the un-doubled set. Measured against this project's own demo
+// content (3 small logos, ~406px per pass): 6 repeats (3 per half = 1218px)
+// still fell short of a common 1440px desktop viewport; 10 repeats (5 per
+// half = ~2030px) comfortably covers ordinary desktop widths. A client
+// with more/wider logos needs proportionally fewer repeats to hit the same
+// coverage, but there's no way to measure actual rendered width at Astro's
+// build/SSR time, so this stays a fixed, generously-sized constant rather
+// than a formula tuned to one demo's logo count.
+const MARQUEE_REPEATS = 10;
+const marqueeLogos: LogoItem[] = Array.from({ length: MARQUEE_REPEATS }, () => logos).flat();
 
 function imgSrc(logo: LogoItem) {
   return logo.image?.filename
