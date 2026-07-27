@@ -188,7 +188,15 @@ In addition to nestable blocks, the space needs three root content types: `page`
 `src/layouts/BaseLayout.astro` is the root layout. It imports `tokens/dist/tokens.css`.
 All client Astro projects use this layout as their base.
 
-Update the Google Fonts link in BaseLayout for each client's brand fonts.
+Fonts are self-hosted, not loaded from fonts.googleapis.com — a synchronous
+Google Fonts `<link rel="stylesheet">` render-blocks first paint on a
+cross-origin round-trip, which is exactly wrong for a page-speed-focused
+build. For each client's brand font: download the family's latin-subset
+variable woff2 (Google's own CSS2 API — `fonts.googleapis.com/css2?family=...`
+— serves one variable file per subset covering the full weight range even
+when requested with explicit static weights; grab that URL from the CSS
+response) into `public/fonts/`, and update the `@font-face` rule + weight
+range in `BaseLayout.astro`'s `<style is:global>` block.
 
 Third-party scripts (GTM, consent management platforms, etc.) are configured
 per-client via the singleton `config` story, not hardcoded here — see the
