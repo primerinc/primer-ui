@@ -3,6 +3,7 @@ import { useStoryblokApi, getPayload } from '@storyblok/astro';
 import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { isPageStory } from '../lib/storyblok-payload';
+import { deriveFallbackDescription, deriveFallbackImage } from '../lib/seo-fallback';
 
 const payload = await getPayload({ locals: Astro.locals });
 let story = payload?.story;
@@ -21,8 +22,13 @@ if (!story) {
 if (!story) {
   return new Response(null, { status: 404 });
 }
+
+const content = story.content as { seo?: Array<{ metatags?: { title?: string; description?: string; og_image?: string } }>; body?: Record<string, unknown>[] };
+const metatags = content.seo?.[0]?.metatags;
+const description = metatags?.description || deriveFallbackDescription(content.body);
+const ogImage = metatags?.og_image || deriveFallbackImage(content.body);
 ---
 
-<BaseLayout title={story.name}>
+<BaseLayout title={metatags?.title || story.name} description={description} ogImage={ogImage}>
   <StoryblokComponent blok={story.content} />
 </BaseLayout>

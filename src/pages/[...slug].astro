@@ -5,6 +5,7 @@ import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { article, parseCustomSchema, type SchemaNode } from '../lib/schema';
 import { isPageStory } from '../lib/storyblok-payload';
+import { deriveFallbackDescription, deriveFallbackImage } from '../lib/seo-fallback';
 
 interface Metatags {
   title?: string;
@@ -57,6 +58,15 @@ if (!story) {
 const seo = story.content.seo?.[0];
 const metatags = seo?.metatags;
 
+// A page with no seo block filled in shouldn't ship an empty <meta
+// name="description">/og:image — fall back to whatever the page's own
+// body content actually says, same spirit as the title fallback below.
+const body = Array.isArray((story.content as { body?: unknown }).body)
+  ? ((story.content as { body?: unknown[] }).body as Record<string, unknown>[])
+  : undefined;
+const description = metatags?.description || deriveFallbackDescription(body);
+const ogImage = metatags?.og_image || deriveFallbackImage(body);
+
 /**
  * Structured data for this page, merged into the site-wide graph in BaseLayout.
  *
@@ -73,8 +83,8 @@ const schemaNodes = [
         origin,
         url: pageUrl,
         headline: String(story.content.title || story.name),
-        description: metatags?.description,
-        image: metatags?.og_image || undefined,
+        description,
+        image: ogImage,
         // first_published_at is when it went live; published_at moves on each
         // republish, which is exactly what dateModified should track.
         datePublished: story.first_published_at ?? undefined,
@@ -91,8 +101,8 @@ const schemaNodes = [
 
 <BaseLayout
   title={metatags?.title || story.name}
-  description={metatags?.description}
-  ogImage={metatags?.og_image}
+  description={description}
+  ogImage={ogImage}
   noIndex={seo?.noindex}
   canonicalUrl={seo?.canonical_url}
   hideNav={story.content.hide_nav}
