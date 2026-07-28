@@ -40,7 +40,7 @@
           }
         },
         "500": {
-          "value": "#bf8b3c",
+          "value": "#3cbf70",
           "type": "color",
           "$extensions": {
             "com.figma.scopes": [
@@ -1206,7 +1206,7 @@
         }
       },
       "button": {
-        "value": "{radius.md}",
+        "value": "{radius.full}",
         "type": "dimension",
         "$extensions": {
           "com.figma.scopes": [
