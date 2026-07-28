@@ -18,7 +18,7 @@
   --p-color-brand-200: #f0d9b0;
   --p-color-brand-300: #d4a85a;
   --p-color-brand-400: #c99843;
-  --p-color-brand-500: #bf8b3c;
+  --p-color-brand-500: #bf3c7b;
   --p-color-brand-600: #a37030;
   --p-color-brand-700: #8a5a0e;
   --p-color-brand-900: #4a2f06;
@@ -61,9 +61,9 @@
   --p-color-text-inverse: #ffffff;
   --p-color-text-on-accent: #ffffff;
   --p-color-text-on-dark: #ffffff;
-  --p-color-text-accent: #bf8b3c;
+  --p-color-text-accent: #bf3c7b;
   --p-color-text-accent-strong: #8a5a0e;
-  --p-color-text-link: #bf8b3c;
+  --p-color-text-link: #bf3c7b;
   --p-color-text-link-hover: #8a5a0e;
   --p-color-text-success: #1a6644;
   --p-color-text-warning: #8a5a0e;
@@ -72,13 +72,13 @@
   --p-color-border-subtle: #f5f3ef;
   --p-color-border-strong: #c8c4be;
   --p-color-border-hover: #9c9893;
-  --p-color-border-focus: #bf8b3c;
-  --p-color-border-accent: #bf8b3c;
+  --p-color-border-focus: #bf3c7b;
+  --p-color-border-accent: #bf3c7b;
   --p-color-border-disabled: #e2ddd8;
   --p-color-border-error: #a83838;
   --p-color-border-success: #1a6644;
   --p-color-border-inverse: #2c2c2a;
-  --p-color-accent-default: #bf8b3c;
+  --p-color-accent-default: #bf3c7b;
   --p-color-accent-hover: #a37030;
   --p-color-accent-active: #8a5a0e;
   --p-color-accent-subtle: #fbf3e8;
