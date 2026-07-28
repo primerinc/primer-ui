@@ -27,6 +27,22 @@ const bg   = blok.background || 'primary';
 
   .rich-text--bg-secondary     { background: var(--p-color-bg-secondary); }
   .rich-text--bg-accent-subtle { background: var(--p-color-bg-accent); }
+  .rich-text--bg-dark          { background: var(--p-color-bg-inverse); }
+
+  .rich-text--bg-dark .rich-text__inner :global(h1),
+  .rich-text--bg-dark .rich-text__inner :global(h2),
+  .rich-text--bg-dark .rich-text__inner :global(h3),
+  .rich-text--bg-dark .rich-text__inner :global(h4) {
+    color: var(--p-color-text-inverse);
+    font-size: var(--p-font-size-lg);
+    text-align: center;
+  }
+
+  .rich-text--bg-dark .rich-text__inner :global(p) {
+    color: var(--p-color-text-inverse);
+    opacity: 0.75;
+    text-align: center;
+  }
 
   .rich-text__inner {
     max-width: 720px;

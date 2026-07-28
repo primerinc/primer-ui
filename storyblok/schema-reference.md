@@ -125,7 +125,9 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 | Field name | Type      | Required | Notes                          |
 |------------|-----------|----------|--------------------------------|
 | content    | Richtext  | Yes      | Storyblok richtext field       |
-| background | Option    | No       | primary (default), secondary, accent-subtle |
+| background | Option    | No       | primary (default), secondary, accent-subtle, dark |
+
+**`background: dark`:** inverse background (`--p-color-bg-inverse`), headings and paragraphs centered and set in `--p-color-text-inverse`, heading size dropped to `--p-font-size-lg` — built for short label/divider content (e.g. the component catalog's section labels below), not long-form article body copy.
 
 ---
 
@@ -518,6 +520,43 @@ Storyblok has no cross-content-type "field group" mechanism — the "Group" fiel
 | gate_hubspot_form_id      | Text     | No | HubSpot Form ID for the gate form                                   |
 | gate_headline             | Text     | No | Default "Unlock this resource"                                     |
 | gate_description          | Textarea | No | Optional supporting copy on the gate card                           |
+
+### Component catalog pattern (per-client)
+
+Storyblok has no way to preview a single block in isolation — the Visual
+Editor always renders through a real story tied to a URL (inherent to this
+repo's SSR + live-preview wiring via `getPayload()` + `[...slug].astro`).
+When a client needs to see what each component/variant looks like — to pick
+a Hero layout, compare CardGrid column counts, etc. — build one
+**unpublished `campaign_page`** story with every component (and every
+variant worth comparing) stacked on it, rather than improvising a one-off
+page each time:
+
+- **Content type: `campaign_page`**, not `page` — it has `hide_nav` /
+  `hide_footer` (see table above), so the catalog reads as a clean scroll of
+  just the components with no site chrome around them.
+- **Never publish it.** Leave it in draft — Storyblok's preview works on
+  drafts, so it's only ever viewed through the editor, never reachable as a
+  real public URL.
+- **Name and slug it as obviously internal** — story name prefixed `Internal —`
+  (e.g. "Internal — Component Catalog (do not publish)"), slug
+  `component-catalog`. It lives at space root, not a folder — Storyblok's
+  `path` field doesn't create folder nesting by itself, and since the story
+  stays a draft it's never reachable as a public URL either way, so the name
+  prefix is what actually prevents it being mistaken for real content in the
+  story list.
+- **Label every instance** with a plain text/heading block immediately above
+  it naming the component and variant ("Hero — Centered", "CardGrid — 3
+  Columns") — the point is a client can point at one and say its name.
+- **Include every variant worth a client decision**, not just one of each
+  component — e.g. both Hero layouts side by side if that's a real choice
+  they're being asked to make, not just the first one that comes to mind.
+
+Build one of these early in every client engagement (right after the
+Storyblok space is provisioned — see Phase 4 of the `client-repo-bootstrap`
+skill) so there's always a walkthrough-ready page for that "what does X look
+like" conversation, instead of building it under time pressure before a
+specific meeting.
 
 ### Content gating (soft gate)
 
