@@ -40,7 +40,7 @@
           }
         },
         "500": {
-          "value": "#bf8b3c",
+          "value": "#bf3c7b",
           "type": "color",
           "$extensions": {
             "com.figma.scopes": [
