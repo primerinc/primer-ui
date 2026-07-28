@@ -21,16 +21,18 @@ Agency: Primer — primerinc.com — Lambertville, NJ
 
 Design changes flow: **edit a Figma Variable → Tokens Studio "Import Variables" → Push → `npm run build:tokens`.**
 
-- The Tokens Studio plugin syncs Figma's variables to `tokens/tokens.studio.json` (GitHub sync provider, configured in the plugin's Settings).
-- `tokens/sync-from-studio.js` (runs automatically as part of `build:tokens`) merges that export into `primitives.json` / `semantic.json`.
-- Astro's dev server picks up the regenerated CSS via the `primer:watch-tokens` Vite plugin in `astro.config.mjs` — no restart needed.
+- The Tokens Studio plugin syncs Figma's variables to `tokens/tokens.studio.json` (GitHub sync provider, configured per-Figma-file in the plugin's Settings — the **Repository** field there must point at this repo; a client's duplicated Figma file needs that field repointed at the client's own repo, not left on `primerinc/primer-ui`, see the [client-repo-bootstrap skill](.claude/skills/client-repo-bootstrap/SKILL.md)).
+- `.github/workflows/build-tokens.yml` runs `npm run build:tokens` automatically on every push to `tokens/tokens.studio.json` and commits the regenerated output — this is what makes a Figma/Tokens Studio push actually take effect without a human remembering to run a build locally. `tokens/sync-from-studio.js` (what that build step runs) merges the export into `primitives.json` / `semantic.json`.
+- Astro's dev server picks up the regenerated CSS via the `primer:watch-tokens` Vite plugin in `astro.config.mjs` — no restart needed, though a change coming through the GitHub Action still needs a `git pull` locally before a local dev server sees it.
 
-**Figma is authoritative only for `color` and `font.family`** (the `OWNED_BY_FIGMA` list in the sync script). Everything else stays hand-authored, for two reasons:
+**Figma is authoritative for `color`, `font.family`, and `radius`** (the `OWNED_BY_FIGMA` list in the sync script). Everything else stays hand-authored, for two reasons:
 
 1. **Figma Variables can't express it** — shadows are Effect Styles, motion/easing has no variable type, and `font.leading` / `font.tracking` live inside Text Styles.
-2. **Tokens Studio's rem conversion corrupts it** — Figma types opacity, border-width and 1px values as plain FLOATs, so they come back as nonsense lengths (`opacity 0.05` → `0.003rem`, `1px` → `0.063rem`, `radius.full 9999px` → `624.938rem`).
+2. **Tokens Studio's rem conversion corrupts it** — Figma types opacity, border-width and 1px values as plain FLOATs, so they come back as nonsense lengths (`opacity 0.05` → `0.003rem`, `1px` → `0.063rem`).
 
-Only widen `OWNED_BY_FIGMA` after checking that the exported values for that category round-trip losslessly.
+`radius` is a partial exception to reason 2, worth knowing before editing it in Figma: component-scoped radii (`radius.button`, `radius.card`, `radius.input`, etc.) round-trip losslessly in rem — same rendered size, just a unit conversion — which is why the category as a whole is safe to own from Figma. `radius.full` (`9999px`, used for pill/circle shapes) is the one value in that category that still corrupts, arriving as something like `624.938rem`. Don't edit `radius.full` from Figma.
+
+Only widen `OWNED_BY_FIGMA` further after checking that the exported values for that category round-trip losslessly.
 
 **Tokens Studio workflow rules:**
 - **Never rename imported token sets.** Import Variables always writes to sets named `Collection/Mode` (e.g. `primitives/primitives`, `semantic/semantic`, `semantic/Wireframe`) and does not update renamed copies — renaming silently forks the data. Delete strays instead; the sync script matches set names case-insensitively.

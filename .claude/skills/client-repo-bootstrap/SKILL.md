@@ -1,6 +1,6 @@
 ---
 name: client-repo-bootstrap
-description: Walks through spinning up a new client build from primer-ui — fork the repo, apply the client's brand tokens, provision a Storyblok space from Primer Block Space, and wire branding. Stops short of hosting/deploy, which stays a deliberate manual step until a hosting platform is chosen.
+description: Walks through spinning up a new client build from primer-ui — fork the repo, apply the client's brand tokens, provision a Storyblok space from Primer Block Space, connect a duplicated Figma design file's Tokens Studio sync to the new repo, and wire branding. Stops short of hosting/deploy, which stays a deliberate manual step until a hosting platform is chosen.
 ---
 
 # Client repo bootstrap
@@ -72,10 +72,20 @@ This is the one mechanical piece, scripted in `storyblok/bootstrap-client-space.
 4. **Stories are deliberately not synced from Primer Block Space at all** — its actual `config` story carries real Primer branding, and the space also holds other clients' demo content. Don't "fix" this by syncing stories with a broader filter; the empty-header/footer `config` story this script creates is the safe baseline, and the client's own header/footer content gets added through the Storyblok editor afterward, same as any other content.
 5. Take the space ID and preview token (Settings → API Keys in the Storyblok UI) the script prints, and write `STORYBLOK_TOKEN` + the space ID into the **client repo's** `.env` (never commit `.env`). Prompt the user to add a Management API token by hand if the client repo will need one later — that's a personal, account-level token, not something to mint or store automatically.
 
-## Phase 5 — Branding + stop
+## Phase 5 — Figma design file (ongoing token editing, not just the initial apply)
+
+Phase 3 applies the client's brand ramp once, directly, so the repo is usable immediately without waiting on this step. This phase sets up the *ongoing* pipeline — so a designer can keep adjusting the client's tokens in Figma afterward, the same way Primer's own tokens are maintained.
+
+1. Duplicate the "Primer Design System" Figma file → rename to "`<client display name>` Design System."
+2. Open Tokens Studio in the duplicate and explicitly set the GitHub sync provider's **Repository** field to `<org>/<slug>` (the client repo from Phase 2) — **not** `primerinc/primer-ui`. The sync config form is `Name / Personal access token / Repository (owner/repo) / Branch / token storage path`. It isn't documented anywhere findable whether a duplicated Figma file inherits the source file's old sync target or starts blank — treat it as unknown and **explicitly set/verify** the Repository field before anyone hits Push, rather than assuming either way. Branch stays `main`; storage path stays `tokens/tokens.studio.json`, matching this repo's convention.
+3. One GitHub PAT (`repo` scope) can be reused across every client file's sync config — it's a credential scoped to what the person entering it can access, not something to mint fresh per client.
+4. Confirm `.github/workflows/build-tokens.yml` exists in the client repo (it will automatically — every client repo is a fork taken after this Action already existed in `primer-ui`). This is what makes Figma edits actually take effect without anyone running a local build — see CLAUDE.md's Figma sync section.
+5. Share the duplicated Figma file with whoever will be doing the client's design work — **edit access to that one file, nothing else** (no GitHub, no Storyblok Management API access implied by this step).
+
+## Phase 6 — Branding + stop
 
 1. Update the client repo's `BaseLayout.astro` Google Fonts `<link>` for the brief's brand font.
-2. Report completion clearly: repo created, tokens applied and building clean, Storyblok space provisioned and verified. Then **stop** — state explicitly that hosting target selection and the `@astrojs/node` → real-platform adapter swap are the deliberate next manual step, not something this skill attempts.
+2. Report completion clearly: repo created, tokens applied and building clean, Storyblok space provisioned and verified, Figma file connected. Then **stop** — state explicitly that hosting target selection and the `@astrojs/node` → real-platform adapter swap are the deliberate next manual step, not something this skill attempts.
 
 ## Verification
 
@@ -83,3 +93,4 @@ This is the one mechanical piece, scripted in `storyblok/bootstrap-client-space.
 - `storyblok/bootstrap-client-space.js` should fail loudly (non-zero exit, clear message) if `STORYBLOK_MANAGEMENT_TOKEN` is missing, or if the `storyblok` CLI isn't authenticated (`storyblok login`) — same posture as `check-drift.js`.
 - After a real run, open the new space's `config` story in Storyblok and confirm `site_name` is the client's name (not "Primer") and `header`/`footer` are empty, not carrying over any Primer Block Space content.
 - Treat the first real run as a trial: scrutinize each confirmation gate rather than assuming the sequence is correct just because it read fine on paper. In particular, verify the space actually landed in the requested region (the create-space API call used here doesn't confirm one was passed/honored — check in the Storyblok UI after creation).
+- After Phase 5, push a real (throwaway is fine) color change through the duplicated Figma file end-to-end — Import Variables, Push — and confirm it lands in the *client* repo, not `primer-ui`, and that `.github/workflows/build-tokens.yml` actually runs and regenerates the client repo's tokens automatically. Don't consider Phase 5 done on configuration alone; a misconfigured Repository field fails silently (it just pushes to the wrong place) and won't surface any other way.

@@ -1,0 +1,55 @@
+name: Rebuild design tokens
+
+# Fires only on changes to the Tokens Studio export — never on the derived
+# files this workflow itself commits (primitives.json / semantic.json /
+# tokens/dist/tokens.css). That's what keeps this from re-triggering itself;
+# there is no other guard against an infinite loop, so don't widen the path
+# filter without re-checking that invariant still holds.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'tokens/tokens.studio.json'
+
+permissions:
+  contents: write
+
+# A second push landing while a run is still in flight (Tokens Studio can
+# push twice in quick succession — seen in practice, the second push had no
+# real diff) should cancel the stale run rather than race it.
+concurrency:
+  group: build-tokens-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Default GITHUB_TOKEN would push a commit that skips further
+          # workflow runs by design (GitHub's own loop-prevention) — fine
+          # here since we don't want this to trigger anything else, but
+          # called out explicitly so it isn't mistaken for a bug later.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.12.0'
+
+      - run: npm ci
+
+      - run: npm run build:tokens
+
+      - name: Commit regenerated tokens if changed
+        run: |
+          if git status --porcelain | grep -q .; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add tokens/primitives.json tokens/semantic.json tokens/dist/tokens.css
+            git commit -m "Rebuild design tokens from Tokens Studio export [skip ci]"
+            git push
+          else
+            echo "No token changes to commit."
+          fi
