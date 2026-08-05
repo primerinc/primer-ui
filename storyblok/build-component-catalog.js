@@ -78,6 +78,16 @@ add('Hero — Left-Aligned', {
   background: 'primary',
 });
 
+add('Hero — Two-Column', {
+  _uid: uid(),
+  component: 'hero',
+  headline: 'One platform for every door you manage',
+  subheadline: 'Pair centralized access control with a service model built for how facilities teams actually work.',
+  buttons: [button('Get started'), button('Talk to sales', 'secondary')],
+  layout: 'two-column',
+  background: 'secondary',
+});
+
 add('Feature Grid — 3 Columns, Centered', {
   _uid: uid(),
   component: 'feature_grid',

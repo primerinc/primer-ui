@@ -51,12 +51,12 @@ const buttons   = blok.buttons || [];
 
   .cta-banner--light {
     background: var(--p-color-bg-primary);
-    border-top: 1px solid var(--p-color-border-default);
-    border-bottom: 1px solid var(--p-color-border-default);
+    border-top: var(--p-border-width-default) solid var(--p-color-border-default);
+    border-bottom: var(--p-border-width-default) solid var(--p-color-border-default);
   }
 
   .cta-banner__inner {
-    max-width: 1100px;
+    max-width: var(--p-container-wide);
     margin: 0 auto;
     display: flex;
     align-items: center;
@@ -67,7 +67,7 @@ const buttons   = blok.buttons || [];
 
   .cta-banner__copy {
     flex: 1;
-    min-width: 260px;
+    min-width: 16.25rem; /* 260px */
   }
 
   .cta-banner__headline {
@@ -131,7 +131,7 @@ const buttons   = blok.buttons || [];
   }
 
   .cta-banner--align-center .cta-banner__copy {
-    max-width: 680px;
+    max-width: 42.5rem; /* 680px — one-off measure, not part of the shared container scale */
   }
 
   @media (max-width: 640px) {

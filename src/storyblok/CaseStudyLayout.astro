@@ -18,7 +18,7 @@ const bg = blok.background || 'primary';
 
 const headings = extractHeadings(blok.content);
 const contentHtml = blok.content
-  ? injectHeadingIds(renderRichText(blok.content), headings)
+  ? injectHeadingIds(renderRichText(blok.content) ?? '', headings)
   : '';
 ---
 
@@ -68,10 +68,10 @@ const contentHtml = blok.content
   .case-study--bg-accent-subtle { background: var(--p-color-bg-accent); }
 
   .case-study__inner {
-    max-width: 1100px;
+    max-width: var(--p-container-default);
     margin: 0 auto;
     display: grid;
-    grid-template-columns: 1fr 320px;
+    grid-template-columns: 1fr 20rem; /* 320px */
     gap: var(--p-space-16);
     align-items: start;
   }
@@ -154,7 +154,7 @@ const contentHtml = blok.content
   .case-study__body :global(a) {
     color: var(--p-color-text-accent-strong);
     text-decoration: underline;
-    text-underline-offset: 3px;
+    text-underline-offset: 0.1875rem; /* 3px */
   }
 
   .case-study__body :global(strong) {
@@ -167,7 +167,7 @@ const contentHtml = blok.content
   }
 
   .case-study__body :global(blockquote) {
-    border-left: 3px solid var(--p-color-border-accent);
+    border-left: 0.1875rem solid var(--p-color-border-accent); /* 3px */
     padding-left: var(--p-space-6);
     margin: var(--p-space-8) 0;
     font-family: var(--p-font-display);
@@ -178,7 +178,7 @@ const contentHtml = blok.content
 
   .case-study__body :global(hr) {
     border: none;
-    border-top: 1px solid var(--p-color-border-default);
+    border-top: var(--p-border-width-default) solid var(--p-color-border-default);
     margin: var(--p-space-10) 0;
   }
 
@@ -198,7 +198,7 @@ const contentHtml = blok.content
 
   .case-study__body :global(th),
   .case-study__body :global(td) {
-    border: 1px solid var(--p-color-border-default);
+    border: var(--p-border-width-default) solid var(--p-color-border-default);
     padding: var(--p-space-3) var(--p-space-4);
     text-align: left;
   }

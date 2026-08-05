@@ -14,9 +14,12 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 | headline             | Text     | Yes      |                              |
 | subheadline          | Textarea | No       |                              |
 | buttons              | Blocks   | No       | Restrict to: button, max 2 — replaced the old cta_primary_label/cta_primary_url/cta_secondary_label/cta_secondary_url text fields |
-| background_image     | Asset    | No       | Image only                   |
-| layout               | Option   | No       | centered (default), left-aligned |
+| background_image     | Asset    | No       | Image only — full-bleed background behind the whole section, layout-independent |
+| image                | Asset    | No       | Image only — the side image for `layout: two-column`. Ignored by centered/left-aligned |
+| layout               | Option   | No       | centered (default), left-aligned, two-column |
 | background           | Option   | No       | secondary (default), primary, accent-subtle, dark |
+
+`two-column` renders `image` beside the headline/subheadline/buttons column (image on the right, fixed — no `image_side` toggle, unlike `two_column`/`card_grid`). Headline stays an `<h1>` in every layout — Hero always owns the page's single H1, so this variant is a real Hero layout, not a reuse of the `two_column` block.
 
 ---
 
@@ -30,7 +33,7 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 | features     | Blocks  | Yes      | Restrict to: feature_item    |
 | columns      | Option  | No       | 2, 3 (default), 4            |
 | text_align   | Option  | No       | center (default), left       |
-| background   | Option  | No       | primary (default), secondary, accent-subtle |
+| background   | Option  | No       | primary (default), secondary, accent-subtle, dark |
 
 ### feature_item (nested block inside feature_grid)
 
@@ -44,19 +47,36 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 
 ## testimonials
 
-| Field name  | Type   | Required | Notes                          |
-|-------------|--------|----------|--------------------------------|
-| eyebrow     | Text   | No       |                                |
-| headline    | Text   | No       |                                |
-| items       | Blocks | Yes      | Restrict to: testimonial_item  |
-| layout      | Option | No       | grid (default), carousel       |
-| background  | Option | No       | primary (default), secondary, accent-subtle |
+| Field name  | Type          | Required | Notes                          |
+|-------------|---------------|----------|--------------------------------|
+| eyebrow     | Text          | No       |                                |
+| headline    | Text          | No       |                                |
+| items       | Multi-Options | No       | 2026-07-31 — reference field, NOT nested blocks. `source: internal_stories`, `filter_content_type: ["testimonial"]`, `folder_slug: "testimonials/"`, `use_uuid: true`. Editor picks any number of existing `testimonial` stories from the "Testimonials" folder — same shape as WordPress/ACF Pro's relationship field to a reusable custom post type. See "testimonial (root content type)" below. |
+| layout      | Option        | No       | grid (default), carousel       |
+| background  | Option        | No       | primary (default), secondary, accent-subtle, dark |
 
 **Astro component:** `TestimonialBlock.astro` — the file/component name predates the Storyblok technical name `testimonials` and the two were never reconciled; not worth a rename, just noting it so the mismatch doesn't look like a second bug.
 
 **`layout: carousel`:** one testimonial visible at a time, cross-fading to the next automatically every 5s. Auto-rotation pauses on hover *and* on keyboard focus (so keyboard users aren't stranded mid-read), and is skipped entirely for `prefers-reduced-motion: reduce`. Dot navigation lets a visitor jump directly to any testimonial; clicking a dot restarts the rotation timer from that point rather than letting a near-due auto-advance immediately override the click. Needs 2+ items to render dots/rotate at all — a single-item carousel just shows that one item statically.
 
-### testimonial_item (nested block inside testimonials)
+**Resolving the reference (2026-07-31):** `items` holds an array of story UUIDs, not testimonial content. Page-level fetches (`src/pages/[...slug].astro`, `src/pages/index.astro`) pass `resolve_relations: 'testimonials.items'` to the Storyblok CDN API so `items` arrives as full story objects in one request. The Storyblok live-preview bridge doesn't apply that param to the payload it pushes into the editor, so `TestimonialBlock.astro` also resolves defensively on its own (a `by_uuids` lookup) whenever it receives bare UUID strings instead — the block renders correctly both on a normal page load and inside the Visual Editor.
+
+### testimonial (root content type — reusable, not nested)
+
+Individual testimonials are authored **once**, as their own story under the "Testimonials" folder (`testimonials/`), and referenced by any number of `testimonials` blocks across any number of pages — edit the testimonial in one place, every page using it picks up the change. This mirrors WordPress/ACF Pro's pattern of a reusable custom post type + relationship field, replacing the old per-page nested `testimonial_item` block below.
+
+| Field name | Type  | Required | Notes               |
+|------------|-------|----------|---------------------|
+| quote      | Textarea | Yes   |                     |
+| author     | Text  | Yes      | Full name           |
+| role       | Text  | No       | Job title / company |
+| avatar     | Asset | No       | Image only          |
+
+`is_root: true`, `is_nestable: false` — creatable as its own story, not insertable into a Blocks field. `preview_field: author` so the folder listing in the Storyblok sidebar shows names, not raw quotes.
+
+### testimonial_item (deprecated, unused as of 2026-07-31)
+
+Legacy nested-block shape, superseded by the `testimonial` content type above. Still present in the live Storyblok schema (component deletion is a destructive live-schema action, deliberately not taken without separate confirmation) but no story references it — every prior usage was migrated to standalone `testimonial` stories. Don't build against this; it's dead weight, not a second way to add a testimonial.
 
 | Field name | Type  | Required | Notes               |
 |------------|-------|----------|---------------------|
@@ -112,11 +132,10 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 | eyebrow     | Text     | No       |                              |
 | headline    | Text     | No       |                              |
 | body        | Textarea | No       |                              |
-| cta_label   | Text     | No       |                              |
-| cta_url     | Text     | No       |                              |
+| cta_button  | Blocks   | No       | Restrict to: button, max 1 — replaced the old cta_label/cta_url text fields (2026-07-29), matching the pattern hero/cta_banner already used. Renders as this component's own arrow-link style (`.two-col__cta`), not the shared boxed `.btn` — the button blok's `variant` field is present but ignored |
 | image       | Asset    | No       | Image only                   |
 | image_side  | Option   | No       | right (default), left        |
-| background  | Option   | No       | primary (default), secondary, accent-subtle |
+| background  | Option   | No       | primary (default), secondary, accent-subtle, dark |
 
 ---
 
@@ -137,7 +156,7 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 |------------|--------|----------|---------------------------------|
 | eyebrow    | Text   | No       | e.g. "By the numbers"           |
 | stats      | Blocks | Yes      | Restrict to: stat_item          |
-| background | Option | No       | secondary (default), primary, accent-subtle |
+| background | Option | No       | secondary (default), primary, accent-subtle, dark |
 
 ### stat_item (nested block inside stats_bar)
 
@@ -158,7 +177,7 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 | subheadline | Textarea | No       |                              |
 | cards       | Blocks   | Yes      | Restrict to: card_item       |
 | columns     | Option   | No       | 2, 3 (default)               |
-| background  | Option   | No       | primary (default), secondary, accent-subtle |
+| background  | Option   | No       | primary (default), secondary, accent-subtle, dark |
 
 ### card_item (nested block inside card_grid)
 
@@ -168,8 +187,7 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 | eyebrow     | Text     | No       | Category / tag label         |
 | title       | Text     | Yes      |                              |
 | description | Textarea | No       |                              |
-| cta_label   | Text     | No       |                              |
-| cta_url     | Text     | No       |                              |
+| cta_button  | Blocks   | No       | Restrict to: button, max 1 — replaced the old cta_label/cta_url text fields (2026-07-29), matching the pattern hero/cta_banner already used. Renders as this card's own arrow-link style (`.card__cta`), not the shared boxed `.btn` — the button blok's `variant` field is present but ignored |
 
 ---
 
@@ -196,6 +214,7 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 | label            | Text   | Yes      |                                        |
 | link             | Link   | No       | Multilink — omit if item has dropdown  |
 | dropdown_groups  | Blocks | No       | Restrict to: nav_group                 |
+| featured_panel   | Blocks | No       | Restrict to: nav_featured_panel, max 1 — a promo card shown alongside the link columns (2026-07-29). Optional; most dropdowns won't use it |
 
 ### nav_group (nested block inside nav_item)
 
@@ -206,10 +225,23 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 
 ### nav_link (nested block inside nav_group)
 
-| Field name | Type | Required | Notes      |
-|------------|------|----------|------------|
-| label      | Text | Yes      |            |
-| link       | Link | Yes      | Multilink  |
+| Field name  | Type | Required | Notes      |
+|-------------|------|----------|------------|
+| label       | Text | Yes      |            |
+| link        | Link | Yes      | Multilink  |
+| icon        | Asset | No      | Image only — optional small icon shown before the label (2026-07-29) |
+| description | Text | No       | Optional one-line description under the label (2026-07-29) |
+
+### nav_featured_panel (nested block inside nav_item, added 2026-07-29)
+
+| Field name  | Type     | Required | Notes                                  |
+|-------------|----------|----------|-----------------------------------------|
+| image       | Asset    | No       | Image only                             |
+| heading     | Text     | No       |                                         |
+| description | Textarea | No       |                                         |
+| cta_button  | Blocks   | No       | Restrict to: button, max 1 — renders as a real boxed `.btn` (unlike two_column/card_grid's cta_button, which stays an arrow-link) |
+
+**Mega menu, added 2026-07-29:** dropdowns open on hover as well as click/keyboard focus (see `Header.astro`'s script for the hover-open/close-delay/viewport-flip logic). The panel is a wide flex layout — `dropdown_groups` (each a column) plus an optional `featured_panel` promo card — capped at `min(720px, 100vw - space)` and flips to right-aligned via JS if it would overflow the viewport's right edge. Mobile's accordion renders the same icon/description-per-link content but never the featured panel — it doesn't fit a narrow vertical list.
 
 ---
 
@@ -252,7 +284,7 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 | members     | Blocks   | Yes      | Restrict to: team_member            |
 | columns     | Option   | No       | 2, 3 (default), 4                   |
 | layout      | Option   | No       | card (default), minimal             |
-| background  | Option   | No       | primary (default), secondary, accent-subtle |
+| background  | Option   | No       | primary (default), secondary, accent-subtle, dark |
 
 ### team_member (nested block inside team)
 
@@ -275,7 +307,7 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 | subheadline | Textarea | No       |                                        |
 | items       | Blocks   | Yes      | Restrict to: tab_item                  |
 | layout      | Option   | No       | horizontal (default), vertical         |
-| background  | Option   | No       | primary (default), secondary, accent-subtle |
+| background  | Option   | No       | primary (default), secondary, accent-subtle, dark |
 
 ### tab_item (nested block inside tabs)
 
@@ -297,7 +329,7 @@ Copy each schema exactly — field names must match the prop interfaces in the A
 | subheadline     | Textarea| No       |                                              |
 | items           | Blocks  | Yes      | Restrict to: faq_item                        |
 | include_schema  | Boolean | No       | Default false — injects FAQPage JSON-LD when enabled |
-| background      | Option  | No       | primary (default), secondary, accent-subtle  |
+| background      | Option  | No       | primary (default), secondary, accent-subtle, dark |
 
 ### faq_item (nested block inside faq)
 
@@ -468,6 +500,8 @@ Unlike the nestable blocks above, these are top-level Storyblok **content types*
 
 **Live in Primer Block Space as of 2026-07-22**, built via Management API: `seo` block, `resource` content type, `campaign_page` content type, and `seo` attached to `page`. All three content types' `body` field shares an identical 16-block whitelist (includes `rich_text` and `logo_bar`, which were initially missed). The SEO Metatags app must be installed *and explicitly applied to the space* (Settings → Apps inside the space, not just the account-wide app store) before the `seo` block's `metatags` field can be created — its Management API `field_type` is `seo-metatags` (hyphenated), not `seo_metatags` as the plugin name might suggest.
 
+**`testimonial` (2026-07-31) is also `is_root: true`, but nobody links to it.** It's a reusable content type, registered in `astro.config.mjs` (`storyblok/Testimonial.astro`) purely so a testimonial story has a real, editable preview when opened directly or clicked through to from a `testimonials` block's reference-field picker in the Storyblok UI — returning a 404 for these slugs (an earlier version of this did exactly that) breaks that click-to-edit flow, since the Visual Editor needs the story's own preview URL to actually load. See "testimonial (root content type)" under the `## testimonials` block section above for its fields. It exists to be referenced by `testimonials.items`, the same reusable-content pattern as WordPress/ACF Pro relationship fields.
+
 ### seo (nestable block — Block Library, same place as every other block above)
 
 Storyblok has no cross-content-type "field group" mechanism — the "Group" field type is a purely visual collapse/expand widget scoped to a single component's own schema and doesn't appear in the API response. To genuinely share a field set across `page`, `resource`, and `campaign_page`, build it as an ordinary nestable block (component technical name `seo`) like any other block in this file, then attach it to each content type via a **Blocks** field restricted to just that component, Minimum 1 / Maximum 1. Because it's a Blocks field, it comes back from the API as a one-item array — `story.content.seo?.[0]`, not `story.content.seo` directly.
@@ -499,6 +533,7 @@ Storyblok has no cross-content-type "field group" mechanism — the "Group" fiel
 | featured       | Boolean | No       | Default false. Reserved for a future resource-listing page — not used on the detail page itself |
 | body           | Blocks  | Yes      | Restrict to the nestable blocks above                                    |
 | seo            | Blocks  | No       | Restrict to `seo`, min 1 / max 1                                         |
+| section_gate   | Section | — | 2026-07-30 — pure editor-UI grouping, no data (`keys` lists the 5 gate_* fields below). Groups them under a "Content Gate" heading in the Storyblok sidebar. Note: the correct Storyblok type for this is `section`, not `tab` — an earlier attempt used `type: "tab"`, which the Management API accepted without error but broke Blocks-field visibility in the actual Visual Editor; reverted same day, redone with the documented `section` type and confirmed working in the real editor |
 | gate_enabled              | Boolean  | No | Default false. See "Content gating" below                          |
 | gate_hubspot_portal_id    | Text     | No | HubSpot Portal ID for the gate form                                 |
 | gate_hubspot_form_id      | Text     | No | HubSpot Form ID for the gate form                                   |
@@ -515,6 +550,7 @@ Storyblok has no cross-content-type "field group" mechanism — the "Group" fiel
 | hide_footer            | Boolean | No       | Default false. Hides the global footer for this page (wired in `BaseLayout.astro`) |
 | body                   | Blocks  | Yes      | Restrict to the nestable blocks above                                    |
 | seo                    | Blocks  | No       | Restrict to `seo`, min 1 / max 1                                         |
+| section_gate   | Section | — | 2026-07-30 — same grouping as `resource`, see note there |
 | gate_enabled              | Boolean  | No | Default false. See "Content gating" below                          |
 | gate_hubspot_portal_id    | Text     | No | HubSpot Portal ID for the gate form                                 |
 | gate_hubspot_form_id      | Text     | No | HubSpot Form ID for the gate form                                   |
@@ -602,6 +638,7 @@ field of its own.
 | site_name          | Text     | No       | Used in structured data (Organization/WebSite) and as a fallback         |
 | header             | Blocks   | No       | Restrict to `header`, min 1 / max 1                                      |
 | footer             | Blocks   | No       | Restrict to `footer`, min 1 / max 1                                      |
+| section_tracking   | Section  | —        | 2026-07-30 — pure editor-UI grouping, no data (`keys` lists the 3 fields below). Groups them under a "Tracking & Scripts" heading in the Storyblok sidebar. Same pattern as `section_gate` on `resource`/`campaign_page` above. |
 | gtm_container_id   | Text     | No       | e.g. `GTM-XXXXXXX`. First-class field (not just pasted into head_scripts) so BaseLayout can place the head snippet and the `<body>` noscript iframe correctly and so consent-mode ordering is guaranteed — see "Third-party scripts" below |
 | head_scripts       | Textarea | No       | Raw HTML/script, injected via `set:html` near the top of `<head>`, **before** the GTM snippet. This is where a client's consent-management platform (Cookiebot/OneTrust/CookieYes) snippet or a bare Google Consent Mode default-state call goes |
 | body_scripts       | Textarea | No       | Raw HTML/script, injected via `set:html` at the very top of `<body>`, after the GTM noscript iframe |

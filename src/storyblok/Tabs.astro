@@ -150,14 +150,48 @@ const uid = `tabs-${blok._uid}`;
 
   .tabs--bg-secondary     { background: var(--p-color-bg-secondary); }
   .tabs--bg-accent-subtle { background: var(--p-color-bg-accent); }
+  .tabs--bg-dark          { background: var(--p-color-bg-inverse); }
+
+  /* Tab labels and panel content sit directly on the section background
+     (no card wrapper), so dark mode has to flip them too, not just the
+     header. */
+  .tabs--bg-dark .tabs__eyebrow,
+  .tabs--bg-dark .tabs__headline,
+  .tabs--bg-dark .tabs__sub {
+    color: var(--p-color-text-on-dark);
+  }
+
+  .tabs--bg-dark .tabs__nav {
+    border-color: var(--p-color-border-inverse);
+  }
+
+  .tabs--bg-dark .tabs__tab {
+    color: var(--p-color-text-on-dark);
+    opacity: 0.6;
+  }
+
+  .tabs--bg-dark .tabs__tab[aria-selected='true'],
+  .tabs--bg-dark .tabs__tab:hover {
+    color: var(--p-color-text-on-dark);
+    opacity: 1;
+  }
+
+  .tabs--bg-dark .tabs__panel-title {
+    color: var(--p-color-text-on-dark);
+  }
+
+  .tabs--bg-dark .tabs__panel-body {
+    color: var(--p-color-text-on-dark);
+    opacity: 0.75;
+  }
 
   .tabs__inner {
-    max-width: 1100px;
+    max-width: var(--p-container-wide);
     margin: 0 auto;
   }
 
   .tabs__header {
-    max-width: 640px;
+    max-width: var(--p-container-narrow);
     margin: 0 auto var(--p-space-12);
     text-align: center;
   }
@@ -196,7 +230,7 @@ const uid = `tabs-${blok._uid}`;
   .tabs--horizontal .tabs__nav {
     display: flex;
     gap: var(--p-space-1);
-    border-bottom: 2px solid var(--p-color-border-default);
+    border-bottom: var(--p-border-width-md) solid var(--p-color-border-default);
     margin-bottom: var(--p-space-10);
     overflow-x: auto;
     scrollbar-width: none;
@@ -207,7 +241,7 @@ const uid = `tabs-${blok._uid}`;
   /* ── Vertical layout ── */
   .tabs--vertical .tabs__body {
     display: grid;
-    grid-template-columns: 220px 1fr;
+    grid-template-columns: 13.75rem 1fr; /* 220px */
     gap: var(--p-space-8);
     align-items: start;
   }
@@ -216,7 +250,7 @@ const uid = `tabs-${blok._uid}`;
     display: flex;
     flex-direction: column;
     gap: var(--p-space-1);
-    border-right: 2px solid var(--p-color-border-default);
+    border-right: var(--p-border-width-md) solid var(--p-color-border-default);
     padding-right: var(--p-space-4);
   }
 
@@ -251,17 +285,17 @@ const uid = `tabs-${blok._uid}`;
   }
 
   .tabs--horizontal .tabs__tab::after {
-    bottom: -2px;
+    bottom: -0.125rem; /* -2px */
     left: 0;
     right: 0;
-    height: 2px;
+    height: var(--p-border-width-md);
   }
 
   .tabs--vertical .tabs__tab::after {
     top: 0;
     bottom: 0;
-    right: -2px;
-    width: 2px;
+    right: -0.125rem; /* -2px */
+    width: var(--p-border-width-md);
   }
 
   .tabs__tab[aria-selected='true'] {
@@ -331,7 +365,7 @@ const uid = `tabs-${blok._uid}`;
     .tabs--vertical .tabs__nav {
       flex-direction: row;
       border-right: none;
-      border-bottom: 2px solid var(--p-color-border-default);
+      border-bottom: var(--p-border-width-md) solid var(--p-color-border-default);
       padding-right: 0;
       padding-bottom: var(--p-space-1);
       overflow-x: auto;
@@ -348,10 +382,10 @@ const uid = `tabs-${blok._uid}`;
     .tabs--vertical .tabs__tab::after {
       top: auto;
       right: 0;
-      bottom: -2px;
+      bottom: -0.125rem; /* -2px */
       left: 0;
       width: auto;
-      height: 2px;
+      height: var(--p-border-width-md);
     }
 
     .tabs__panel-inner--has-image {

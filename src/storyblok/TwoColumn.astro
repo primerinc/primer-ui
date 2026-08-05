@@ -3,7 +3,7 @@
  * TwoColumn
  * Storyblok block name: two_column
  *
- * Fields: eyebrow, headline, body, cta_label, cta_url, image, image_side
+ * Fields: eyebrow, headline, body, cta_button (Blocks → button, max 1), image, image_side
  */
 import { storyblokEditable } from '@storyblok/astro';
 import { imageSize } from '../lib/storyblok-image';
@@ -16,6 +16,12 @@ const bg        = blok.background || 'primary';
 const imageUrl = blok.image?.filename
   ? `${blok.image.filename}/m/1200x0/filters:quality(85)`
   : null;
+
+// The CTA renders as this component's own arrow-link style (.two-col__cta),
+// not the shared boxed .btn — so only `text`/`link` are read from the
+// button blok, `variant` is deliberately ignored.
+const cta = blok.cta_button?.[0];
+const ctaHref = cta?.link?.url || cta?.link?.cached_url;
 ---
 
 <section
@@ -27,8 +33,8 @@ const imageUrl = blok.image?.filename
       {blok.eyebrow && <p class="two-col__eyebrow">{blok.eyebrow}</p>}
       {blok.headline && <h2 class="two-col__headline">{blok.headline}</h2>}
       {blok.body && <p class="two-col__body">{blok.body}</p>}
-      {blok.cta_label && blok.cta_url && (
-        <a href={blok.cta_url} class="two-col__cta">{blok.cta_label}</a>
+      {cta?.text && ctaHref && (
+        <a href={ctaHref} class="two-col__cta" {...storyblokEditable(cta)}>{cta.text}</a>
       )}
     </div>
 
@@ -53,9 +59,21 @@ const imageUrl = blok.image?.filename
 
   .two-col--bg-secondary     { background: var(--p-color-bg-secondary); }
   .two-col--bg-accent-subtle { background: var(--p-color-bg-accent); }
+  .two-col--bg-dark          { background: var(--p-color-bg-inverse); }
+
+  /* Copy sits directly on the section background (no card wrapper), so
+     dark mode has to flip the headline/body text too, not just the bg. */
+  .two-col--bg-dark .two-col__headline {
+    color: var(--p-color-text-on-dark);
+  }
+
+  .two-col--bg-dark .two-col__body {
+    color: var(--p-color-text-on-dark);
+    opacity: 0.75;
+  }
 
   .two-col__inner {
-    max-width: 1100px;
+    max-width: var(--p-container-wide);
     margin: 0 auto;
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -100,7 +118,7 @@ const imageUrl = blok.image?.filename
     font-weight: var(--p-font-weight-medium);
     letter-spacing: var(--p-font-tracking-wide);
     color: var(--p-color-text-accent-strong);
-    border-bottom: 1px solid var(--p-color-border-accent);
+    border-bottom: var(--p-border-width-default) solid var(--p-color-border-accent);
     padding-bottom: var(--p-space-1);
     transition: opacity var(--p-motion-base) var(--p-motion-ease);
   }

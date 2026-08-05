@@ -45,7 +45,7 @@ const bg   = blok.background || 'primary';
   }
 
   .rich-text__inner {
-    max-width: 720px;
+    max-width: var(--p-container-prose);
     margin: 0 auto;
   }
 
@@ -91,7 +91,7 @@ const bg   = blok.background || 'primary';
   .rich-text__inner :global(a) {
     color: var(--p-color-text-accent-strong);
     text-decoration: underline;
-    text-underline-offset: 3px;
+    text-underline-offset: 0.1875rem; /* 3px */
   }
 
   .rich-text__inner :global(strong) {
@@ -104,7 +104,7 @@ const bg   = blok.background || 'primary';
   }
 
   .rich-text__inner :global(blockquote) {
-    border-left: 3px solid var(--p-color-border-accent);
+    border-left: 0.1875rem solid var(--p-color-border-accent); /* 3px */
     padding-left: var(--p-space-6);
     margin: var(--p-space-8) 0;
     font-family: var(--p-font-display);
@@ -115,7 +115,7 @@ const bg   = blok.background || 'primary';
 
   .rich-text__inner :global(hr) {
     border: none;
-    border-top: 1px solid var(--p-color-border-default);
+    border-top: var(--p-border-width-default) solid var(--p-color-border-default);
     margin: var(--p-space-10) 0;
   }
 
@@ -135,7 +135,7 @@ const bg   = blok.background || 'primary';
 
   .rich-text__inner :global(th),
   .rich-text__inner :global(td) {
-    border: 1px solid var(--p-color-border-default);
+    border: var(--p-border-width-default) solid var(--p-color-border-default);
     padding: var(--p-space-3) var(--p-space-4);
     text-align: left;
   }

@@ -229,6 +229,10 @@ const siteSchema = siteName
         // the section itself scrolled into view — showImage() below withholds
         // them until now, so release whichever are already loaded.
         el.querySelectorAll<HTMLImageElement>('img').forEach(showImage);
+        // Lets a component's own script (e.g. StatsBar's count-up) react to
+        // its specific element revealing, without re-implementing the
+        // IntersectionObserver/stagger/reduced-motion handling above.
+        el.dispatchEvent(new CustomEvent('reveal', { bubbles: true }));
       }
 
       function initReveals() {

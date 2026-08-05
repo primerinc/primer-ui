@@ -15,7 +15,12 @@ if (!isPageStory(story)) story = undefined;
 
 if (!story) {
   const api = useStoryblokApi();
-  const { data } = await api.get('cdn/stories/home', { version: 'draft' });
+  // resolve_relations inlines testimonials.items' referenced testimonial
+  // stories in this one request — see TestimonialBlock.astro.
+  const { data } = await api.get('cdn/stories/home', {
+    version: 'draft',
+    resolve_relations: 'testimonials.items',
+  });
   story = data.story;
 }
 

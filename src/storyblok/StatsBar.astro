@@ -4,6 +4,14 @@
  * Storyblok block name: stats_bar
  *
  * Fields: eyebrow, stats (blocks → stat_item: number, label, description)
+ *
+ * Each stat's number counts up from 0 when it scrolls into view, hooking
+ * into BaseLayout's existing scroll-reveal system (a 'reveal' event on the
+ * revealed element) rather than a second IntersectionObserver — see the
+ * <script> below. `number` is free text ("50%", "$4.2M", "10,000+"), not
+ * a clean integer, so the animation parses out the numeric run and
+ * re-stitches the original prefix/suffix/decimals/commas around it every
+ * frame. Respects prefers-reduced-motion (skips straight to final text).
  */
 import { storyblokEditable } from '@storyblok/astro';
 import type { SbBlokData } from '@storyblok/astro';
@@ -19,7 +27,7 @@ const bg = blok.background || 'secondary';
     <ul class="stats-bar__list" role="list" data-reveal-stagger>
       {blok.stats?.map((stat: SbBlokData) => (
         <li class="stat" {...storyblokEditable(stat)}>
-          <span class="stat__number">{stat.number}</span>
+          <span class="stat__number" data-count-up>{stat.number}</span>
           <span class="stat__label">{stat.label}</span>
           {stat.description && <span class="stat__desc">{stat.description}</span>}
         </li>
@@ -28,19 +36,105 @@ const bg = blok.background || 'secondary';
   </div>
 </section>
 
+<script>
+  /**
+   * Counts each stat up from 0 when its <li> reveals — hooks into
+   * BaseLayout's existing scroll-reveal system (the 'reveal' event it
+   * dispatches once per element, IntersectionObserver-driven) rather than
+   * running a second observer. That also means reduced-motion and
+   * once-only behavior are inherited for free — this file only needs its
+   * own opt-out for reduced motion because the number gets blanked to "0"
+   * up front, which reveal's synchronous fallback path wouldn't undo.
+   *
+   * `stat.number` is free text from Storyblok ("50%", "$4.2M", "10,000+"),
+   * not a clean integer — parse out the numeric run, animate it, and
+   * re-stitch the original prefix/suffix/decimals/commas around it every
+   * frame so "$4.2M" counts up as "$0.0M" -> "$4.2M", not a bare number.
+   */
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // BaseLayout skips its whole reveal script (including the 'reveal' event
+  // dispatch) inside the Storyblok Visual Editor, and adds the 'has-reveal'
+  // class only when that script runs. Without this check we'd blank the
+  // number to "0" and then wait forever for a 'reveal' event that never
+  // comes — numbers stuck at 0 in the editor instead of animating.
+  const revealActive = document.documentElement.classList.contains('has-reveal');
+
+  document.querySelectorAll<HTMLElement>('[data-count-up]').forEach((numberEl) => {
+    const raw = numberEl.textContent?.trim() ?? '';
+    const match = raw.match(/[\d,]*\.?\d+/);
+    if (!match || reduceMotion || !revealActive) return; // no numeric run to animate, user opted out, or the reveal system isn't active — leave the server-rendered text as-is
+
+    const numberStr = match[0];
+    const start = match.index ?? 0;
+    const prefix = raw.slice(0, start);
+    const suffix = raw.slice(start + numberStr.length);
+    const hasCommas = numberStr.includes(',');
+    const decimals = numberStr.includes('.') ? numberStr.split('.')[1].length : 0;
+    const target = parseFloat(numberStr.replace(/,/g, ''));
+
+    function format(value: number) {
+      const fixed = decimals > 0 ? value.toFixed(decimals) : String(Math.round(value));
+      const [intPart, decPart] = fixed.split('.');
+      const intFormatted = hasCommas ? Number(intPart).toLocaleString('en-US') : intPart;
+      return prefix + intFormatted + (decPart ? `.${decPart}` : '') + suffix;
+    }
+
+    numberEl.textContent = format(0);
+
+    const statEl = numberEl.closest('.stat');
+    if (!statEl) return;
+
+    statEl.addEventListener('reveal', () => {
+      const duration = 1600;
+      const startTime = performance.now();
+
+      function tick(now: number) {
+        const elapsed = now - startTime;
+        const t = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - t, 3); // ease-out cubic — fast start, gentle settle
+        numberEl.textContent = format(target * eased);
+        if (t < 1) requestAnimationFrame(tick);
+        else numberEl.textContent = format(target); // snap to the exact source string, sidesteps float drift
+      }
+      requestAnimationFrame(tick);
+    }, { once: true });
+  });
+</script>
+
 <style>
   .stats-bar {
     padding: var(--p-space-20) var(--p-space-8);
     background: var(--p-color-bg-secondary);
-    border-top: 1px solid var(--p-color-border-subtle);
-    border-bottom: 1px solid var(--p-color-border-subtle);
+    border-top: var(--p-border-width-default) solid var(--p-color-border-subtle);
+    border-bottom: var(--p-border-width-default) solid var(--p-color-border-subtle);
   }
 
   .stats-bar--bg-primary       { background: var(--p-color-bg-primary); }
   .stats-bar--bg-accent-subtle { background: var(--p-color-bg-accent); }
+  .stats-bar--bg-dark          { background: var(--p-color-bg-inverse); border-color: var(--p-color-border-inverse); }
+
+  /* Stats sit directly on the section background (no card wrapper), so
+     dark mode has to flip their labels/dividers too, not just the header. */
+  .stats-bar--bg-dark .stats-bar__eyebrow {
+    color: var(--p-color-text-on-dark);
+    opacity: 0.75;
+  }
+
+  .stats-bar--bg-dark .stat {
+    border-color: var(--p-color-border-inverse);
+  }
+
+  .stats-bar--bg-dark .stat__label {
+    color: var(--p-color-text-on-dark);
+  }
+
+  .stats-bar--bg-dark .stat__desc {
+    color: var(--p-color-text-on-dark);
+    opacity: 0.6;
+  }
 
   .stats-bar__inner {
-    max-width: 1100px;
+    max-width: var(--p-container-wide);
     margin: 0 auto;
   }
 
@@ -56,7 +150,7 @@ const bg = blok.background || 'secondary';
 
   .stats-bar__list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(11.25rem, 1fr)); /* 180px */
     gap: var(--p-space-8);
     list-style: none;
     padding: 0;
@@ -70,7 +164,7 @@ const bg = blok.background || 'secondary';
     text-align: center;
     gap: var(--p-space-2);
     padding: var(--p-space-6);
-    border-right: 1px solid var(--p-color-border-default);
+    border-right: var(--p-border-width-default) solid var(--p-color-border-default);
   }
 
   .stat:last-child {
@@ -99,7 +193,7 @@ const bg = blok.background || 'secondary';
     font-weight: var(--p-font-weight-light);
     color: var(--p-color-text-tertiary);
     line-height: var(--p-font-leading-normal);
-    max-width: 160px;
+    max-width: 10rem; /* 160px */
   }
 
   @media (max-width: 580px) {
@@ -109,7 +203,7 @@ const bg = blok.background || 'secondary';
 
     .stat {
       border-right: none;
-      border-bottom: 1px solid var(--p-color-border-default);
+      border-bottom: var(--p-border-width-default) solid var(--p-color-border-default);
     }
 
     .stat:nth-last-child(-n+2) {

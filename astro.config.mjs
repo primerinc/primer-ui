@@ -59,6 +59,7 @@ export default defineConfig({
         case_study_layout: 'storyblok/CaseStudyLayout',
         key_takeaway_item: 'storyblok/KeyTakeawayItem',
         sidebar_cta:       'storyblok/SidebarCTA',
+        testimonial:       'storyblok/Testimonial',
       },
       apiOptions: { region: 'eu' },
     }),

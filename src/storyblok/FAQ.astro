@@ -7,11 +7,11 @@
  * faq_item fields: question, answer (richtext)
  */
 import { storyblokEditable, renderRichText } from '@storyblok/astro';
-import type { SbBlokData } from '@storyblok/astro';
+import type { SbBlokData, StoryblokRichTextNode } from '@storyblok/astro';
 
 interface FaqItem extends SbBlokData {
   question?: string;
-  answer?: Record<string, unknown>;
+  answer?: StoryblokRichTextNode<string>;
 }
 
 const { blok } = Astro.props;
@@ -20,9 +20,9 @@ const items: FaqItem[] = blok.items ?? [];
 const bg = blok.background || 'primary';
 
 // Extract plain text from Storyblok richtext for JSON-LD (schema must not contain HTML)
-function extractPlainText(richtext: Record<string, unknown> | undefined): string {
+function extractPlainText(richtext: StoryblokRichTextNode<string> | undefined): string {
   if (!richtext?.content) return '';
-  const nodes = richtext.content as Array<Record<string, unknown>>;
+  const nodes = richtext.content as unknown as Array<Record<string, unknown>>;
   const lines: string[] = [];
   for (const block of nodes) {
     const inline = block.content as Array<{ text?: string }> | undefined;
@@ -119,9 +119,41 @@ const uid = `faq-${blok._uid}`;
 
   .faq--bg-secondary     { background: var(--p-color-bg-secondary); }
   .faq--bg-accent-subtle { background: var(--p-color-bg-accent); }
+  .faq--bg-dark          { background: var(--p-color-bg-inverse); }
+
+  /* FAQ items sit directly on the section background (no card wrapper),
+     so dark mode has to flip the question/answer text and dividers too,
+     not just the header. */
+  .faq--bg-dark .faq__eyebrow,
+  .faq--bg-dark .faq__headline,
+  .faq--bg-dark .faq__sub {
+    color: var(--p-color-text-on-dark);
+  }
+
+  .faq--bg-dark .faq__item {
+    border-color: var(--p-color-border-inverse);
+  }
+
+  .faq--bg-dark .faq__btn {
+    color: var(--p-color-text-on-dark);
+  }
+
+  .faq--bg-dark .faq__icon {
+    color: var(--p-color-border-inverse);
+  }
+
+  .faq--bg-dark .faq__answer-inner :global(p),
+  .faq--bg-dark .faq__answer-inner :global(li) {
+    color: var(--p-color-text-on-dark);
+    opacity: 0.75;
+  }
+
+  .faq--bg-dark .faq__answer-inner :global(strong) {
+    color: var(--p-color-text-on-dark);
+  }
 
   .faq__inner {
-    max-width: 760px;
+    max-width: 47.5rem; /* 760px — FAQ's own reading-width measure, not part of the shared container scale */
     margin: 0 auto;
   }
 
@@ -164,11 +196,11 @@ const uid = `faq-${blok._uid}`;
   }
 
   .faq__item {
-    border-bottom: 1px solid var(--p-color-border-default);
+    border-bottom: var(--p-border-width-default) solid var(--p-color-border-default);
   }
 
   .faq__item:first-of-type {
-    border-top: 1px solid var(--p-color-border-default);
+    border-top: var(--p-border-width-default) solid var(--p-color-border-default);
   }
 
   /* Question button */
@@ -254,7 +286,7 @@ const uid = `faq-${blok._uid}`;
   .faq__answer-inner :global(a) {
     color: var(--p-color-text-accent-strong);
     text-decoration: underline;
-    text-underline-offset: 3px;
+    text-underline-offset: 0.1875rem; /* 3px */
   }
 
   .faq__answer-inner :global(strong) {

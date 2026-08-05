@@ -158,7 +158,7 @@ const hasHeader   = blok.eyebrow || blok.headline || blok.subheadline;
   .video-block--bg-accent-subtle { background: var(--p-color-bg-accent); }
 
   .video-block__inner {
-    max-width: 900px;
+    max-width: 56.25rem; /* 900px — one-off measure, not part of the shared container scale */
     margin: 0 auto;
     display: flex;
     flex-direction: column;
@@ -193,7 +193,7 @@ const hasHeader   = blok.eyebrow || blok.headline || blok.subheadline;
     font-weight: var(--p-font-weight-light);
     color: var(--p-color-text-secondary);
     line-height: var(--p-font-leading-relaxed);
-    max-width: 560px;
+    max-width: 35rem; /* 560px */
     margin: 0 auto;
   }
 
@@ -230,7 +230,7 @@ const hasHeader   = blok.eyebrow || blok.headline || blok.subheadline;
     position: relative;
     z-index: 1;
     transition: transform var(--p-motion-hover) var(--p-motion-ease), opacity var(--p-motion-hover) var(--p-motion-ease);
-    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
+    filter: drop-shadow(0 0.125rem 0.5rem color-mix(in srgb, var(--p-color-text-primary) 40%, transparent)); /* 2px 8px */
   }
 
   .video-block__yt-facade:hover .video-block__yt-play,
@@ -240,8 +240,8 @@ const hasHeader   = blok.eyebrow || blok.headline || blok.subheadline;
   }
 
   .video-block__yt-facade:focus-visible {
-    outline: 3px solid var(--p-color-border-focus);
-    outline-offset: 3px;
+    outline: 0.1875rem solid var(--p-color-border-focus); /* 3px */
+    outline-offset: 0.1875rem; /* 3px */
   }
 
   /* ── Injected iframe (created dynamically — :global needed for scoped CSS) ── */
@@ -271,7 +271,7 @@ const hasHeader   = blok.eyebrow || blok.headline || blok.subheadline;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgba(255,255,255,0.4);
+    color: color-mix(in srgb, var(--p-color-text-inverse) 40%, transparent);
     font-size: var(--p-font-size-sm);
     text-align: center;
     padding: var(--p-space-4);

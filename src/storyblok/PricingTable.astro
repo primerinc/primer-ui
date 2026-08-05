@@ -156,12 +156,12 @@ const annualLabel    = blok.toggle_label_annual  || 'Annual';
   .pricing--bg-accent-subtle { background: var(--p-color-bg-accent); }
 
   .pricing__inner {
-    max-width: 1100px;
+    max-width: var(--p-container-wide);
     margin: 0 auto;
   }
 
   .pricing__header {
-    max-width: 640px;
+    max-width: var(--p-container-narrow);
     margin: 0 auto var(--p-space-12);
     text-align: center;
   }
@@ -208,8 +208,8 @@ const annualLabel    = blok.toggle_label_annual  || 'Annual';
 
   .pricing__toggle-btn {
     position: relative;
-    width: 44px;
-    height: 24px;
+    width: 2.75rem; /* 44px */
+    height: 1.5rem; /* 24px */
     background: var(--p-color-border-default);
     border: none;
     border-radius: var(--p-radius-full);
@@ -225,11 +225,11 @@ const annualLabel    = blok.toggle_label_annual  || 'Annual';
 
   .pricing__toggle-thumb {
     position: absolute;
-    top: 3px;
-    left: 3px;
-    width: 18px;
-    height: 18px;
-    background: white;
+    top: 0.1875rem; /* 3px */
+    left: 0.1875rem; /* 3px */
+    width: 1.125rem; /* 18px */
+    height: 1.125rem; /* 18px */
+    background: var(--p-color-text-inverse);
     border-radius: 50%;
     transition: transform var(--p-motion-base) var(--p-motion-ease);
     display: block;
@@ -237,13 +237,13 @@ const annualLabel    = blok.toggle_label_annual  || 'Annual';
   }
 
   .pricing__toggle-btn[aria-checked='true'] .pricing__toggle-thumb {
-    transform: translateX(20px);
+    transform: translateX(1.25rem); /* 20px — track (44px) minus thumb (18px) minus both insets (3px+3px) */
   }
 
   /* Grid */
   .pricing__grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(17.5rem, 1fr)); /* 280px */
     gap: var(--p-space-6);
     list-style: none;
     padding: 0;
@@ -259,7 +259,7 @@ const annualLabel    = blok.toggle_label_annual  || 'Annual';
     gap: var(--p-space-6);
     padding: var(--p-space-8);
     background: var(--p-color-bg-primary);
-    border: 1px solid var(--p-color-border-default);
+    border: var(--p-border-width-default) solid var(--p-color-border-default);
     border-radius: var(--p-radius-card);
   }
 
@@ -272,11 +272,11 @@ const annualLabel    = blok.toggle_label_annual  || 'Annual';
   /* Badge */
   .pricing-card__badge {
     position: absolute;
-    top: -13px;
+    top: -0.8125rem; /* -13px */
     left: 50%;
     transform: translateX(-50%);
     background: var(--p-color-accent-default);
-    color: white;
+    color: var(--p-color-text-on-accent);
     font-size: var(--p-font-size-xs);
     font-weight: var(--p-font-weight-medium);
     letter-spacing: var(--p-font-tracking-wider);
@@ -306,7 +306,7 @@ const annualLabel    = blok.toggle_label_annual  || 'Annual';
     align-items: baseline;
     gap: var(--p-space-1);
     padding-bottom: var(--p-space-6);
-    border-bottom: 1px solid var(--p-color-border-default);
+    border-bottom: var(--p-border-width-default) solid var(--p-color-border-default);
   }
 
   .pricing-card--highlighted .pricing-card__price-wrap {
@@ -356,7 +356,7 @@ const annualLabel    = blok.toggle_label_annual  || 'Annual';
 
   .pricing-card__icon {
     flex-shrink: 0;
-    margin-top: 1px;
+    margin-top: 0.0625rem; /* 1px */
   }
 
   .pricing-card__icon--check { color: var(--p-color-text-accent); }
@@ -366,7 +366,7 @@ const annualLabel    = blok.toggle_label_annual  || 'Annual';
   .pricing-card__btn {
     display: block;
     width: 100%;
-    padding: 9px var(--p-space-4);
+    padding: 0.5625rem var(--p-space-4); /* 9px */
     text-align: center;
     font-family: var(--p-font-body);
     font-size: var(--p-font-size-sm);
@@ -381,13 +381,13 @@ const annualLabel    = blok.toggle_label_annual  || 'Annual';
 
   .pricing-card__btn--primary {
     background: var(--p-color-accent-default);
-    color: white;
-    border: 1px solid transparent;
+    color: var(--p-color-text-on-accent);
+    border: var(--p-border-width-default) solid transparent;
   }
 
   .pricing-card__btn--secondary {
     background: transparent;
-    border: 1px solid var(--p-color-border-default);
+    border: var(--p-border-width-default) solid var(--p-color-border-default);
     color: var(--p-color-text-primary);
   }
 
@@ -398,7 +398,7 @@ const annualLabel    = blok.toggle_label_annual  || 'Annual';
   @media (max-width: 768px) {
     .pricing__grid {
       grid-template-columns: 1fr;
-      max-width: 420px;
+      max-width: 26.25rem; /* 420px */
       margin-inline: auto;
     }
   }

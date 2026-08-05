@@ -32,9 +32,15 @@ const DEFAULT_SPACE_ID = '293131252124026';
 // not drift.
 const NOT_RESOLVER_COMPONENTS = ['config'];
 
-// The Storyblok "Tab" field type is a pure editor-UI divider — it holds no
-// data and has no code- or doc-side equivalent, so it's not real drift.
-const IGNORED_LIVE_FIELD_TYPES = ['tab'];
+// Storyblok's "section" field type is a pure editor-UI grouping divider —
+// it holds no data of its own (its `keys` array just lists which other
+// real fields render under its label in the Visual Editor sidebar), so it
+// has no code- or doc-side equivalent and isn't real drift. ('tab' was an
+// earlier guess at the type name that turned out to be wrong — the actual,
+// documented type is 'section'; see storyblok-docs' component-field-object
+// reference. Left in this list too in case it resurfaces from a stale
+// schema, but 'section' is the one that matters going forward.)
+const IGNORED_LIVE_FIELD_TYPES = ['tab', 'section'];
 
 const typeMap = JSON.parse(
   readFileSync(join(ROOT, '.claude/skills/storyblok-drift-check/references/type-map.json'), 'utf8')
@@ -203,7 +209,17 @@ async function main() {
     };
 
     const liveFields = liveComp?.fields ?? null;
-    const docFields = docSection ? Object.fromEntries(docSection.fields.map((f) => [f.field, f.type])) : null;
+    // Doc rows for pure UI-grouping fields (Section/Tab) describe the same
+    // divider that fetchLiveComponents already strips out of `live` via
+    // IGNORED_LIVE_FIELD_TYPES — drop them here too so they don't show up
+    // as false docsOnlyFields drift.
+    const docFields = docSection
+      ? Object.fromEntries(
+          docSection.fields
+            .filter((f) => !['Section', 'Tab'].includes(f.type))
+            .map((f) => [f.field, f.type])
+        )
+      : null;
 
     if (liveFields && docFields) {
       entry.liveOnlyFields = Object.keys(liveFields).filter((f) => !(f in docFields));

@@ -5,6 +5,7 @@
   "boolean": ["Boolean"],
   "asset": ["Asset"],
   "option": ["Option"],
+  "options": ["Multi-Options", "Reference"],
   "multilink": ["Link", "Multilink"],
   "richtext": ["Richtext"],
   "custom": ["Plugin"]

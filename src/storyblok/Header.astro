@@ -6,6 +6,19 @@
  * Fields: announcement_enabled, announcement_text, announcement_link_label,
  *         announcement_link_url, logo, nav_items (→ nav_item), login_enabled,
  *         login_label, login_link, cta_button (→ button, max 1), sticky
+ *
+ * nav_item fields: label, link, dropdown_groups (→ nav_group),
+ *                  featured_panel (→ nav_featured_panel, max 1)
+ * nav_group fields: heading, links (→ nav_link)
+ * nav_link fields: label, link, icon (optional), description (optional)
+ * nav_featured_panel fields: image, heading, description, cta_button (→ button, max 1)
+ *
+ * Desktop dropdowns open on hover (mouseenter/leave with a short close delay
+ * to survive the gap between trigger and panel) as well as click/keyboard —
+ * hover is the primary interaction, click/Enter/Escape/outside-click all
+ * still work so touch and keyboard users aren't stranded. Panel position
+ * flips to right-aligned via JS if it would overflow the viewport's right
+ * edge — see the `positionDropdown` script below.
  */
 import { storyblokEditable } from '@storyblok/astro';
 import { imageSize } from '../lib/storyblok-image';
@@ -58,6 +71,10 @@ const announcementHref  = blok.announcement_link_url?.url || blok.announcement_l
           const groups = item.dropdown_groups || [];
           const hasDropdown = groups.length > 0;
           const itemHref = item.link?.url || item.link?.cached_url || null;
+          const panel = item.featured_panel?.[0];
+          const panelImageUrl = panel?.image?.filename;
+          const panelCta = panel?.cta_button?.[0];
+          const panelCtaHref = panelCta?.link?.url || panelCta?.link?.cached_url;
           return (
             <li class:list={['site-nav__item', hasDropdown && 'site-nav__item--has-dropdown']} {...storyblokEditable(item)}>
               {hasDropdown ? (
@@ -73,25 +90,60 @@ const announcementHref  = blok.announcement_link_url?.url || blok.announcement_l
                       <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                   </button>
-                  <div class="site-nav__dropdown" id={`dropdown-${i}`} role="region">
-                    {groups.map((group: any) => {
-                      const links = group.links || [];
-                      return (
-                        <div class="nav-group" {...storyblokEditable(group)}>
-                          {group.heading && <p class="nav-group__heading">{group.heading}</p>}
-                          <ul class="nav-group__list" role="list">
-                            {links.map((link: any) => {
-                              const href = link.link?.url || link.link?.cached_url || '#';
-                              return (
-                                <li {...storyblokEditable(link)}>
-                                  <a href={href} class="nav-group__link">{link.label}</a>
-                                </li>
-                              );
-                            })}
-                          </ul>
+                  <div class="site-nav__dropdown" id={`dropdown-${i}`} role="region" data-dropdown-panel>
+                    <div class="site-nav__dropdown-groups" style={`grid-template-columns: repeat(${groups.length}, minmax(15rem, 1fr));`}>
+                      {groups.map((group: any) => {
+                        const links = group.links || [];
+                        return (
+                          <div class="nav-group" {...storyblokEditable(group)}>
+                            {group.heading && <p class="nav-group__heading">{group.heading}</p>}
+                            <ul class="nav-group__list" role="list">
+                              {links.map((link: any) => {
+                                const href = link.link?.url || link.link?.cached_url || '#';
+                                const iconUrl = link.icon?.filename;
+                                return (
+                                  <li {...storyblokEditable(link)}>
+                                    <a href={href} class="nav-group__link">
+                                      {iconUrl && (
+                                        <img src={`${iconUrl}/m/40x40/filters:quality(85)`} alt="" class="nav-group__link-icon" width="24" height="24" loading="lazy" />
+                                      )}
+                                      <span class="nav-group__link-text">
+                                        <span class="nav-group__link-label">{link.label}</span>
+                                        {link.description && <span class="nav-group__link-desc">{link.description}</span>}
+                                      </span>
+                                    </a>
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {panel && (
+                      <div class="nav-featured-panel" {...storyblokEditable(panel)}>
+                        {panelImageUrl && (
+                          <div class="nav-featured-panel__media" data-blur-up style={`background-image:url('${panelImageUrl}/m/24x0/filters:blur(12)')`}>
+                            <img {...imageSize(panelImageUrl, 400, 240)}
+                              src={`${panelImageUrl}/m/400x240/filters:quality(85)`}
+                              alt=""
+                              class="nav-featured-panel__img"
+                              loading="lazy"
+                            />
+                          </div>
+                        )}
+                        <div class="nav-featured-panel__body">
+                          {panel.heading && <p class="nav-featured-panel__heading">{panel.heading}</p>}
+                          {panel.description && <p class="nav-featured-panel__desc">{panel.description}</p>}
+                          {panelCta?.text && panelCtaHref && (
+                            <a href={panelCtaHref} class:list={['btn', `btn--${panelCta.variant || 'primary'}`, 'nav-featured-panel__cta']}>
+                              {panelCta.text}
+                            </a>
+                          )}
                         </div>
-                      );
-                    })}
+                      </div>
+                    )}
                   </div>
                 </>
               ) : (
@@ -151,8 +203,19 @@ const announcementHref  = blok.announcement_link_url?.url || blok.announcement_l
                         <ul class="nav-group__list" role="list">
                           {links.map((link: any) => {
                             const href = link.link?.url || link.link?.cached_url || '#';
+                            const iconUrl = link.icon?.filename;
                             return (
-                              <li><a href={href} class="nav-group__link">{link.label}</a></li>
+                              <li>
+                                <a href={href} class="nav-group__link">
+                                  {iconUrl && (
+                                    <img src={`${iconUrl}/m/40x40/filters:quality(85)`} alt="" class="nav-group__link-icon" width="24" height="24" loading="lazy" />
+                                  )}
+                                  <span class="nav-group__link-text">
+                                    <span class="nav-group__link-label">{link.label}</span>
+                                    {link.description && <span class="nav-group__link-desc">{link.description}</span>}
+                                  </span>
+                                </a>
+                              </li>
                             );
                           })}
                         </ul>
@@ -193,38 +256,89 @@ const announcementHref  = blok.announcement_link_url?.url || blok.announcement_l
     });
   });
 
-  // Desktop dropdowns — click to toggle, close on outside click or Escape
-  document.querySelectorAll('[data-dropdown-trigger]').forEach(trigger => {
-    trigger.addEventListener('click', () => {
-      const isOpen = trigger.getAttribute('aria-expanded') === 'true';
-      // Close all first
-      document.querySelectorAll('[data-dropdown-trigger]').forEach(t => {
+  // Desktop dropdowns — open on hover (primary interaction, matching a
+  // mega-menu) as well as click/Enter and keyboard focus, so mouse, touch,
+  // and keyboard users are all covered. Close on outside click, Escape, or
+  // the mouse leaving the item (with a short delay so moving the cursor
+  // from the trigger down into the panel doesn't close it mid-transit).
+  const CLOSE_DELAY_MS = 150;
+  let closeTimer: ReturnType<typeof setTimeout> | null = null;
+
+  function closeAllDropdowns() {
+    document.querySelectorAll('[data-dropdown-trigger]').forEach(t => {
+      t.setAttribute('aria-expanded', 'false');
+      const item = t.closest('.site-nav__item');
+      item?.classList.remove('is-open');
+      item?.querySelector('[data-dropdown-panel]')?.classList.remove('align-right');
+    });
+  }
+
+  function openDropdown(trigger: Element) {
+    if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
+    document.querySelectorAll('[data-dropdown-trigger]').forEach(t => {
+      if (t !== trigger) {
         t.setAttribute('aria-expanded', 'false');
         t.closest('.site-nav__item')?.classList.remove('is-open');
-      });
-      if (!isOpen) {
-        trigger.setAttribute('aria-expanded', 'true');
-        trigger.closest('.site-nav__item')?.classList.add('is-open');
+      }
+    });
+    trigger.setAttribute('aria-expanded', 'true');
+    const item = trigger.closest('.site-nav__item');
+    item?.classList.add('is-open');
+    positionDropdown(item as HTMLElement | null);
+  }
+
+  function scheduleClose(item: Element | null) {
+    if (closeTimer) clearTimeout(closeTimer);
+    closeTimer = setTimeout(() => {
+      item?.querySelector('[data-dropdown-trigger]')?.setAttribute('aria-expanded', 'false');
+      item?.classList.remove('is-open');
+      item?.querySelector('[data-dropdown-panel]')?.classList.remove('align-right');
+    }, CLOSE_DELAY_MS);
+  }
+
+  /** Flips the panel to right-aligned if it would overflow the viewport's right edge. */
+  function positionDropdown(item: HTMLElement | null) {
+    const panel = item?.querySelector<HTMLElement>('[data-dropdown-panel]');
+    if (!panel) return;
+    panel.classList.remove('align-right');
+    const rect = panel.getBoundingClientRect();
+    if (rect.right > window.innerWidth - 16) {
+      panel.classList.add('align-right');
+    }
+  }
+
+  document.querySelectorAll('.site-nav__item--has-dropdown').forEach(item => {
+    const trigger = item.querySelector('[data-dropdown-trigger]');
+    if (!trigger) return;
+
+    item.addEventListener('mouseenter', () => openDropdown(trigger));
+    item.addEventListener('mouseleave', () => scheduleClose(item));
+    item.addEventListener('focusin', () => openDropdown(trigger));
+    item.addEventListener('focusout', (e) => {
+      // Only close if focus actually left the item, not just moved between
+      // its own children (trigger -> a link inside the panel, etc).
+      if (!item.contains((e as FocusEvent).relatedTarget as Node)) scheduleClose(item);
+    });
+
+    trigger.addEventListener('click', () => {
+      const isOpen = trigger.getAttribute('aria-expanded') === 'true';
+      if (isOpen) {
+        trigger.setAttribute('aria-expanded', 'false');
+        item.classList.remove('is-open');
+      } else {
+        openDropdown(trigger);
       }
     });
   });
 
   document.addEventListener('click', (e) => {
     if (!(e.target as Element).closest('.site-nav__item--has-dropdown')) {
-      document.querySelectorAll('[data-dropdown-trigger]').forEach(t => {
-        t.setAttribute('aria-expanded', 'false');
-        t.closest('.site-nav__item')?.classList.remove('is-open');
-      });
+      closeAllDropdowns();
     }
   });
 
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      document.querySelectorAll('[data-dropdown-trigger]').forEach(t => {
-        t.setAttribute('aria-expanded', 'false');
-        t.closest('.site-nav__item')?.classList.remove('is-open');
-      });
-    }
+    if (e.key === 'Escape') closeAllDropdowns();
   });
 
   // Mobile hamburger
@@ -301,7 +415,7 @@ const announcementHref  = blok.announcement_link_url?.url || blok.announcement_l
   .announcement-bar__link {
     color: inherit;
     font-weight: var(--p-font-weight-medium);
-    text-underline-offset: 2px;
+    text-underline-offset: 0.125rem;
     margin-left: var(--p-space-2);
   }
 
@@ -324,7 +438,8 @@ const announcementHref  = blok.announcement_link_url?.url || blok.announcement_l
   /* ── Site Header ────────────────────────────────────────────── */
   .site-header {
     background: var(--p-color-bg-primary);
-    border-bottom: 1px solid var(--p-color-border-default);
+    border-bottom: var(--p-border-width-default) solid var(--p-color-border-default);
+    padding: 0 var(--p-space-6);
     position: relative;
     z-index: 100;
   }
@@ -335,10 +450,9 @@ const announcementHref  = blok.announcement_link_url?.url || blok.announcement_l
   }
 
   .site-header__inner {
-    max-width: 1200px;
+    max-width: var(--p-container-wide);
     margin: 0 auto;
-    padding: 0 var(--p-space-6);
-    height: 68px;
+    height: 4.25rem; /* 68px */
     display: flex;
     align-items: center;
     gap: var(--p-space-8);
@@ -351,7 +465,7 @@ const announcementHref  = blok.announcement_link_url?.url || blok.announcement_l
     text-decoration: none;
   }
 
-  .site-header__logo img { display: block; height: 36px; width: auto; }
+  .site-header__logo img { display: block; height: 2.25rem; width: auto; } /* 36px */
 
   .site-header__logo-text {
     font-family: var(--p-font-display);
@@ -416,22 +530,64 @@ const announcementHref  = blok.announcement_link_url?.url || blok.announcement_l
     top: calc(100% + var(--p-space-2));
     left: 0;
     background: var(--p-color-bg-primary);
-    border: 1px solid var(--p-color-border-default);
+    border: var(--p-border-width-default) solid var(--p-color-border-default);
     border-radius: var(--p-radius-card);
     box-shadow: var(--p-shadow-md);
     padding: var(--p-space-6);
-    min-width: 220px;
-    display: none;
-    gap: var(--p-space-6);
+    gap: var(--p-space-8);
+    /* Viewport-relative, not a fixed guess — the panel is only ever as
+       wide as its grid content needs (see .site-nav__dropdown-groups
+       below) up to whatever the viewport actually allows. No more fixed
+       pixel ceiling to keep in sync with the column sizing. */
+    max-width: calc(100vw - var(--p-space-8));
     z-index: 200;
+  }
+
+  /* Flipped via JS (positionDropdown) when the panel would otherwise
+     overflow the viewport's right edge — items near the end of the nav
+     need to hang from their right side instead of their left. */
+  .site-nav__dropdown.align-right {
+    left: auto;
+    right: 0;
   }
 
   .site-nav__item--has-dropdown.is-open .site-nav__dropdown {
     display: flex;
   }
 
+  /* CSS Grid, not flex — a flex row with a fixed flex-basis per column
+     turned into a tug-of-war against .site-nav__dropdown's max-width: every
+     time the base column width grew (220px -> 280px -> 340px) the cap had
+     to grow to match or flex-shrink silently compressed everything straight
+     back down, which is exactly what happened (a column with an icon +
+     description compressed hard enough to wrap "Description is here" onto
+     3 lines, one word each). `minmax(15rem, 1fr)` gives each column a real
+     floor it will never compress past, sharing any extra space equally
+     beyond that floor.
+
+     The column COUNT comes from an inline `grid-template-columns` set in
+     the template (`repeat(${groups.length}, minmax(15rem, 1fr))`), not
+     `auto-fit`. `auto-fit`/`auto-fill` need a *definite* container width to
+     compute "how many columns fit" — everything around this element
+     (`.site-nav__dropdown`, its `.site-nav__item` ancestor) is
+     intrinsically/shrink-to-fit sized with no definite width anywhere, so
+     per spec `auto-fit` degenerates to a single column in that context,
+     which is exactly what pushed the 2nd group onto its own row. We
+     already know the real column count server-side, so there's no need
+     for auto-fit's reflow-based guessing at all. */
+  .site-nav__dropdown-groups {
+    display: grid;
+    gap: var(--p-space-8);
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
   /* ── Nav Groups ─────────────────────────────────────────────── */
-  .nav-group { min-width: 160px; }
+  .nav-group {
+    /* Sized entirely by the grid track above — no width/flex properties
+       needed here. */
+    min-width: 0;
+  }
 
   .nav-group__heading {
     font-family: var(--p-font-body);
@@ -454,20 +610,108 @@ const announcementHref  = blok.announcement_link_url?.url || blok.announcement_l
   }
 
   .nav-group__link {
-    display: block;
-    padding: var(--p-space-2);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--p-space-4);
+    padding: var(--p-space-3);
     font-family: var(--p-font-body);
-    font-size: var(--p-font-size-sm);
-    font-weight: var(--p-font-weight-regular);
-    color: var(--p-color-text-primary);
     text-decoration: none;
     border-radius: var(--p-radius-sm);
-    transition: background var(--p-motion-hover) var(--p-motion-ease), color var(--p-motion-hover) var(--p-motion-ease);
+    transition: background var(--p-motion-hover) var(--p-motion-ease);
   }
 
   .nav-group__link:hover {
     background: var(--p-color-bg-secondary);
+  }
+
+  .nav-group__link-icon {
+    flex-shrink: 0;
+    margin-top: 0.125rem; /* 2px */
+    border-radius: var(--p-radius-sm);
+    object-fit: contain;
+  }
+
+  .nav-group__link-text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--p-space-1);
+    min-width: 0;
+  }
+
+  .nav-group__link-label {
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-medium);
+    color: var(--p-color-text-primary);
+    transition: color var(--p-motion-hover) var(--p-motion-ease);
+  }
+
+  .nav-group__link:hover .nav-group__link-label {
     color: var(--p-color-accent-default);
+  }
+
+  .nav-group__link-desc {
+    font-size: var(--p-font-size-xs);
+    color: var(--p-color-text-secondary);
+    line-height: var(--p-font-leading-normal);
+  }
+
+  /* ── Featured Panel ─────────────────────────────────────────── */
+  .nav-featured-panel {
+    /* Fluid, not a fixed guess: scales with the viewport between a 16.25rem
+       (260px) floor (never gets too cramped for its image/CTA) and a
+       21.25rem (340px) ceiling (never dominates the panel next to the
+       link columns). */
+    width: clamp(16.25rem, 22vw, 21.25rem);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--p-radius-card);
+    overflow: hidden;
+    background: var(--p-color-bg-secondary);
+  }
+
+  .nav-featured-panel__media {
+    aspect-ratio: 5 / 3;
+    background-size: cover;
+    background-position: center;
+  }
+
+  .nav-featured-panel__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .nav-featured-panel__body {
+    padding: var(--p-space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--p-space-2);
+    flex: 1;
+  }
+
+  .nav-featured-panel__heading {
+    font-family: var(--p-font-body);
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-semibold);
+    color: var(--p-color-text-primary);
+    margin: 0;
+  }
+
+  .nav-featured-panel__desc {
+    font-size: var(--p-font-size-xs);
+    color: var(--p-color-text-secondary);
+    line-height: var(--p-font-leading-normal);
+    margin: 0;
+    flex: 1;
+  }
+
+  .nav-featured-panel__cta {
+    align-self: flex-start;
+    padding: var(--p-space-2) var(--p-space-4);
+    font-size: var(--p-font-size-xs);
+    margin-top: var(--p-space-1);
   }
 
   /* ── Header Actions ─────────────────────────────────────────── */
@@ -516,7 +760,7 @@ const announcementHref  = blok.announcement_link_url?.url || blok.announcement_l
   .btn--secondary {
     background: transparent;
     color: var(--p-color-text-primary);
-    border: 1px solid var(--p-color-border-default);
+    border: var(--p-border-width-default) solid var(--p-color-border-default);
   }
 
   /* ── Hamburger ──────────────────────────────────────────────── */
@@ -524,9 +768,9 @@ const announcementHref  = blok.announcement_link_url?.url || blok.announcement_l
     display: none;
     flex-direction: column;
     justify-content: center;
-    gap: 5px;
-    width: 36px;
-    height: 36px;
+    gap: 0.3125rem; /* 5px */
+    width: 2.25rem; /* 36px */
+    height: 2.25rem; /* 36px */
     background: none;
     border: none;
     cursor: pointer;
@@ -538,21 +782,21 @@ const announcementHref  = blok.announcement_link_url?.url || blok.announcement_l
   .site-header__hamburger-bar {
     display: block;
     width: 100%;
-    height: 2px;
+    height: var(--p-border-width-md);
     background: var(--p-color-text-primary);
-    border-radius: 2px;
+    border-radius: 0.125rem; /* 2px */
     transition: transform var(--p-motion-base) var(--p-motion-ease), opacity var(--p-motion-base) var(--p-motion-ease);
   }
 
-  .mobile-open .site-header__hamburger-bar:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .mobile-open .site-header__hamburger-bar:nth-child(1) { transform: translateY(0.4375rem) rotate(45deg); } /* 7px */
   .mobile-open .site-header__hamburger-bar:nth-child(2) { opacity: 0; }
-  .mobile-open .site-header__hamburger-bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .mobile-open .site-header__hamburger-bar:nth-child(3) { transform: translateY(-0.4375rem) rotate(-45deg); } /* -7px */
 
   /* ── Mobile Nav ─────────────────────────────────────────────── */
   .site-header__mobile-nav {
     display: none;
     background: var(--p-color-bg-primary);
-    border-top: 1px solid var(--p-color-border-default);
+    border-top: var(--p-border-width-default) solid var(--p-color-border-default);
     padding: var(--p-space-4) var(--p-space-6) var(--p-space-8);
   }
 
@@ -562,7 +806,7 @@ const announcementHref  = blok.announcement_link_url?.url || blok.announcement_l
     padding: 0;
   }
 
-  .site-mobile-nav__item { border-bottom: 1px solid var(--p-color-border-default); }
+  .site-mobile-nav__item { border-bottom: var(--p-border-width-default) solid var(--p-color-border-default); }
 
   .site-mobile-nav__link,
   .site-mobile-nav__trigger {
@@ -586,7 +830,7 @@ const announcementHref  = blok.announcement_link_url?.url || blok.announcement_l
     padding-bottom: var(--p-space-4);
   }
 
-  .site-mobile-nav__sub .nav-group { margin-bottom: var(--p-space-4); }
+  .site-mobile-nav__sub .nav-group { width: auto; margin-bottom: var(--p-space-4); }
 
   .site-mobile-nav__footer {
     display: flex;

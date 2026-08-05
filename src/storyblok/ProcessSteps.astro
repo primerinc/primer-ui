@@ -92,7 +92,7 @@ const steps: ProcessStep[] = blok.steps ?? [];
   .process-steps--bg-accent-subtle { background: var(--p-color-bg-accent); }
 
   .process-steps__inner {
-    max-width: 1100px;
+    max-width: var(--p-container-wide);
     margin: 0 auto;
   }
 
@@ -124,8 +124,8 @@ const steps: ProcessStep[] = blok.steps ?? [];
 
   /* ── Badge ── */
   .process-steps__badge {
-    width: 48px;
-    height: 48px;
+    width: var(--p-space-12);
+    height: var(--p-space-12);
     border-radius: var(--p-radius-full);
     background: var(--p-color-accent-default);
     color: var(--p-color-text-on-accent);
@@ -156,13 +156,13 @@ const steps: ProcessStep[] = blok.steps ?? [];
   /* ── Horizontal layout ── */
   .process-steps__header--centered {
     text-align: center;
-    max-width: 600px;
+    max-width: var(--p-container-sm);
     margin: 0 auto var(--p-space-16);
   }
 
   .process-steps__grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(11.25rem, 1fr)); /* 180px */
     gap: var(--p-space-10);
   }
 
@@ -177,7 +177,7 @@ const steps: ProcessStep[] = blok.steps ?? [];
   /* ── Vertical layout ── */
   .process-steps__split {
     display: grid;
-    grid-template-columns: 380px 1fr;
+    grid-template-columns: 23.75rem 1fr; /* 380px */
     gap: var(--p-space-20);
     align-items: start;
   }
@@ -198,7 +198,7 @@ const steps: ProcessStep[] = blok.steps ?? [];
 
   .process-steps__step-v {
     display: grid;
-    grid-template-columns: 48px 1fr;
+    grid-template-columns: var(--p-space-12) 1fr; /* 48px */
     gap: var(--p-space-6);
     padding-bottom: var(--p-space-10);
   }
@@ -216,7 +216,7 @@ const steps: ProcessStep[] = blok.steps ?? [];
 
   .process-steps__connector {
     flex: 1;
-    width: 2px;
+    width: var(--p-border-width-md); /* 2px */
     min-height: var(--p-space-10);
     background: var(--p-color-accent-subtle);
     margin-top: var(--p-space-2);

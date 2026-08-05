@@ -91,8 +91,8 @@ function imgSrc(logo: LogoItem) {
   .logo-bar {
     padding: var(--p-space-16) var(--p-space-8);
     background: var(--p-color-bg-secondary);
-    border-top: 1px solid var(--p-color-border-subtle);
-    border-bottom: 1px solid var(--p-color-border-subtle);
+    border-top: var(--p-border-width-default) solid var(--p-color-border-subtle);
+    border-bottom: var(--p-border-width-default) solid var(--p-color-border-subtle);
   }
 
   .logo-bar__eyebrow {
@@ -107,7 +107,7 @@ function imgSrc(logo: LogoItem) {
 
   /* ── Grid layout ── */
   .logo-bar__inner {
-    max-width: 1100px;
+    max-width: var(--p-container-default);
     margin: 0 auto;
   }
 
@@ -133,6 +133,11 @@ function imgSrc(logo: LogoItem) {
   }
 
   .logo-bar__track-wrap {
+    /* Mask gradient, not a visible color — `black` here means "fully
+       opaque/visible", `transparent` means "fully hidden" (the mask's
+       alpha channel, not paint). Left as a literal rather than a design
+       color token on purpose: it must always mean "opaque" regardless of
+       theme, unlike an actual on-screen color choice. */
     -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
     mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
   }
@@ -177,9 +182,9 @@ function imgSrc(logo: LogoItem) {
   .logo-bar__link { display: block; }
 
   .logo-bar__img {
-    height: 36px;
+    height: 2.25rem; /* 36px */
     width: auto;
-    max-width: 140px;
+    max-width: 8.75rem; /* 140px */
     object-fit: contain;
     opacity: 0.55;
     filter: grayscale(100%);

@@ -76,14 +76,30 @@ const bg      = blok.background || 'primary';
 
   .team--bg-secondary     { background: var(--p-color-bg-secondary); }
   .team--bg-accent-subtle { background: var(--p-color-bg-accent); }
+  .team--bg-dark          { background: var(--p-color-bg-inverse); }
+
+  .team--bg-dark .team__eyebrow,
+  .team--bg-dark .team__headline,
+  .team--bg-dark .team__sub {
+    color: var(--p-color-text-on-dark);
+  }
+
+  /* Card layout members keep their own light card background regardless
+     of section bg, so their text stays unchanged. Minimal layout has no
+     card (background: transparent) — its name/bio sit directly on the
+     section background and need to flip for dark. */
+  .team--bg-dark .team__list--minimal .member__name,
+  .team--bg-dark .team__list--minimal .member__bio {
+    color: var(--p-color-text-on-dark);
+  }
 
   .team__inner {
-    max-width: 1100px;
+    max-width: var(--p-container-wide);
     margin: 0 auto;
   }
 
   .team__header {
-    max-width: 640px;
+    max-width: var(--p-container-narrow);
     margin: 0 auto var(--p-space-16);
     text-align: center;
   }
@@ -145,7 +161,7 @@ const bg      = blok.background || 'primary';
     display: flex;
     flex-direction: column;
     background: var(--p-color-bg-primary);
-    border: 1px solid var(--p-color-border-default);
+    border: var(--p-border-width-default) solid var(--p-color-border-default);
     border-radius: var(--p-radius-card);
     overflow: hidden;
   }
@@ -165,7 +181,7 @@ const bg      = blok.background || 'primary';
   }
 
   .team__list--minimal .member__photo-wrap {
-    width: 160px;
+    width: 10rem; /* 160px */
     border-radius: 50%;
   }
 

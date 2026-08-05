@@ -45,7 +45,7 @@ const variant = blok.variant || 'primary';
   .btn--secondary {
     background: transparent;
     color: var(--p-color-text-primary);
-    border: 1px solid var(--p-color-border-default);
+    border: var(--p-border-width-default) solid var(--p-color-border-default);
   }
 
   /* Same padding/border-width as the other variants (border just goes
@@ -54,11 +54,11 @@ const variant = blok.variant || 'primary';
   .btn--text {
     background: transparent;
     color: var(--p-color-text-primary);
-    border: 1px solid transparent;
+    border: var(--p-border-width-default) solid transparent;
   }
 
   .btn--text:hover {
     text-decoration: underline;
-    text-underline-offset: 3px;
+    text-underline-offset: 0.1875rem;
   }
 </style>

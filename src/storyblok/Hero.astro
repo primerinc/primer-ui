@@ -3,9 +3,10 @@
  * Hero
  * Storyblok block name: hero
  *
- * Fields: headline, subheadline, buttons (Blocks → button), background_image, layout
+ * Fields: headline, subheadline, buttons (Blocks → button), background_image, image, layout
  */
 import { storyblokEditable } from '@storyblok/astro';
+import { imageSize } from '../lib/storyblok-image';
 
 const { blok } = Astro.props;
 
@@ -14,6 +15,10 @@ const bg     = blok.background || 'secondary';
 
 const imageUrl = blok.background_image?.filename
   ? `${blok.background_image.filename}/m/1600x0/filters:quality(80)`
+  : null;
+
+const heroImageUrl = blok.image?.filename
+  ? `${blok.image.filename}/m/1200x0/filters:quality(85)`
   : null;
 
 const buttons = blok.buttons || [];
@@ -25,19 +30,32 @@ const buttons = blok.buttons || [];
   style={imageUrl ? `--hero-bg: url('${imageUrl}')` : ''}
 >
   <div class="hero__inner">
-    <h1 class="hero__headline">{blok.headline}</h1>
-    {blok.subheadline && <p class="hero__sub">{blok.subheadline}</p>}
-    {buttons.length > 0 && (
-      <div class="hero__actions">
-        {buttons.map((btn: any) => (
-          <a
-            href={btn.link?.url || btn.link?.cached_url || '#'}
-            class:list={['btn', `btn--${btn.variant || 'primary'}`]}
-            {...storyblokEditable(btn)}
-          >
-            {btn.text}
-          </a>
-        ))}
+    <div class="hero__copy">
+      <h1 class="hero__headline">{blok.headline}</h1>
+      {blok.subheadline && <p class="hero__sub">{blok.subheadline}</p>}
+      {buttons.length > 0 && (
+        <div class="hero__actions">
+          {buttons.map((btn: any) => (
+            <a
+              href={btn.link?.url || btn.link?.cached_url || '#'}
+              class:list={['btn', `btn--${btn.variant || 'primary'}`]}
+              {...storyblokEditable(btn)}
+            >
+              {btn.text}
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+
+    {layout === 'two-column' && heroImageUrl && (
+      <div class="hero__media" data-blur-up style={blok.image?.filename ? `background-image:url('${blok.image?.filename}/m/24x0/filters:blur(12)')` : undefined}>
+        <img {...imageSize(blok.image?.filename, 1200, 0)}
+          src={heroImageUrl}
+          alt={blok.image?.alt || ''}
+          class="hero__img"
+          loading="lazy"
+        />
       </div>
     )}
   </div>
@@ -70,13 +88,44 @@ const buttons = blok.buttons || [];
     border-color: var(--p-color-text-on-dark);
   }
 
+  .hero--bg-dark .btn--text {
+    color: var(--p-color-text-on-dark);
+  }
+
   .hero__inner {
-    max-width: 860px;
+    max-width: 53.75rem; /* 860px — reading-width measure specific to Hero's centered/left copy, not part of the shared container scale */
     margin: 0 auto;
   }
 
   .hero--centered .hero__inner {
     text-align: center;
+  }
+
+  .hero--two-column .hero__inner {
+    max-width: var(--p-container-wide);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--p-space-16);
+    align-items: center;
+    text-align: left;
+  }
+
+  .hero__media {
+    border-radius: var(--p-radius-card);
+    overflow: hidden;
+  }
+
+  .hero__img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  @media (max-width: 768px) {
+    .hero--two-column .hero__inner {
+      grid-template-columns: 1fr;
+      gap: var(--p-space-10);
+    }
   }
 
   .hero__headline {
@@ -93,7 +142,7 @@ const buttons = blok.buttons || [];
     font-size: var(--p-font-size-lg);
     font-weight: var(--p-font-weight-light);
     color: var(--p-color-text-secondary);
-    max-width: 600px;
+    max-width: var(--p-container-sm);
     margin-bottom: var(--p-space-10);
   }
 
@@ -134,6 +183,6 @@ const buttons = blok.buttons || [];
   .btn--secondary {
     background: transparent;
     color: var(--p-color-text-primary);
-    border: 1px solid var(--p-color-border-default);
+    border: var(--p-border-width-default) solid var(--p-color-border-default);
   }
 </style>

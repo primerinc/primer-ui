@@ -125,22 +125,21 @@ const socialIcons: Record<string, string> = {
   .site-footer {
     background: var(--p-color-bg-inverse);
     color: var(--p-color-text-inverse);
-    padding-top: var(--p-space-16);
+    padding: var(--p-space-16) var(--p-space-6) 0;
   }
 
   .site-footer__inner {
-    max-width: 1200px;
+    max-width: var(--p-container-wide);
     margin: 0 auto;
-    padding: 0 var(--p-space-6);
   }
 
   /* ── Top section ────────────────────────────────────────────── */
   .site-footer__top {
     display: grid;
-    grid-template-columns: 240px 1fr;
+    grid-template-columns: 15rem 1fr; /* 240px */
     gap: var(--p-space-16);
     padding-bottom: var(--p-space-12);
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+    border-bottom: var(--p-border-width-default) solid color-mix(in srgb, var(--p-color-text-inverse) 10%, transparent);
   }
 
   /* ── Brand column ───────────────────────────────────────────── */
@@ -150,7 +149,7 @@ const socialIcons: Record<string, string> = {
     text-decoration: none;
   }
 
-  .site-footer__logo img { height: 36px; width: auto; display: block; }
+  .site-footer__logo img { height: 2.25rem; width: auto; display: block; } /* 36px */
 
   .site-footer__logo-text {
     font-family: var(--p-font-display);
@@ -163,7 +162,7 @@ const socialIcons: Record<string, string> = {
     font-family: var(--p-font-body);
     font-size: var(--p-font-size-sm);
     font-weight: var(--p-font-weight-light);
-    color: rgba(255,255,255,0.6);
+    color: color-mix(in srgb, var(--p-color-text-inverse) 60%, transparent);
     line-height: var(--p-font-leading-normal);
     margin-bottom: var(--p-space-6);
   }
@@ -179,23 +178,23 @@ const socialIcons: Record<string, string> = {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
+    width: 2.25rem; /* 36px */
+    height: 2.25rem; /* 36px */
     border-radius: var(--p-radius-sm);
-    color: rgba(255,255,255,0.6);
+    color: color-mix(in srgb, var(--p-color-text-inverse) 60%, transparent);
     transition: color var(--p-motion-hover) var(--p-motion-ease), background var(--p-motion-hover) var(--p-motion-ease);
     text-decoration: none;
   }
 
   .site-footer__social-link:hover {
     color: var(--p-color-text-inverse);
-    background: rgba(255,255,255,0.1);
+    background: color-mix(in srgb, var(--p-color-text-inverse) 10%, transparent);
   }
 
   /* ── Link columns ───────────────────────────────────────────── */
   .site-footer__columns {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(8.75rem, 1fr)); /* 140px */
     gap: var(--p-space-8);
   }
 
@@ -205,7 +204,7 @@ const socialIcons: Record<string, string> = {
     font-weight: var(--p-font-weight-semibold);
     text-transform: uppercase;
     letter-spacing: var(--p-font-tracking-wide);
-    color: rgba(255,255,255,0.45);
+    color: color-mix(in srgb, var(--p-color-text-inverse) 45%, transparent);
     margin-bottom: var(--p-space-4);
   }
 
@@ -222,7 +221,7 @@ const socialIcons: Record<string, string> = {
     font-family: var(--p-font-body);
     font-size: var(--p-font-size-sm);
     font-weight: var(--p-font-weight-regular);
-    color: rgba(255,255,255,0.7);
+    color: color-mix(in srgb, var(--p-color-text-inverse) 70%, transparent);
     text-decoration: none;
     transition: color var(--p-motion-hover) var(--p-motion-ease);
   }
@@ -237,8 +236,8 @@ const socialIcons: Record<string, string> = {
   }
 
   .newsletter-form__input {
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.15);
+    background: color-mix(in srgb, var(--p-color-text-inverse) 8%, transparent);
+    border: var(--p-border-width-default) solid color-mix(in srgb, var(--p-color-text-inverse) 15%, transparent);
     border-radius: var(--p-radius-sm);
     padding: var(--p-space-2) var(--p-space-3);
     font-family: var(--p-font-body);
@@ -247,7 +246,7 @@ const socialIcons: Record<string, string> = {
     width: 100%;
   }
 
-  .newsletter-form__input::placeholder { color: rgba(255,255,255,0.4); }
+  .newsletter-form__input::placeholder { color: color-mix(in srgb, var(--p-color-text-inverse) 40%, transparent); }
   .newsletter-form__input:focus { outline: none; border-color: var(--p-color-accent-default); }
 
   .newsletter-form__btn {
@@ -278,7 +277,7 @@ const socialIcons: Record<string, string> = {
   .site-footer__copyright {
     font-family: var(--p-font-body);
     font-size: var(--p-font-size-xs);
-    color: rgba(255,255,255,0.4);
+    color: color-mix(in srgb, var(--p-color-text-inverse) 40%, transparent);
   }
 
   .site-footer__legal {
@@ -293,12 +292,12 @@ const socialIcons: Record<string, string> = {
   .site-footer__legal-link {
     font-family: var(--p-font-body);
     font-size: var(--p-font-size-xs);
-    color: rgba(255,255,255,0.4);
+    color: color-mix(in srgb, var(--p-color-text-inverse) 40%, transparent);
     text-decoration: none;
     transition: color var(--p-motion-hover) var(--p-motion-ease);
   }
 
-  .site-footer__legal-link:hover { color: rgba(255,255,255,0.7); }
+  .site-footer__legal-link:hover { color: color-mix(in srgb, var(--p-color-text-inverse) 70%, transparent); }
 
   /* ── Responsive ─────────────────────────────────────────────── */
   @media (max-width: 768px) {

@@ -156,19 +156,19 @@
         "value": "1.125rem"
       },
       "xl": {
-        "value": "clamp(1.125rem, 1.037rem + 0.3756vw, 1.375rem)"
+        "value": "clamp(1.1688rem, 1.0844rem + 0.375vw, 1.375rem)"
       },
       "2xl": {
-        "value": "clamp(1.375rem, 1.243rem + 0.5634vw, 1.75rem)"
+        "value": "clamp(1.3563rem, 1.1952rem + 0.7159vw, 1.75rem)"
       },
       "3xl": {
-        "value": "clamp(1.75rem, 1.574rem + 0.7512vw, 2.25rem)"
+        "value": "clamp(1.575rem, 1.2989rem + 1.2273vw, 2.25rem)"
       },
       "4xl": {
-        "value": "clamp(2.0rem, 1.648rem + 1.502vw, 3.0rem)"
+        "value": "clamp(1.875rem, 1.4148rem + 2.0455vw, 3rem)"
       },
       "5xl": {
-        "value": "clamp(2.5rem, 1.972rem + 2.254vw, 4.0rem)"
+        "value": "clamp(2.2rem, 1.4636rem + 3.2727vw, 4rem)"
       }
     },
     "weight": {
@@ -252,40 +252,40 @@
       "value": "1.75rem"
     },
     "8": {
-      "value": "2rem"
+      "value": "clamp(1.8rem, 1.7182rem + 0.3636vw, 2rem)"
     },
     "10": {
-      "value": "2.5rem"
+      "value": "clamp(2.1706rem, 2.0359rem + 0.5989vw, 2.5rem)"
     },
     "12": {
-      "value": "3rem"
+      "value": "clamp(2.5094rem, 2.3087rem + 0.892vw, 3rem)"
     },
     "14": {
-      "value": "3.5rem"
+      "value": "clamp(2.8156rem, 2.5357rem + 1.2443vw, 3.5rem)"
     },
     "16": {
-      "value": "4rem"
+      "value": "clamp(3.0906rem, 2.7186rem + 1.6534vw, 4rem)"
     },
     "20": {
-      "value": "5rem"
+      "value": "clamp(3.7044rem, 3.1743rem + 2.3557vw, 5rem)"
     },
     "24": {
-      "value": "6rem"
+      "value": "clamp(4.2544rem, 3.5403rem + 3.1739vw, 6rem)"
     },
     "28": {
-      "value": "7rem"
+      "value": "clamp(4.7406rem, 3.8163rem + 4.108vw, 7rem)"
     },
     "32": {
-      "value": "8rem"
+      "value": "clamp(5.1638rem, 4.0035rem + 5.1568vw, 8rem)"
     },
     "40": {
-      "value": "10rem"
+      "value": "clamp(6.1363rem, 4.5556rem + 7.025vw, 10rem)"
     },
     "48": {
-      "value": "12rem"
+      "value": "clamp(6.9819rem, 4.929rem + 9.1239vw, 12rem)"
     },
     "64": {
-      "value": "16rem"
+      "value": "clamp(8.8rem, 5.8545rem + 13.0909vw, 16rem)"
     },
     "px": {
       "value": "1px"
@@ -423,6 +423,23 @@
     },
     "lg": {
       "value": "4px"
+    }
+  },
+  "container": {
+    "wide": {
+      "value": "77.5rem"
+    },
+    "default": {
+      "value": "68.75rem"
+    },
+    "prose": {
+      "value": "45rem"
+    },
+    "narrow": {
+      "value": "40rem"
+    },
+    "sm": {
+      "value": "37.5rem"
     }
   }
 }

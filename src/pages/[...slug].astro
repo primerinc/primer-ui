@@ -28,7 +28,8 @@ interface Story extends ISbStoryData<SbBlokData & {
 const slug = Astro.params.slug || '';
 
 // "config" and "home" are internal/special stories, not real routes —
-// config holds header/footer (fetched separately by BaseLayout), home is served by index.astro.
+// config holds header/footer (fetched separately by BaseLayout), home is
+// served by index.astro.
 if (slug === 'config' || slug === 'home') {
   return new Response(null, { status: 404 });
 }
@@ -44,7 +45,15 @@ if (!isPageStory(story)) story = undefined;
 if (!story) {
   const api = useStoryblokApi();
   try {
-    const { data } = await api.get(`cdn/stories/${slug}`, { version: 'draft' });
+    // resolve_relations inlines testimonials.items' referenced testimonial
+    // stories in this one request — see TestimonialBlock.astro. The
+    // live-preview payload path above doesn't get this param (Storyblok's
+    // bridge doesn't apply it), which is why that component also resolves
+    // defensively on its own.
+    const { data } = await api.get(`cdn/stories/${slug}`, {
+      version: 'draft',
+      resolve_relations: 'testimonials.items',
+    });
     story = data.story;
   } catch (e) {
     return new Response(null, { status: 404 });

@@ -91,7 +91,7 @@ const { blok, headings = [] } = Astro.props as { blok: any; headings: TocHeading
 
 <style>
   .toc {
-    border: 1px solid var(--p-color-border-default);
+    border: var(--p-border-width-default) solid var(--p-color-border-default);
     border-radius: var(--p-radius-lg);
     padding: var(--p-space-6);
   }
@@ -127,7 +127,7 @@ const { blok, headings = [] } = Astro.props as { blok: any; headings: TocHeading
     position: absolute;
     left: 0;
     top: 0.45em;
-    width: 2px;
+    width: var(--p-border-width-md); /* 2px */
     height: 0.9em;
     border-radius: var(--p-radius-full);
     background: var(--p-color-accent-default);

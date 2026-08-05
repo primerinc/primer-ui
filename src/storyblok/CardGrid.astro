@@ -4,7 +4,7 @@
  * Storyblok block name: card_grid
  *
  * Fields: eyebrow, headline, subheadline, cards (blocks → card_item), columns
- * card_item fields: image, eyebrow, title, description, cta_label, cta_url
+ * card_item fields: image, eyebrow, title, description, cta_button (blocks → button, max 1)
  */
 import { storyblokEditable } from '@storyblok/astro';
 import type { SbBlokData } from '@storyblok/astro';
@@ -15,8 +15,7 @@ interface CardItem extends SbBlokData {
   eyebrow?: string;
   title?: string;
   description?: string;
-  cta_label?: string;
-  cta_url?: string;
+  cta_button?: Array<{ text?: string; link?: { url?: string; cached_url?: string } } & SbBlokData>;
 }
 
 const { blok } = Astro.props;
@@ -41,6 +40,12 @@ const bg      = blok.background || 'primary';
           ? `${card.image.filename}/m/800x600/filters:quality(85)`
           : null;
 
+        // The CTA renders as this card's own arrow-link style (.card__cta),
+        // not the shared boxed .btn — so only `text`/`link` are read from
+        // the button blok, `variant` is deliberately ignored.
+        const cta = card.cta_button?.[0];
+        const ctaHref = cta?.link?.url || cta?.link?.cached_url;
+
         return (
           <li class="card" {...storyblokEditable(card)}>
             {imageUrl && (
@@ -57,8 +62,8 @@ const bg      = blok.background || 'primary';
               {card.eyebrow && <p class="card__eyebrow">{card.eyebrow}</p>}
               <h3 class="card__title">{card.title}</h3>
               {card.description && <p class="card__desc">{card.description}</p>}
-              {card.cta_label && card.cta_url && (
-                <a href={String(card.cta_url)} class="card__cta">{card.cta_label}</a>
+              {cta?.text && ctaHref && (
+                <a href={ctaHref} class="card__cta" {...storyblokEditable(cta)}>{cta.text}</a>
               )}
             </div>
           </li>
@@ -76,14 +81,23 @@ const bg      = blok.background || 'primary';
 
   .card-grid--bg-secondary     { background: var(--p-color-bg-secondary); }
   .card-grid--bg-accent-subtle { background: var(--p-color-bg-accent); }
+  .card-grid--bg-dark          { background: var(--p-color-bg-inverse); }
+
+  /* Cards keep their own light background regardless of section bg —
+     only the section-level header text needs to flip for dark. */
+  .card-grid--bg-dark .card-grid__eyebrow,
+  .card-grid--bg-dark .card-grid__headline,
+  .card-grid--bg-dark .card-grid__sub {
+    color: var(--p-color-text-on-dark);
+  }
 
   .card-grid__inner {
-    max-width: 1100px;
+    max-width: var(--p-container-wide);
     margin: 0 auto;
   }
 
   .card-grid__header {
-    max-width: 640px;
+    max-width: var(--p-container-narrow);
     margin: 0 auto var(--p-space-16);
     text-align: center;
   }
@@ -135,7 +149,7 @@ const bg      = blok.background || 'primary';
 
   .card {
     background: var(--p-color-bg-primary);
-    border: 1px solid var(--p-color-border-default);
+    border: var(--p-border-width-default) solid var(--p-color-border-default);
     border-radius: var(--p-radius-card);
     overflow: hidden;
     display: flex;

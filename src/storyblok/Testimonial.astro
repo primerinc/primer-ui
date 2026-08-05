@@ -1,0 +1,113 @@
+---
+/**
+ * Testimonial
+ * Storyblok content type: testimonial (root, not nestable)
+ *
+ * Standalone-story renderer for a single reusable testimonial — see the
+ * `## testimonials` / "testimonial (root content type)" section of
+ * storyblok/schema-reference.md. Nobody links to this page; it exists so
+ * that opening a testimonial story directly (or clicking through to edit
+ * one from a `testimonials` block's reference-field picker) has a real,
+ * editable preview instead of a 404 — Storyblok's Visual Editor loads the
+ * story's own preview URL when you do that, and needs a 200 response with
+ * a mapped component to render it.
+ *
+ * Fields: quote, author, role, avatar
+ */
+import { storyblokEditable } from '@storyblok/astro';
+import { imageSize } from '../lib/storyblok-image';
+
+const { blok } = Astro.props;
+---
+
+<section {...storyblokEditable(blok)} class="testimonial-preview">
+  <div class="testimonial-preview__card">
+    <blockquote class="testimonial-preview__quote">
+      <p>"{blok.quote}"</p>
+    </blockquote>
+    <footer class="testimonial-preview__footer">
+      {blok.avatar?.filename && (
+        <img {...imageSize(blok.avatar?.filename, 80, 80)}
+          src={`${blok.avatar.filename}/m/80x80/filters:quality(85)`}
+          alt={blok.author ?? ''}
+          class="testimonial-preview__avatar"
+        />
+      )}
+      <div class="testimonial-preview__attr">
+        <cite class="testimonial-preview__author">{blok.author}</cite>
+        {blok.role && <span class="testimonial-preview__role">{blok.role}</span>}
+      </div>
+    </footer>
+  </div>
+  <p class="testimonial-preview__note">
+    This testimonial is reusable — it's referenced by any `testimonials` block that picks it, not tied to this page.
+  </p>
+</section>
+
+<style>
+  .testimonial-preview {
+    max-width: var(--p-container-narrow);
+    margin: 0 auto;
+    padding: var(--p-space-24) var(--p-space-8);
+  }
+
+  .testimonial-preview__card {
+    background: var(--p-color-bg-secondary);
+    border: var(--p-border-width-default) solid var(--p-color-border-default);
+    border-radius: var(--p-radius-card);
+    padding: var(--p-space-8);
+    display: flex;
+    flex-direction: column;
+    gap: var(--p-space-6);
+  }
+
+  .testimonial-preview__quote {
+    font-family: var(--p-font-display);
+    font-size: var(--p-font-size-lg);
+    font-weight: var(--p-font-weight-regular);
+    line-height: var(--p-font-leading-snug);
+    color: var(--p-color-text-primary);
+    font-style: italic;
+    margin: 0;
+  }
+
+  .testimonial-preview__footer {
+    display: flex;
+    align-items: center;
+    gap: var(--p-space-4);
+  }
+
+  .testimonial-preview__avatar {
+    width: 2.75rem; /* 44px */
+    height: 2.75rem; /* 44px */
+    border-radius: var(--p-radius-full);
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .testimonial-preview__attr {
+    display: flex;
+    flex-direction: column;
+    gap: var(--p-space-1);
+  }
+
+  .testimonial-preview__author {
+    font-style: normal;
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-medium);
+    color: var(--p-color-text-primary);
+  }
+
+  .testimonial-preview__role {
+    font-size: var(--p-font-size-xs);
+    color: var(--p-color-text-tertiary);
+    letter-spacing: var(--p-font-tracking-wide);
+  }
+
+  .testimonial-preview__note {
+    margin-top: var(--p-space-4);
+    font-size: var(--p-font-size-xs);
+    color: var(--p-color-text-tertiary);
+    text-align: center;
+  }
+</style>

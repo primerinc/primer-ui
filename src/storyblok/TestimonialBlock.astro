@@ -3,24 +3,64 @@
  * TestimonialBlock
  * Storyblok block name: testimonials
  *
- * Fields: eyebrow, headline, items (blocks → testimonial_item), layout
- * testimonial_item fields: quote, author, role, avatar
+ * Fields: eyebrow, headline, items (reference → testimonial stories, multi),
+ * layout
+ *
+ * `items` is a reference field (source: internal_stories, filter_content_type:
+ * testimonial), not nested blocks — a testimonial is authored once as its own
+ * story under the "Testimonials" folder and picked here by any number of
+ * pages, matching the WordPress/ACF Pro "relationship field to a reusable
+ * post type" pattern rather than re-typing the same quote per page. Editing a
+ * testimonial's quote/author/role/avatar happens on that story itself, not
+ * inline on this block — every page referencing it picks up the change.
+ *
+ * `resolve_relations=testimonials.items` on the page-level story fetch
+ * (see src/pages/[...slug].astro / index.astro) resolves `items` to full
+ * story objects in one request. The Storyblok live-preview bridge does NOT
+ * apply that param to the payload it pushes into the editor, so `items`
+ * arrives as bare UUID strings there — resolved defensively below via a
+ * `by_uuids` lookup so the block still renders correctly inside the Visual
+ * Editor, not just on a normal page load.
+ *
+ * testimonial (content type) fields: quote, author, role, avatar
  */
-import { storyblokEditable } from '@storyblok/astro';
-import type { SbBlokData } from '@storyblok/astro';
+import { storyblokEditable, useStoryblokApi } from '@storyblok/astro';
 import { imageSize } from '../lib/storyblok-image';
 
-interface TestimonialItem extends SbBlokData {
+interface TestimonialContent {
   quote?: string;
   author?: string;
   role?: string;
   avatar?: { filename: string; alt?: string };
 }
 
+interface TestimonialStory {
+  uuid?: string;
+  content?: TestimonialContent;
+}
+
 const { blok } = Astro.props;
 
 const layout = blok.layout || 'grid';
 const bg     = blok.background || 'primary';
+
+const rawItems = (blok.items ?? []) as (string | TestimonialStory)[];
+const unresolvedUuids = rawItems.filter((item): item is string => typeof item === 'string');
+
+const resolvedByUuid = new Map<string, TestimonialStory>();
+if (unresolvedUuids.length) {
+  const api = useStoryblokApi();
+  const { data } = await api.get('cdn/stories', {
+    by_uuids: unresolvedUuids.join(','),
+    version: 'draft',
+  });
+  for (const story of data.stories ?? []) resolvedByUuid.set(story.uuid, story);
+}
+
+const testimonials: TestimonialContent[] = rawItems
+  .map((item) => (typeof item === 'string' ? resolvedByUuid.get(item) : item))
+  .map((story) => story?.content)
+  .filter((content): content is TestimonialContent => Boolean(content));
 ---
 
 <section {...storyblokEditable(blok)} class:list={['testimonials', `testimonials--${layout}`, `testimonials--bg-${bg}`]}>
@@ -38,10 +78,9 @@ const bg     = blok.background || 'primary';
       data-reveal-stagger
       data-testimonial-track
     >
-      {(blok.items as TestimonialItem[])?.map((item, i) => (
+      {testimonials.map((item, i) => (
         <li
           class="testimonial-card"
-          {...storyblokEditable(item)}
           data-testimonial-slide
           aria-hidden={layout === 'carousel' && i !== 0 ? 'true' : undefined}
         >
@@ -66,9 +105,9 @@ const bg     = blok.background || 'primary';
       ))}
     </ul>
 
-    {layout === 'carousel' && (blok.items as TestimonialItem[])?.length > 1 && (
+    {layout === 'carousel' && testimonials.length > 1 && (
       <div class="testimonials__dots" role="tablist" aria-label="Testimonials" data-testimonial-dots>
-        {(blok.items as TestimonialItem[]).map((item, i) => (
+        {testimonials.map((item, i) => (
           <button
             type="button"
             class="testimonials__dot"
@@ -157,14 +196,27 @@ const bg     = blok.background || 'primary';
 
   .testimonials--bg-secondary     { background: var(--p-color-bg-secondary); }
   .testimonials--bg-accent-subtle { background: var(--p-color-bg-accent); }
+  .testimonials--bg-dark          { background: var(--p-color-bg-inverse); }
+
+  /* Testimonial cards keep their own light background regardless of
+     section bg — only the header and the carousel dots (which sit
+     directly on the section bg) need to flip for dark. */
+  .testimonials--bg-dark .testimonials__eyebrow,
+  .testimonials--bg-dark .testimonials__headline {
+    color: var(--p-color-text-on-dark);
+  }
+
+  .testimonials--bg-dark .testimonials__dot {
+    background: var(--p-color-border-inverse);
+  }
 
   .testimonials__inner {
-    max-width: 1100px;
+    max-width: var(--p-container-wide);
     margin: 0 auto;
   }
 
   .testimonials__header {
-    max-width: 640px;
+    max-width: var(--p-container-narrow);
     margin: 0 auto var(--p-space-16);
     text-align: center;
   }
@@ -210,7 +262,7 @@ const bg     = blok.background || 'primary';
   .testimonials--carousel .testimonials__grid {
     display: grid;
     grid-template-columns: 1fr;
-    max-width: 640px;
+    max-width: var(--p-container-narrow);
     margin: 0 auto;
   }
 
@@ -236,8 +288,8 @@ const bg     = blok.background || 'primary';
   }
 
   .testimonials__dot {
-    width: 8px;
-    height: 8px;
+    width: var(--p-space-2);
+    height: var(--p-space-2);
     padding: 0;
     border: none;
     border-radius: var(--p-radius-full);
@@ -252,7 +304,7 @@ const bg     = blok.background || 'primary';
 
   .testimonial-card {
     background: var(--p-color-bg-secondary);
-    border: 1px solid var(--p-color-border-default);
+    border: var(--p-border-width-default) solid var(--p-color-border-default);
     border-radius: var(--p-radius-card);
     padding: var(--p-space-8);
     display: flex;
@@ -278,8 +330,8 @@ const bg     = blok.background || 'primary';
   }
 
   .testimonial-card__avatar {
-    width: 44px;
-    height: 44px;
+    width: 2.75rem; /* 44px */
+    height: 2.75rem; /* 44px */
     border-radius: var(--p-radius-full);
     object-fit: cover;
     flex-shrink: 0;
