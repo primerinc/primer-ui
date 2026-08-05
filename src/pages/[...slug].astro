@@ -31,7 +31,7 @@ const slug = Astro.params.slug || '';
 // config holds header/footer (fetched separately by BaseLayout), home is
 // served by index.astro.
 if (slug === 'config' || slug === 'home') {
-  return new Response(null, { status: 404 });
+  return Astro.rewrite('/404');
 }
 
 const payload = await getPayload<object, Story>({ locals: Astro.locals });
@@ -56,12 +56,12 @@ if (!story) {
     });
     story = data.story;
   } catch (e) {
-    return new Response(null, { status: 404 });
+    return Astro.rewrite('/404');
   }
 }
 
 if (!story) {
-  return new Response(null, { status: 404 });
+  return Astro.rewrite('/404');
 }
 
 const seo = story.content.seo?.[0];

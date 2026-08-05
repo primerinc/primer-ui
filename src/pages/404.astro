@@ -1,0 +1,79 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+Astro.response.status = 404;
+---
+
+<BaseLayout title="Page not found" noIndex={true}>
+  <section class="not-found">
+    <div class="not-found__inner">
+      <p class="not-found__eyebrow">404</p>
+      <h1 class="not-found__headline">Page not found</h1>
+      <p class="not-found__sub">
+        The page you're looking for doesn't exist or may have moved.
+      </p>
+      <a href="/" class="btn btn--primary">Back to homepage</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found {
+    padding: var(--p-space-24) var(--p-space-8);
+    background: var(--p-color-bg-secondary);
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+  }
+
+  .not-found__inner {
+    max-width: var(--p-container-sm);
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .not-found__eyebrow {
+    font-family: var(--p-font-display);
+    font-size: var(--p-font-size-5xl);
+    font-weight: var(--p-font-weight-semibold);
+    color: var(--p-color-accent-default);
+    margin-bottom: var(--p-space-4);
+  }
+
+  .not-found__headline {
+    font-family: var(--p-font-display);
+    font-size: var(--p-font-size-3xl);
+    font-weight: var(--p-font-weight-semibold);
+    line-height: var(--p-font-leading-tight);
+    color: var(--p-color-text-primary);
+    margin-bottom: var(--p-space-4);
+  }
+
+  .not-found__sub {
+    font-size: var(--p-font-size-lg);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-secondary);
+    line-height: var(--p-font-leading-relaxed);
+    margin-bottom: var(--p-space-8);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--p-space-3) var(--p-space-8);
+    border-radius: var(--p-radius-button);
+    font-family: var(--p-font-body);
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-medium);
+    letter-spacing: var(--p-font-tracking-wide);
+    text-decoration: none;
+    transition: opacity var(--p-motion-base) var(--p-motion-ease);
+  }
+
+  .btn:hover { opacity: 0.85; }
+
+  .btn--primary {
+    background: var(--p-color-accent-default);
+    color: var(--p-color-text-on-accent);
+  }
+</style>
