@@ -305,7 +305,7 @@ Wireframe mode strips brand colour so reviews read as structure, not visual desi
 
 | Component        | Figma page      | Variants                          | Status      | Node ID  |
 |------------------|-----------------|-----------------------------------|-------------|----------|
-| Button           | Button          | Style × State (6 variants)        | ✅ done     | 11:8     |
+| Button           | Button          | Style=Primary/Secondary/Text × State=Default/Hover/Active/Disabled, plus Style=Link × same 4 states (16 variants) | ✅ done | 11:8 |
 | Hero             | Hero            | Layout=Centered/Left-Aligned      | ✅ done     | 14:20    |
 | CTA Banner       | CTA Banner      | Style=Accent/Dark/Light × Align=Left/Center | ✅ done | 96:33 |
 | Two Column       | Two Column      | Image Side=Right/Left             | ✅ done     | 18:22    |
@@ -325,8 +325,11 @@ Wireframe mode strips brand colour so reviews read as structure, not visual desi
 | Video            | Video           | Source=YouTube/Hosted             | ✅ done     | 174:16   |
 | Resource Header  | Resource Header | —                                 | ✅ done     | 552:6    |
 | Case Study Layout| Case Study Layout | —                               | ✅ done     | 542:2    |
+| Resource Archive | Resource Archive | —                                | ✅ done     | 565:6    |
 
 **Resource Header + Case Study Layout family (2026-08-07):** these had lived in code only since 2026-07-22 (`case_study_layout`, `key_takeaway_item`, `table_of_contents`, `sidebar_cta`) with no Figma component at all — closed that gap, plus built `resource_header` net-new in both Figma and code/Storyblok (see the component table above and `storyblok/schema-reference.md`). `Key Takeaway Item`, `Table of Contents`, and `Sidebar CTA` live on the "Case Study Layout" page (nested-block convention, same as Card living on "Card Grid") rather than getting their own pages. None of these five carry variants — matches this file's existing pattern where `background`-only differences never became a Figma variant axis (see Card Grid, Feature Grid, etc., none of which have a Background axis either). One build note for future reference: setting **paint-level `opacity`** on a fill/stroke bound to a color variable did not reliably propagate from a master component to its instances (repro'd on Key Takeaway Item's checkmark circle — direct instance edits and even `resetOverrides()` didn't fix it); switching to **node-level `.opacity`** instead resolved it immediately. Prefer node-level opacity over paint-level opacity when a variable-bound color is involved.
+
+**Button Link variant + Resource Archive page (2026-08-14):** built to close the Figma gap for the same day's Astro work (the resource archive routes and the CardGrid/TwoColumn → shared Button `link`-variant refactor — see "Resource archive pages" above and the component table's Button row). `Resource Archive` is a full-page mockup (not a component-with-variants — no Astro block name, since `/resources` and `/resources/[category]` are plain SSR routes, not Storyblok blocks), built the same way as `Home Page Example`: instances of the existing Header/Footer/Card components composed together, not new from-scratch chrome. The card grid reuses `Card`'s `State=Default` instance directly (three, in a `FILL`-sized 1240px-wide row, matching Card Grid's own Columns=3 internal spacing exactly) rather than building a new card design, since the coded `ResourceCard.astro` deliberately mirrors `CardGrid`'s `.card` styling. Category filter pills (All/Blog/Case Studies/Webinars/Research) are new — pill shapes bound to the same `color/accent/default` (active) and `color/bg/secondary`+`color/border/default` (inactive) semantic variables used elsewhere, not new one-off colors.
 
 ### Figma sizing conventions (learned the hard way)
 - **VERTICAL auto-layout sections**: append children FIRST, set `primaryAxisSizingMode = 'AUTO'`, then call `resize(1440, node.height)` to fix width without clobbering computed height. Never call `resize()` with a hard-coded height before appending children — it locks the height to that value even in AUTO mode.
