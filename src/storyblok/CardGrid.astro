@@ -9,6 +9,7 @@
 import { storyblokEditable } from '@storyblok/astro';
 import type { SbBlokData } from '@storyblok/astro';
 import { imageSize } from '../lib/storyblok-image';
+import Button from './Button.astro';
 
 interface CardItem extends SbBlokData {
   image?: { filename: string; alt?: string };
@@ -40,9 +41,6 @@ const bg      = blok.background || 'primary';
           ? `${card.image.filename}/m/800x600/filters:quality(85)`
           : null;
 
-        // The CTA renders as this card's own arrow-link style (.card__cta),
-        // not the shared boxed .btn — so only `text`/`link` are read from
-        // the button blok, `variant` is deliberately ignored.
         const cta = card.cta_button?.[0];
         const ctaHref = cta?.link?.url || cta?.link?.cached_url;
 
@@ -63,7 +61,7 @@ const bg      = blok.background || 'primary';
               <h3 class="card__title">{card.title}</h3>
               {card.description && <p class="card__desc">{card.description}</p>}
               {cta?.text && ctaHref && (
-                <a href={ctaHref} class="card__cta" {...storyblokEditable(cta)}>{cta.text}</a>
+                <Button blok={{ ...cta, variant: 'link' }} />
               )}
             </div>
           </li>
@@ -211,35 +209,10 @@ const bg      = blok.background || 'primary';
     flex: 1;
   }
 
-  .card__cta {
-    display: inline-block;
+  /* The CTA is a real Button (variant="link") now, not hand-rolled arrow-link
+     CSS — this just adds the extra breathing room on top of .card__body's
+     own gap that the old .card__cta had. */
+  .card__body :global(.btn--link) {
     margin-top: var(--p-space-2);
-    font-size: var(--p-font-size-sm);
-    font-weight: var(--p-font-weight-medium);
-    color: var(--p-color-text-accent-strong);
-    text-decoration: none;
-    letter-spacing: var(--p-font-tracking-wide);
-    transition: opacity var(--p-motion-base) var(--p-motion-ease);
-  }
-
-  .card__cta:hover { opacity: 0.7; }
-
-  /* Arrow lives in a pseudo-element so it can move without shifting the label.
-     translate3d keeps it on the compositor; a plain margin change would reflow. */
-  .card__cta::after {
-    content: '\2192';
-    display: inline-block;
-    margin-left: 0.4em;
-    transition: transform var(--p-motion-base) var(--p-motion-ease);
-  }
-
-  .card__cta:hover::after,
-  .card__cta:focus-visible::after {
-    transform: translate3d(0.22em, 0, 0);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .card__cta::after { transition: none; }
-    .card__cta:hover::after { transform: none; }
   }
 </style>

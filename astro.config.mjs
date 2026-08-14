@@ -56,6 +56,7 @@ export default defineConfig({
         contact_form:  'storyblok/ContactForm',
         process_steps: 'storyblok/ProcessSteps',
         video:         'storyblok/Video',
+        resource_header:   'storyblok/ResourceHeader',
         case_study_layout: 'storyblok/CaseStudyLayout',
         key_takeaway_item: 'storyblok/KeyTakeawayItem',
         sidebar_cta:       'storyblok/SidebarCTA',

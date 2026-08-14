@@ -7,6 +7,7 @@
  */
 import { storyblokEditable } from '@storyblok/astro';
 import { imageSize } from '../lib/storyblok-image';
+import Button from './Button.astro';
 
 const { blok } = Astro.props;
 
@@ -17,9 +18,6 @@ const imageUrl = blok.image?.filename
   ? `${blok.image.filename}/m/1200x0/filters:quality(85)`
   : null;
 
-// The CTA renders as this component's own arrow-link style (.two-col__cta),
-// not the shared boxed .btn — so only `text`/`link` are read from the
-// button blok, `variant` is deliberately ignored.
 const cta = blok.cta_button?.[0];
 const ctaHref = cta?.link?.url || cta?.link?.cached_url;
 ---
@@ -34,7 +32,7 @@ const ctaHref = cta?.link?.url || cta?.link?.cached_url;
       {blok.headline && <h2 class="two-col__headline">{blok.headline}</h2>}
       {blok.body && <p class="two-col__body">{blok.body}</p>}
       {cta?.text && ctaHref && (
-        <a href={ctaHref} class="two-col__cta" {...storyblokEditable(cta)}>{cta.text}</a>
+        <Button blok={{ ...cta, variant: 'link' }} />
       )}
     </div>
 
@@ -110,21 +108,6 @@ const ctaHref = cta?.link?.url || cta?.link?.cached_url;
     margin-bottom: var(--p-space-8);
   }
 
-  .two-col__cta {
-    display: inline-flex;
-    align-items: center;
-    text-decoration: none;
-    font-size: var(--p-font-size-sm);
-    font-weight: var(--p-font-weight-medium);
-    letter-spacing: var(--p-font-tracking-wide);
-    color: var(--p-color-text-accent-strong);
-    border-bottom: var(--p-border-width-default) solid var(--p-color-border-accent);
-    padding-bottom: var(--p-space-1);
-    transition: opacity var(--p-motion-base) var(--p-motion-ease);
-  }
-
-  .two-col__cta:hover { opacity: 0.7; }
-
   .two-col__media {
     border-radius: var(--p-radius-lg);
     overflow: hidden;
@@ -148,22 +131,4 @@ const ctaHref = cta?.link?.url || cta?.link?.cached_url;
     }
   }
 
-  /* Arrow lives in a pseudo-element so it can move without shifting the label.
-     translate3d keeps it on the compositor; a plain margin change would reflow. */
-  .two-col__cta::after {
-    content: '\2192';
-    display: inline-block;
-    margin-left: 0.4em;
-    transition: transform var(--p-motion-base) var(--p-motion-ease);
-  }
-
-  .two-col__cta:hover::after,
-  .two-col__cta:focus-visible::after {
-    transform: translate3d(0.22em, 0, 0);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .two-col__cta::after { transition: none; }
-    .two-col__cta:hover::after { transform: none; }
-  }
 </style>

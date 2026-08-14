@@ -3,7 +3,7 @@
  * Button
  * Storyblok block name: button
  *
- * Fields: text, link (Multilink), variant (primary | secondary | text)
+ * Fields: text, link (Multilink), variant (primary | secondary | text | link)
  */
 import { storyblokEditable } from '@storyblok/astro';
 
@@ -60,5 +60,39 @@ const variant = blok.variant || 'primary';
   .btn--text:hover {
     text-decoration: underline;
     text-underline-offset: 0.1875rem;
+  }
+
+  /* An underlined arrow-link, not a boxed button — no shared row padding,
+     so it sits flush against surrounding copy (e.g. a card's body text)
+     rather than looking like a stray button dropped into a paragraph. */
+  .btn--link {
+    padding: 0;
+    background: transparent;
+    color: var(--p-color-text-accent-strong);
+    border: none;
+    border-bottom: var(--p-border-width-default) solid var(--p-color-border-accent);
+    border-radius: 0;
+  }
+
+  .btn--link:hover { opacity: 0.7; }
+
+  /* Arrow lives in a pseudo-element so it can move without shifting the
+     label. translate3d keeps it on the compositor; a plain margin change
+     would reflow. */
+  .btn--link::after {
+    content: '\2192';
+    display: inline-block;
+    margin-left: 0.4em;
+    transition: transform var(--p-motion-base) var(--p-motion-ease);
+  }
+
+  .btn--link:hover::after,
+  .btn--link:focus-visible::after {
+    transform: translate3d(0.22em, 0, 0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .btn--link::after { transition: none; }
+    .btn--link:hover::after { transform: none; }
   }
 </style>

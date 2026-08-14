@@ -456,6 +456,23 @@ Legacy nested-block shape, superseded by the `testimonial` content type above. S
 
 ---
 
+## resource_header
+
+Article byline header — category tag, headline, optional dek, author + date, and share icons. Sits above `case_study_layout` on a resource's body. Added to `resource`'s `body` whitelist only (not `page`'s or `campaign_page`'s) — this is authored-article metadata, not generic marketing chrome, which is why it's a separate block from `hero` rather than new fields bolted onto it.
+
+| Field name     | Type      | Required | Options / Notes                                                |
+|----------------|-----------|----------|------------------------------------------------------------------|
+| category       | Text      | No       | Small eyebrow tag above the headline, e.g. "Case Study"          |
+| headline       | Text      | Yes      | Renders as the page's `<h1>`                                    |
+| dek            | Textarea  | No       | Optional one-line subhead/excerpt                                |
+| author_name    | Text      | No       |                                                                    |
+| author_avatar  | Asset     | No       | Square crop recommended                                          |
+| published_date | Date/Time | No       | Rendered as "Month D, YYYY" (`Intl.DateTimeFormat`)               |
+| social_links   | Blocks    | No       | Restrict to: social_link (same nested block used by `footer`)    |
+| background     | Option    | No       | primary (default), secondary, accent-subtle                      |
+
+---
+
 ## case_study_layout
 
 Two-column layout block for long-form content (case studies, in-depth articles) — a key-takeaways callout, a full richtext content column, and a customizable sticky sidebar. Added to `resource` and `campaign_page`'s `body` whitelist (not `page`'s).

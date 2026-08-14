@@ -1,0 +1,189 @@
+---
+/**
+ * ResourceHeader
+ * Storyblok block name: resource_header
+ *
+ * Fields: category, headline, dek, author_name, author_avatar,
+ * published_date, social_links (blocks → social_link), background
+ *
+ * Sits above case_study_layout on a resource's body — the byline/share
+ * header for a long-form article. Deliberately not folded into `hero`:
+ * hero is generic marketing chrome used across every content type, while
+ * author/date/share metadata is specific to authored articles.
+ */
+import { storyblokEditable } from '@storyblok/astro';
+import { imageSize } from '../lib/storyblok-image';
+import { socialIcons } from '../lib/social-icons';
+
+const { blok } = Astro.props;
+
+const bg = blok.background || 'primary';
+const socialLinks = blok.social_links || [];
+
+const avatarUrl = blok.author_avatar?.filename;
+const avatarAlt = blok.author_avatar?.alt || blok.author_name || '';
+
+// Storyblok's Date/Time field returns "YYYY-MM-DD HH:mm" (or "YYYY-MM-DD"
+// alone) — not a format Date() parses reliably across engines, so the
+// space is normalized to a 'T' first.
+const formattedDate = blok.published_date
+  ? new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+      .format(new Date(blok.published_date.replace(' ', 'T')))
+  : null;
+---
+
+<header
+  {...storyblokEditable(blok)}
+  class:list={['resource-header', `resource-header--bg-${bg}`]}
+>
+  <div class="resource-header__inner">
+    {blok.category && <p class="resource-header__category">{blok.category}</p>}
+    {blok.headline && <h1 class="resource-header__headline">{blok.headline}</h1>}
+    {blok.dek && <p class="resource-header__dek">{blok.dek}</p>}
+
+    <div class="resource-header__meta">
+      <div class="resource-header__byline">
+        {avatarUrl && (
+          <img
+            {...imageSize(avatarUrl, 40, 40)}
+            src={`${avatarUrl}/m/40x40/filters:quality(85)`}
+            alt={avatarAlt}
+            class="resource-header__avatar"
+            loading="lazy"
+          />
+        )}
+        <div class="resource-header__byline-text">
+          {blok.author_name && <span class="resource-header__author">{blok.author_name}</span>}
+          {formattedDate && <span class="resource-header__date">{formattedDate}</span>}
+        </div>
+      </div>
+
+      {socialLinks.length > 0 && (
+        <div class="resource-header__social">
+          {socialLinks.map((s: any) => {
+            const href = s.url?.url || s.url?.cached_url || '#';
+            const platform = s.platform?.value ?? s.platform ?? '';
+            const icon = socialIcons[platform.toLowerCase()] || '';
+            return (
+              <a
+                href={href}
+                class="resource-header__social-link"
+                aria-label={`Share on ${platform}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                {...storyblokEditable(s)}
+                set:html={icon}
+              />
+            );
+          })}
+        </div>
+      )}
+    </div>
+  </div>
+</header>
+
+<style>
+  .resource-header {
+    padding: var(--p-space-16) var(--p-space-8) var(--p-space-10);
+    background: var(--p-color-bg-primary);
+  }
+
+  .resource-header--bg-secondary     { background: var(--p-color-bg-secondary); }
+  .resource-header--bg-accent-subtle { background: var(--p-color-bg-accent); }
+
+  .resource-header__inner {
+    max-width: var(--p-container-default);
+    margin: 0 auto;
+  }
+
+  .resource-header__category {
+    font-size: var(--p-font-size-xs);
+    font-weight: var(--p-font-weight-medium);
+    letter-spacing: var(--p-font-tracking-wider);
+    text-transform: uppercase;
+    color: var(--p-color-text-accent-strong);
+    margin-bottom: var(--p-space-3);
+  }
+
+  .resource-header__headline {
+    font-family: var(--p-font-display);
+    font-size: var(--p-font-size-4xl);
+    font-weight: var(--p-font-weight-semibold);
+    line-height: var(--p-font-leading-tight);
+    color: var(--p-color-text-primary);
+    max-width: var(--p-container-prose);
+  }
+
+  .resource-header__dek {
+    font-size: var(--p-font-size-lg);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-secondary);
+    line-height: var(--p-font-leading-relaxed);
+    max-width: var(--p-container-prose);
+    margin-top: var(--p-space-4);
+  }
+
+  .resource-header__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--p-space-4);
+    margin-top: var(--p-space-8);
+    padding-top: var(--p-space-6);
+    border-top: var(--p-border-width-default) solid var(--p-color-border-default);
+  }
+
+  .resource-header__byline {
+    display: flex;
+    align-items: center;
+    gap: var(--p-space-3);
+  }
+
+  .resource-header__avatar {
+    width: 2.5rem; /* 40px */
+    height: 2.5rem; /* 40px */
+    border-radius: var(--p-radius-full);
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .resource-header__byline-text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--p-space-1);
+  }
+
+  .resource-header__author {
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-medium);
+    color: var(--p-color-text-primary);
+  }
+
+  .resource-header__date {
+    font-size: var(--p-font-size-xs);
+    color: var(--p-color-text-tertiary);
+  }
+
+  .resource-header__social {
+    display: flex;
+    gap: var(--p-space-2);
+  }
+
+  .resource-header__social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem; /* 36px */
+    height: 2.25rem; /* 36px */
+    border-radius: var(--p-radius-sm);
+    color: var(--p-color-text-secondary);
+    transition: color var(--p-motion-hover) var(--p-motion-ease), background var(--p-motion-hover) var(--p-motion-ease);
+    text-decoration: none;
+  }
+
+  .resource-header__social-link:hover {
+    color: var(--p-color-text-accent-strong);
+    background: var(--p-color-bg-secondary);
+  }
+</style>

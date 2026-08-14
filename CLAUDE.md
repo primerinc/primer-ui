@@ -103,6 +103,9 @@ npm run build:tokens
 | ProcessSteps     | process_steps        | src/storyblok/ProcessSteps.astro      | complete |
 | Video            | video                | src/storyblok/Video.astro             | complete |
 | CaseStudyLayout  | case_study_layout    | src/storyblok/CaseStudyLayout.astro   | complete |
+| ResourceHeader   | resource_header      | src/storyblok/ResourceHeader.astro    | complete |
+
+`ResourceHeader` (2026-08-07) is the article byline header for long-form resources — category tag, headline (the page's `<h1>`), optional dek, author name/avatar, published date, and share icons (reusing the same `social_link` block as `footer`). Scoped to `resource`'s body whitelist only, sitting above `case_study_layout` — kept separate from `hero` on purpose, since author/date/share metadata is specific to authored articles and doesn't belong on the generic marketing component every other content type uses. Built alongside a Figma-side gap-fill: `case_study_layout`, `key_takeaway_item`, `table_of_contents`, and `sidebar_cta` had lived in code only since 2026-07-22 with no matching Figma component — see the Figma component table below.
 
 Hero also has a `layout: two-column` option (headline/subhead/buttons beside an `image` Asset field) alongside `centered`/`left-aligned` — added 2026-07-29. Unlike `two_column`/`card_grid`, there's no `image_side` toggle; the image is always on the right. Hero still owns the page's single `<h1>` in every layout.
 
@@ -310,6 +313,10 @@ Wireframe mode strips brand colour so reviews read as structure, not visual desi
 | ContactForm      | Contact Form    | Layout=Centered/Split             | ✅ done     | 132:56   |
 | ProcessSteps     | Process Steps   | Layout=Horizontal/Vertical        | ✅ done     | 168:2    |
 | Video            | Video           | Source=YouTube/Hosted             | ✅ done     | 174:16   |
+| Resource Header  | Resource Header | —                                 | ✅ done     | 552:6    |
+| Case Study Layout| Case Study Layout | —                               | ✅ done     | 542:2    |
+
+**Resource Header + Case Study Layout family (2026-08-07):** these had lived in code only since 2026-07-22 (`case_study_layout`, `key_takeaway_item`, `table_of_contents`, `sidebar_cta`) with no Figma component at all — closed that gap, plus built `resource_header` net-new in both Figma and code/Storyblok (see the component table above and `storyblok/schema-reference.md`). `Key Takeaway Item`, `Table of Contents`, and `Sidebar CTA` live on the "Case Study Layout" page (nested-block convention, same as Card living on "Card Grid") rather than getting their own pages. None of these five carry variants — matches this file's existing pattern where `background`-only differences never became a Figma variant axis (see Card Grid, Feature Grid, etc., none of which have a Background axis either). One build note for future reference: setting **paint-level `opacity`** on a fill/stroke bound to a color variable did not reliably propagate from a master component to its instances (repro'd on Key Takeaway Item's checkmark circle — direct instance edits and even `resetOverrides()` didn't fix it); switching to **node-level `.opacity`** instead resolved it immediately. Prefer node-level opacity over paint-level opacity when a variable-bound color is involved.
 
 ### Figma sizing conventions (learned the hard way)
 - **VERTICAL auto-layout sections**: append children FIRST, set `primaryAxisSizingMode = 'AUTO'`, then call `resize(1440, node.height)` to fix width without clobbering computed height. Never call `resize()` with a hard-coded height before appending children — it locks the height to that value even in AUTO mode.
