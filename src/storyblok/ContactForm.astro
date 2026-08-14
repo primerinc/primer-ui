@@ -5,9 +5,20 @@
  *
  * Fields: eyebrow, headline, subheadline, layout, show_phone, show_company,
  *         contact_email, contact_phone, contact_address,
- *         submit_label, success_message, background
+ *         submit_label, success_message, background,
+ *         hubspot_portal_id, hubspot_form_id
  *
- * Uses Netlify Forms — requires static (SSG) output for Netlify to detect the form at build time.
+ * HubSpot is the default/expected form backend as of 2026-08-14 — every
+ * Lock 8 client stays in the HubSpot ecosystem for form management unless
+ * a specific client is noted otherwise, so hubspot_portal_id/hubspot_form_id
+ * should be filled in on every client build. The Netlify Forms path below
+ * is a fallback only, and it's a known-fragile one: this repo runs SSR
+ * (output: 'server', see CLAUDE.md's "Rendering mode" section), and
+ * Netlify's form-detection parses prerendered HTML at build time — an
+ * SSR-only site never produces that artifact, so data-netlify="true" is
+ * unlikely to actually register the form on a real Netlify deploy. Don't
+ * rely on the fallback for a real client; it exists for a non-HubSpot,
+ * non-Netlify future case, not as a supported default.
  */
 import { storyblokEditable } from '@storyblok/astro';
 

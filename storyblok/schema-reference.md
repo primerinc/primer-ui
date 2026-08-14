@@ -545,9 +545,9 @@ Storyblok has no cross-content-type "field group" mechanism — the "Group" fiel
 
 | Field name     | Type    | Required | Options / Notes                                                        |
 |----------------|---------|----------|--------------------------------------------------------------------------|
-| title          | Text    | Yes      | Public-facing title. Not rendered on the page itself (the visual headline comes from the first body block, typically hero) — reserved for a future resource-listing/index page, same role as `card_item.title` |
-| resource_type  | Option  | Yes      | blog, case_study, webinar, research                                      |
-| featured       | Boolean | No       | Default false. Reserved for a future resource-listing page — not used on the detail page itself |
+| title          | Text    | Yes      | Public-facing title. Not rendered on the page itself (the visual headline comes from the first body block, typically hero) — used as the card title on the `/resources` archive pages (see CLAUDE.md's "Resource archive pages"), same role as `card_item.title` |
+| resource_type  | Option  | Yes      | blog, case_study, webinar, research — also the archive category filter (`/resources/[blog\|case-studies\|webinars\|research]`, mapped in `src/lib/resource-archive.ts`) |
+| featured       | Boolean | No       | Default false. Shown as a "Featured" badge on the entry's archive card — not used on the detail page itself |
 | body           | Blocks  | Yes      | Restrict to the nestable blocks above                                    |
 | seo            | Blocks  | No       | Restrict to `seo`, min 1 / max 1                                         |
 | section_gate   | Section | — | 2026-07-30 — pure editor-UI grouping, no data (`keys` lists the 5 gate_* fields below). Groups them under a "Content Gate" heading in the Storyblok sidebar. Note: the correct Storyblok type for this is `section`, not `tab` — an earlier attempt used `type: "tab"`, which the Management API accepted without error but broke Blocks-field visibility in the actual Visual Editor; reverted same day, redone with the documented `section` type and confirmed working in the real editor |

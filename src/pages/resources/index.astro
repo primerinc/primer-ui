@@ -1,0 +1,29 @@
+---
+/**
+ * Resource archive — all published `resource` entries, newest first. Not a
+ * Storyblok block; a plain Astro route (SSR, fetched per-request like every
+ * other page in this repo — see src/pages/[...slug].astro). Markup shared
+ * with resources/[category].astro via ResourceArchive.astro.
+ */
+import { useStoryblokApi } from '@storyblok/astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ResourceArchive from '../../components/ResourceArchive.astro';
+import { fetchResources } from '../../lib/resource-archive';
+
+const page = Number(Astro.url.searchParams.get('page') || '1');
+
+const api = useStoryblokApi();
+const { cards, total, perPage } = await fetchResources(api, { page });
+const totalPages = Math.max(1, Math.ceil(total / perPage));
+---
+
+<BaseLayout title="Resources" description="Articles, case studies, webinars, and research.">
+  <ResourceArchive
+    headline="Resources"
+    cards={cards}
+    emptyLabel="No resources published yet."
+    basePath="/resources"
+    page={page}
+    totalPages={totalPages}
+  />
+</BaseLayout>

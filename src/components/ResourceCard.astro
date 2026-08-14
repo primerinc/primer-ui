@@ -1,0 +1,137 @@
+---
+/**
+ * ResourceCard — shared card markup for the resource archive pages
+ * (src/pages/resources/index.astro, src/pages/resources/[category].astro).
+ * Not a Storyblok block, just an internal render helper, same category as
+ * BodyBlocks.astro. Visual language matches CardGrid's `.card` on purpose,
+ * for consistency with the rest of the library.
+ */
+import { imageSize } from '../lib/storyblok-image';
+import type { ResourceCard as ResourceCardData } from '../lib/resource-archive';
+
+interface Props {
+  card: ResourceCardData;
+}
+
+const { card } = Astro.props;
+
+const publishedLabel = card.publishedAt
+  ? new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).format(new Date(card.publishedAt))
+  : undefined;
+---
+
+<li class="resource-card">
+  <a href={card.href} class="resource-card__link">
+    <div class="resource-card__media" data-blur-up style={card.image ? `background-image:url('${card.image.replace(/\/m\/[^/]+/, '/m/24x0')}/filters:blur(12)')` : undefined}>
+      {card.image ? (
+        <img {...imageSize(card.image, 800, 600)} src={card.image} alt="" class="resource-card__img" loading="lazy" />
+      ) : (
+        <div class="resource-card__img resource-card__img--placeholder" aria-hidden="true" />
+      )}
+    </div>
+    <div class="resource-card__body">
+      <p class="resource-card__eyebrow">
+        {card.categoryLabel}
+        {card.featured && <span class="resource-card__featured">Featured</span>}
+      </p>
+      <h3 class="resource-card__title">{card.title}</h3>
+      {card.excerpt && <p class="resource-card__desc">{card.excerpt}</p>}
+      {publishedLabel && <p class="resource-card__date">{publishedLabel}</p>}
+    </div>
+  </a>
+</li>
+
+<style>
+  .resource-card {
+    background: var(--p-color-bg-primary);
+    border: var(--p-border-width-default) solid var(--p-color-border-default);
+    border-radius: var(--p-radius-card);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow var(--p-motion-base) var(--p-motion-ease);
+  }
+
+  .resource-card:hover {
+    box-shadow: var(--p-shadow-md);
+  }
+
+  .resource-card__link {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .resource-card__media {
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--p-color-bg-secondary);
+  }
+
+  .resource-card__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform var(--p-motion-slow) var(--p-motion-ease);
+  }
+
+  .resource-card__img--placeholder {
+    background: var(--p-color-bg-secondary);
+  }
+
+  .resource-card:hover .resource-card__img {
+    transform: scale(1.03);
+  }
+
+  .resource-card__body {
+    padding: var(--p-space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--p-space-3);
+    flex: 1;
+  }
+
+  .resource-card__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: var(--p-space-2);
+    font-size: var(--p-font-size-xs);
+    font-weight: var(--p-font-weight-medium);
+    letter-spacing: var(--p-font-tracking-wider);
+    text-transform: uppercase;
+    color: var(--p-color-text-accent);
+  }
+
+  .resource-card__featured {
+    padding: 0.0625rem var(--p-space-2); /* 1px */
+    color: var(--p-color-text-on-accent);
+    background: var(--p-color-accent-default);
+    border-radius: var(--p-radius-full);
+    letter-spacing: normal;
+    text-transform: none;
+  }
+
+  .resource-card__title {
+    font-family: var(--p-font-body);
+    font-size: var(--p-font-size-lg);
+    font-weight: var(--p-font-weight-medium);
+    color: var(--p-color-text-primary);
+    line-height: var(--p-font-leading-snug);
+  }
+
+  .resource-card__desc {
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-secondary);
+    line-height: var(--p-font-leading-normal);
+    flex: 1;
+  }
+
+  .resource-card__date {
+    font-size: var(--p-font-size-xs);
+    color: var(--p-color-text-tertiary);
+  }
+</style>

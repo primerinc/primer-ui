@@ -122,6 +122,16 @@ they're internal helpers `Page.astro` reaches for, not registered Storyblok blok
 is just the shared body-rendering loop, factored out so it can be used both directly
 and nested inside `ContentGate` without duplicating the scroll-reveal wrapper logic.
 
+**ContactForm's HubSpot branch is the supported default (2026-08-14), not the fallback.** Every Lock 8 client stays in the HubSpot ecosystem for form management unless a specific client is noted otherwise — always fill in `hubspot_portal_id`/`hubspot_form_id` on a client build. The plain Netlify Forms path (`data-netlify="true"`, no HubSpot IDs set) is a known-fragile fallback: this repo runs SSR (`output: 'server'`, see "Rendering mode" below), and Netlify's form-detection parses prerendered HTML at build time — an SSR-only site never produces that artifact, so the Netlify path is unlikely to actually register a form on a real deploy. Don't rely on it for a client build.
+
+### Resource archive pages (added 2026-08-14)
+
+`/resources` (all published `resource` entries) and `/resources/[blog|case-studies|webinars|research]` (filtered by `resource_type`) — plain Astro SSR routes, not Storyblok blocks, matching the fetch-per-request pattern in `src/pages/[...slug].astro`. Category → `resource_type` mapping lives in `src/lib/resource-archive.ts` (`RESOURCE_CATEGORIES`) — add a category there (and to `resource_type`'s Option field in Storyblok) if a client needs one beyond the four defaults. Shared markup lives in `src/components/ResourceArchive.astro` + `src/components/ResourceCard.astro` (internal render helpers, not registered blocks — same category as `BodyBlocks.astro`).
+
+Card image/excerpt reuse the SEO-fallback derivation (`src/lib/seo-fallback.ts`'s `deriveFallbackImage`/`deriveFallbackDescription`, walking the entry's `body` blocks) rather than a dedicated field, since `resource` doesn't have a `card_image`/`card_excerpt` field yet — only `title` and `featured` exist for listing purposes today (see `storyblok/schema-reference.md`'s `resource` table). Works out of the box with zero schema changes, but an editor can't currently override the derived image/excerpt per entry; worth adding real `card_image`/`card_excerpt` fields on `resource` later (a live-space schema change via Management API, not done in this pass) if that control turns out to matter for a client.
+
+Pagination is `?page=N`, 12 per page, via the CDN API's own `page`/`per_page`/`total` header — not client-side.
+
 ---
 
 ## Coding conventions

@@ -1,0 +1,38 @@
+---
+/**
+ * Per-category resource archive — /resources/blog, /resources/case-studies,
+ * /resources/webinars, /resources/research. Same rendering as
+ * resources/index.astro, filtered to one resource_type. SSR (not
+ * getStaticPaths) — this repo runs output: 'server' throughout, see
+ * src/pages/[...slug].astro. Markup shared via ResourceArchive.astro.
+ */
+import { useStoryblokApi } from '@storyblok/astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ResourceArchive from '../../components/ResourceArchive.astro';
+import { categoryBySlug, fetchResources } from '../../lib/resource-archive';
+
+const categorySlug = Astro.params.category || '';
+const category = categoryBySlug(categorySlug);
+
+if (!category) {
+  return Astro.rewrite('/404');
+}
+
+const page = Number(Astro.url.searchParams.get('page') || '1');
+
+const api = useStoryblokApi();
+const { cards, total, perPage } = await fetchResources(api, { resourceType: category.resourceType, page });
+const totalPages = Math.max(1, Math.ceil(total / perPage));
+---
+
+<BaseLayout title={category.label} description={`${category.label} from our resource library.`}>
+  <ResourceArchive
+    headline={category.label}
+    cards={cards}
+    emptyLabel={`No ${category.label.toLowerCase()} published yet.`}
+    activeCategorySlug={category.slug}
+    basePath={`/resources/${category.slug}`}
+    page={page}
+    totalPages={totalPages}
+  />
+</BaseLayout>

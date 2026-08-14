@@ -1,0 +1,162 @@
+---
+/**
+ * ResourceArchive — shared section markup/styles for both resource archive
+ * routes (src/pages/resources/index.astro and
+ * src/pages/resources/[category].astro). Not a Storyblok block, an internal
+ * page-building helper, same category as BodyBlocks.astro/ResourceCard.astro.
+ */
+import ResourceCard from './ResourceCard.astro';
+import { RESOURCE_CATEGORIES, type ResourceCard as ResourceCardData } from '../lib/resource-archive';
+
+interface Props {
+  headline: string;
+  cards: ResourceCardData[];
+  emptyLabel: string;
+  /** undefined = the unfiltered "All" archive */
+  activeCategorySlug?: string;
+  basePath: string;
+  page: number;
+  totalPages: number;
+}
+
+const { headline, cards, emptyLabel, activeCategorySlug, basePath, page, totalPages } = Astro.props;
+---
+
+<section class="resource-archive">
+  <div class="resource-archive__inner">
+    <header class="resource-archive__header">
+      <h1 class="resource-archive__headline">{headline}</h1>
+    </header>
+
+    <nav class="resource-archive__filters" aria-label="Filter by category">
+      <a
+        href="/resources"
+        class:list={['resource-archive__filter', !activeCategorySlug && 'resource-archive__filter--active']}
+      >
+        All
+      </a>
+      {RESOURCE_CATEGORIES.map((cat) => (
+        <a
+          href={`/resources/${cat.slug}`}
+          class:list={['resource-archive__filter', cat.slug === activeCategorySlug && 'resource-archive__filter--active']}
+        >
+          {cat.label}
+        </a>
+      ))}
+    </nav>
+
+    {cards.length === 0 && <p class="resource-archive__empty">{emptyLabel}</p>}
+
+    <ul class="resource-archive__list" role="list">
+      {cards.map((card) => <ResourceCard card={card} />)}
+    </ul>
+
+    {totalPages > 1 && (
+      <nav class="resource-archive__pagination" aria-label="Pagination">
+        {page > 1 && <a href={`${basePath}?page=${page - 1}`}>&larr; Previous</a>}
+        <span class="resource-archive__page-count">Page {page} of {totalPages}</span>
+        {page < totalPages && <a href={`${basePath}?page=${page + 1}`}>Next &rarr;</a>}
+      </nav>
+    )}
+  </div>
+</section>
+
+<style>
+  .resource-archive {
+    padding: var(--p-space-24) var(--p-space-8);
+    background: var(--p-color-bg-primary);
+  }
+
+  .resource-archive__inner {
+    max-width: var(--p-container-wide);
+    margin: 0 auto;
+  }
+
+  .resource-archive__header {
+    text-align: center;
+    margin-bottom: var(--p-space-10);
+  }
+
+  .resource-archive__headline {
+    font-family: var(--p-font-display);
+    font-size: var(--p-font-size-4xl);
+    font-weight: var(--p-font-weight-semibold);
+    line-height: var(--p-font-leading-tight);
+    color: var(--p-color-text-primary);
+  }
+
+  .resource-archive__filters {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--p-space-3);
+    margin-bottom: var(--p-space-16);
+  }
+
+  .resource-archive__filter {
+    padding: var(--p-space-2) var(--p-space-5);
+    font-size: var(--p-font-size-sm);
+    font-weight: var(--p-font-weight-medium);
+    color: var(--p-color-text-secondary);
+    background: var(--p-color-bg-secondary);
+    border: var(--p-border-width-default) solid var(--p-color-border-default);
+    border-radius: var(--p-radius-full);
+    text-decoration: none;
+    transition: background var(--p-motion-hover) var(--p-motion-ease), color var(--p-motion-hover) var(--p-motion-ease);
+  }
+
+  .resource-archive__filter:hover {
+    background: var(--p-color-bg-accent);
+  }
+
+  .resource-archive__filter--active {
+    color: var(--p-color-text-on-accent);
+    background: var(--p-color-accent-default);
+    border-color: var(--p-color-accent-default);
+  }
+
+  .resource-archive__empty {
+    text-align: center;
+    color: var(--p-color-text-secondary);
+    padding: var(--p-space-16) 0;
+  }
+
+  .resource-archive__list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--p-space-6);
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--p-space-16);
+  }
+
+  @media (max-width: 900px) {
+    .resource-archive__list { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 580px) {
+    .resource-archive__list { grid-template-columns: 1fr; }
+  }
+
+  .resource-archive__pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--p-space-6);
+    font-size: var(--p-font-size-sm);
+  }
+
+  .resource-archive__pagination a {
+    color: var(--p-color-text-accent);
+    text-decoration: none;
+    font-weight: var(--p-font-weight-medium);
+  }
+
+  .resource-archive__pagination a:hover {
+    text-decoration: underline;
+  }
+
+  .resource-archive__page-count {
+    color: var(--p-color-text-tertiary);
+  }
+</style>
