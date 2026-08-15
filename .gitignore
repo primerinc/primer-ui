@@ -158,3 +158,6 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+
+# Local scratch/debug screenshots
+.scratch_*
