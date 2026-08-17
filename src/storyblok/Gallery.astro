@@ -1,0 +1,191 @@
+---
+/**
+ * Gallery
+ * Storyblok block name: gallery
+ *
+ * Fields: eyebrow, headline, body, images (blocks → gallery_item: image, alt),
+ * layout (masonry | grid), columns, background
+ *
+ * layout=masonry keeps each image's natural aspect ratio and packs them into
+ * a CSS multi-column layout (Pinterest-style, varying tile heights).
+ * layout=grid instead crops every tile to the same square aspect ratio via
+ * object-fit, so the grid reads as uniform rows/columns.
+ */
+import { storyblokEditable } from '@storyblok/astro';
+import type { SbBlokData } from '@storyblok/astro';
+import { imageSize } from '../lib/storyblok-image';
+
+interface GalleryItem extends SbBlokData {
+  image?: { filename: string; alt?: string };
+  alt?: string;
+}
+
+const { blok } = Astro.props;
+
+const layout  = blok.layout || 'masonry';
+const columns = blok.columns || 3;
+const bg      = blok.background || 'primary';
+const images: GalleryItem[] = blok.images ?? [];
+---
+
+<section
+  {...storyblokEditable(blok)}
+  class:list={['gallery', `gallery--${layout}`, `gallery--bg-${bg}`]}
+>
+  <div class="gallery__inner">
+    {(blok.eyebrow || blok.headline || blok.body) && (
+      <div class="gallery__header">
+        {blok.eyebrow && <p class="gallery__eyebrow">{blok.eyebrow}</p>}
+        {blok.headline && <h2 class="gallery__headline">{blok.headline}</h2>}
+        {blok.body && <p class="gallery__body">{blok.body}</p>}
+      </div>
+    )}
+
+    <div class:list={['gallery__grid', `gallery__grid--${columns}`]} data-reveal-stagger>
+      {images.map((item) => {
+        const imageUrl = item.image?.filename;
+        if (!imageUrl) return null;
+        const alt = item.alt || item.image?.alt || '';
+
+        return layout === 'grid' ? (
+          <div class="gallery__tile" {...storyblokEditable(item)}>
+            <img
+              {...imageSize(imageUrl, 800, 800)}
+              src={`${imageUrl}/m/800x800/filters:quality(85)`}
+              alt={alt}
+              class="gallery__img"
+              loading="lazy"
+            />
+          </div>
+        ) : (
+          <div class="gallery__tile" {...storyblokEditable(item)}>
+            <img
+              {...imageSize(imageUrl, 800, 0)}
+              src={`${imageUrl}/m/800x0/filters:quality(85)`}
+              alt={alt}
+              class="gallery__img"
+              loading="lazy"
+            />
+          </div>
+        );
+      })}
+    </div>
+  </div>
+</section>
+
+<style>
+  .gallery {
+    padding: var(--p-space-24) var(--p-space-8);
+    background: var(--p-color-bg-primary);
+  }
+
+  .gallery--bg-secondary     { background: var(--p-color-bg-secondary); }
+  .gallery--bg-accent-subtle { background: var(--p-color-bg-accent); }
+
+  .gallery__inner {
+    max-width: var(--p-container-wide);
+    margin: 0 auto;
+  }
+
+  .gallery__header {
+    max-width: var(--p-container-narrow);
+    margin: 0 auto var(--p-space-16);
+    text-align: center;
+  }
+
+  .gallery__eyebrow {
+    font-size: var(--p-font-size-xs);
+    font-weight: var(--p-font-weight-medium);
+    letter-spacing: var(--p-font-tracking-wider);
+    text-transform: uppercase;
+    color: var(--p-color-text-tertiary);
+    margin-bottom: var(--p-space-3);
+  }
+
+  .gallery__headline {
+    font-family: var(--p-font-display);
+    font-size: var(--p-font-size-3xl);
+    font-weight: var(--p-font-weight-semibold);
+    line-height: var(--p-font-leading-tight);
+    color: var(--p-color-text-primary);
+    margin-bottom: var(--p-space-4);
+  }
+
+  .gallery__body {
+    font-size: var(--p-font-size-lg);
+    font-weight: var(--p-font-weight-light);
+    color: var(--p-color-text-secondary);
+    line-height: var(--p-font-leading-relaxed);
+  }
+
+  /* ── Masonry (default) — CSS multi-column, natural aspect ratio ── */
+  .gallery__grid {
+    column-gap: var(--p-space-6);
+  }
+
+  .gallery--masonry .gallery__grid--2 { column-count: 2; }
+  .gallery--masonry .gallery__grid--3 { column-count: 3; }
+  .gallery--masonry .gallery__grid--4 { column-count: 4; }
+
+  .gallery--masonry .gallery__tile {
+    break-inside: avoid;
+    margin-bottom: var(--p-space-6);
+  }
+
+  .gallery--masonry .gallery__img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: var(--p-radius-md);
+  }
+
+  /* ── Grid — uniform square tiles via object-fit ── */
+  .gallery--grid .gallery__grid {
+    display: grid;
+    gap: var(--p-space-6);
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .gallery--grid .gallery__grid--2 { grid-template-columns: repeat(2, 1fr); }
+  .gallery--grid .gallery__grid--3 { grid-template-columns: repeat(3, 1fr); }
+  .gallery--grid .gallery__grid--4 { grid-template-columns: repeat(4, 1fr); }
+
+  .gallery--grid .gallery__tile {
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: var(--p-radius-md);
+  }
+
+  .gallery--grid .gallery__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  @media (max-width: 900px) {
+    .gallery--masonry .gallery__grid--3,
+    .gallery--masonry .gallery__grid--4 {
+      column-count: 2;
+    }
+
+    .gallery--grid .gallery__grid--3,
+    .gallery--grid .gallery__grid--4 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 560px) {
+    .gallery--masonry .gallery__grid--2,
+    .gallery--masonry .gallery__grid--3,
+    .gallery--masonry .gallery__grid--4 {
+      column-count: 1;
+    }
+
+    .gallery--grid .gallery__grid--2,
+    .gallery--grid .gallery__grid--3,
+    .gallery--grid .gallery__grid--4 {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -125,6 +125,29 @@ Legacy nested-block shape, superseded by the `testimonial` content type above. S
 
 ---
 
+## gallery
+
+Headline + paragraph above a grid of images. Two layout modes: `masonry` (default — each image keeps its natural aspect ratio, packed via a CSS multi-column layout, so tile heights vary) and `grid` (every tile cropped to a uniform 1:1 square via `object-fit: cover`, so the grid reads as even rows/columns). No lightbox — images are static, not click-to-enlarge.
+
+| Field name | Type     | Required | Options / Notes                                             |
+|------------|----------|----------|-----------------------------------------------------------------|
+| eyebrow    | Text     | No       |                                                                   |
+| headline   | Text     | No       |                                                                   |
+| body       | Textarea | No       | The paragraph under the headline                                 |
+| images     | Blocks   | No       | Restrict to: gallery_item                                        |
+| layout     | Option   | No       | masonry (default), grid                                          |
+| columns    | Option   | No       | 2, 3 (default), 4                                                 |
+| background | Option   | No       | primary (default), secondary, accent-subtle                      |
+
+### gallery_item (nested block inside gallery)
+
+| Field name | Type  | Required | Notes                                         |
+|------------|-------|----------|-------------------------------------------------|
+| image      | Asset | Yes      |                                                  |
+| alt        | Text  | No       | Overrides the asset's own alt text if set       |
+
+---
+
 ## two_column
 
 | Field name  | Type     | Required | Options / Notes              |

@@ -41,6 +41,7 @@ export default defineConfig({
         feature_grid:  'storyblok/FeatureGrid',
         cta_banner:    'storyblok/CTABanner',
         logo_bar:      'storyblok/LogoBar',
+        gallery:       'storyblok/Gallery',
         testimonials:  'storyblok/TestimonialBlock',
         two_column:    'storyblok/TwoColumn',
         rich_text:     'storyblok/RichText',
