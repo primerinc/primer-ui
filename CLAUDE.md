@@ -179,6 +179,16 @@ const { blok } = Astro.props;
 - Keep component styles scoped (default Astro behavior)
 - Name CSS classes using kebab-case BEM-lite: `.component-name`, `.component-name__element`
 
+### good-css skill (added 2026-10-13)
+
+`.claude/skills/good-css/` is a pinned copy of [vojtaholik/good-css](https://github.com/vojtaholik/good-css) at commit `92d436b` (MIT, licence and source note in the folder). It loads whenever Claude writes or reviews CSS. It covers modern techniques that adapt by themselves instead of using breakpoint ladders, plus accessibility defaults: hover only where hover exists, `:focus-visible` rings, `:active` states, reduced-motion guards, and CMS-safe text and images. Use it, with these overrides:
+
+- **The token rules above win.** The skill says to write colours in `oklch()`. Here, components never contain a colour value at all, only `--p-color-*` tokens. Where good-css and this file disagree, this file is right.
+- **`color-mix()` stays `in srgb`** for now, to match existing components. Switching to `in oklch` is a separate decision, made library-wide or not at all.
+- **Keep the generated fluid scale.** Use `tokens/generate-fluid-scale.js` (Utopia), not the skill's in-browser `pow()` scale. The skill's 2.5× rule does apply: a fluid font size's max should be at most 2.5× its min, for WCAG zoom.
+- **Browser target: the last 2 versions of Chrome, Edge, Firefox and Safari.** Check each entry's `Support:` line against that, and say so when a technique falls outside it. Don't ship it unguarded.
+- **Updating:** re-copy `skills/good-css` from the upstream repo on purpose, and bump the commit above. Don't install it with `npx skills add` (that tracks latest) or with `-g`.
+
 ### Background field pattern
 All section components support a `background` Option field in Storyblok. The pattern is identical across every component:
 
