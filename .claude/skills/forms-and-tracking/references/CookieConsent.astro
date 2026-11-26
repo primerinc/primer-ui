@@ -1,0 +1,412 @@
+---
+/**
+ * CookieConsent
+ * Internal helper rendered by BaseLayout, not a Storyblok block. Turned on by
+ * the config story's `cookie_banner_enabled`; `cookie_message` and
+ * `cookie_policy_link` supply its copy and link.
+ *
+ * Works with Google Consent Mode v2. BaseLayout sets every tracking signal to
+ * "denied" before GTM loads (and replays a saved choice from consentHeadScript
+ * below), so nothing that respects consent sets cookies until a visitor says
+ * yes. This panel only records the choice and tells Google about it.
+ *
+ * - Necessary: always on (security_storage, functionality_storage).
+ * - Analytics: analytics_storage.
+ * - Marketing: ad_storage, ad_user_data, ad_personalization.
+ *
+ * Accept and Reject sit side by side at the same size, as the UK ICO and EU
+ * regulators expect. The choice is kept in localStorage for 180 days, then
+ * the panel asks again. Any link to `#cookie-settings`, or any element with
+ * `data-cookie-settings`, reopens it (the footer's "Cookie settings" link).
+ *
+ * Which tags wait for which signal is set in the GTM container itself. GA4
+ * and Google Ads tags read Consent Mode on their own; other tags need
+ * "Additional consent checks" set in GTM.
+ */
+import { linkHref } from '../lib/storyblok-link';
+
+interface Props {
+  text?: string;
+  policyLink?: { url?: string; cached_url?: string; linktype?: string } | null;
+}
+
+const { text, policyLink } = Astro.props;
+const body = text?.trim()
+  || 'We use cookies to keep this site working and, with your permission, to understand how it is used and to measure our marketing.';
+const policyHref = linkHref(policyLink) || '/privacy-policy';
+---
+
+<section
+  class="cookie-consent"
+  id="cookie-consent"
+  aria-labelledby="cookie-consent-title"
+  hidden
+  transition:persist="cookie-consent"
+>
+  <h2 class="cookie-consent__title" id="cookie-consent-title">Cookies on this site</h2>
+  <p class="cookie-consent__body">
+    {body} <a href={policyHref} class="cookie-consent__link">Read our privacy policy</a>
+  </p>
+
+  <form class="cookie-consent__prefs" id="cookie-consent-prefs" hidden>
+    <fieldset class="cookie-consent__fieldset">
+      <legend class="cookie-consent__legend">Choose which cookies to allow</legend>
+
+      <label class="cookie-consent__option">
+        <span class="cookie-consent__option-text">
+          <span class="cookie-consent__option-name">Necessary</span>
+          <span class="cookie-consent__option-desc">Needed for the site to work. Always on.</span>
+        </span>
+        <input type="checkbox" class="cookie-consent__switch" checked disabled />
+      </label>
+
+      <label class="cookie-consent__option">
+        <span class="cookie-consent__option-text">
+          <span class="cookie-consent__option-name">Analytics</span>
+          <span class="cookie-consent__option-desc">Show us which pages people visit, so we can improve them.</span>
+        </span>
+        <input type="checkbox" class="cookie-consent__switch" name="analytics" role="switch" />
+      </label>
+
+      <label class="cookie-consent__option">
+        <span class="cookie-consent__option-text">
+          <span class="cookie-consent__option-name">Marketing</span>
+          <span class="cookie-consent__option-desc">Measure our ads and show relevant ones on other sites.</span>
+        </span>
+        <input type="checkbox" class="cookie-consent__switch" name="marketing" role="switch" />
+      </label>
+    </fieldset>
+  </form>
+
+  <div class="cookie-consent__actions">
+    <button type="button" class="cookie-consent__btn cookie-consent__btn--primary" data-consent="all">Accept all</button>
+    <button type="button" class="cookie-consent__btn cookie-consent__btn--primary" data-consent="none">Reject all</button>
+    <button type="button" class="cookie-consent__btn cookie-consent__btn--text" data-consent="manage" aria-expanded="false" aria-controls="cookie-consent-prefs">Manage choices</button>
+    <button type="button" class="cookie-consent__btn cookie-consent__btn--secondary" data-consent="save" hidden>Save choices</button>
+  </div>
+</section>
+
+<script>
+  const KEY = 'forte-consent';
+  const VERSION = 1;
+  const MAX_AGE = 180 * 24 * 60 * 60 * 1000; // ask again after 180 days
+
+  type Choice = { analytics: boolean; marketing: boolean };
+
+  function read(): Choice | null {
+    try {
+      const c = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if (c && c.v === VERSION && Date.now() - c.at < MAX_AGE) return { analytics: !!c.analytics, marketing: !!c.marketing };
+    } catch { /* storage blocked: ask every visit */ }
+    return null;
+  }
+
+  function signals({ analytics, marketing }: Choice) {
+    const s = (on: boolean) => (on ? 'granted' : 'denied');
+    return {
+      analytics_storage: s(analytics),
+      ad_storage: s(marketing),
+      ad_user_data: s(marketing),
+      ad_personalization: s(marketing),
+    };
+  }
+
+  function save(choice: Choice) {
+    try {
+      localStorage.setItem(KEY, JSON.stringify({ v: VERSION, at: Date.now(), ...choice }));
+    } catch { /* still applies for this page view */ }
+    const w = window as unknown as { gtag?: (...a: unknown[]) => void; dataLayer?: unknown[] };
+    w.gtag?.('consent', 'update', signals(choice));
+    // A GTM trigger can listen for this to fire tags straight after a yes
+    (w.dataLayer ||= []).push({ event: 'consent_update', consent_analytics: choice.analytics, consent_marketing: choice.marketing });
+  }
+
+  function setUp() {
+    const panel = document.getElementById('cookie-consent');
+    if (!panel || panel.dataset.ready) return;
+    panel.dataset.ready = 'true';
+
+    const prefs = panel.querySelector<HTMLFormElement>('#cookie-consent-prefs')!;
+    const manage = panel.querySelector<HTMLButtonElement>('[data-consent="manage"]')!;
+    const saveBtn = panel.querySelector<HTMLButtonElement>('[data-consent="save"]')!;
+    const box = (name: string) => prefs.querySelector<HTMLInputElement>(`[name="${name}"]`)!;
+    let opener: HTMLElement | null = null;
+
+    const showPrefs = (on: boolean) => {
+      prefs.hidden = !on;
+      saveBtn.hidden = !on;
+      manage.hidden = on;
+      manage.setAttribute('aria-expanded', String(on));
+    };
+
+    const open = (withPrefs: boolean, from?: HTMLElement) => {
+      const c = read();
+      box('analytics').checked = c?.analytics ?? false;
+      box('marketing').checked = c?.marketing ?? false;
+      showPrefs(withPrefs);
+      panel.hidden = false;
+      requestAnimationFrame(() => panel.classList.add('is-open'));
+      if (from) {
+        opener = from;
+        panel.querySelector<HTMLElement>(withPrefs ? '[name="analytics"]' : '[data-consent="all"]')?.focus();
+      }
+    };
+
+    const close = (choice: Choice) => {
+      save(choice);
+      panel.classList.remove('is-open');
+      const done = () => { if (!panel.classList.contains('is-open')) panel.hidden = true; };
+      matchMedia('(prefers-reduced-motion: reduce)').matches ? done() : setTimeout(done, 300);
+      opener?.focus();
+      opener = null;
+    };
+
+    panel.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-consent]');
+      if (!btn) return;
+      const action = btn.dataset.consent;
+      if (action === 'all') close({ analytics: true, marketing: true });
+      else if (action === 'none') close({ analytics: false, marketing: false });
+      else if (action === 'save') close({ analytics: box('analytics').checked, marketing: box('marketing').checked });
+      else if (action === 'manage') { showPrefs(true); box('analytics').focus(); }
+    });
+
+    // Escape only closes the settings view a visitor reopened; a first-time
+    // visitor still has to choose
+    panel.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && read()) {
+        panel.classList.remove('is-open');
+        panel.hidden = true;
+        opener?.focus();
+      }
+    });
+
+    // Footer "Cookie settings" link, or anything marked data-cookie-settings.
+    // Capture phase, so Astro's router never treats it as an in-page jump.
+    document.addEventListener('click', (e) => {
+      const trigger = (e.target as HTMLElement).closest<HTMLElement>('a[href$="#cookie-settings"], [data-cookie-settings]');
+      if (!trigger) return;
+      e.preventDefault();
+      e.stopPropagation();
+      open(true, trigger);
+    }, true);
+
+    if (!read()) open(false);
+  }
+
+  setUp();
+</script>
+
+<style>
+  .cookie-consent {
+    position: fixed;
+    inset-block-end: var(--p-space-6);
+    inset-inline-start: var(--p-space-6);
+    z-index: 110; /* above the sticky header (100) */
+    inline-size: min(28rem, calc(100vw - 2 * var(--p-space-6))); /* 448px */
+    max-block-size: calc(100dvh - 2 * var(--p-space-6));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: var(--p-space-6);
+    border: var(--p-border-width-default) solid var(--p-color-border-subtle);
+    border-radius: var(--p-radius-card);
+    background: var(--p-color-bg-primary);
+    box-shadow: var(--p-shadow-modal);
+    color: var(--p-color-text-primary);
+    font-family: var(--p-font-body);
+  }
+
+  .cookie-consent[hidden] { display: none; }
+
+  .cookie-consent__title {
+    margin: 0 0 var(--p-space-2);
+    font-family: var(--p-font-display);
+    font-size: var(--p-font-size-lg);
+    font-weight: var(--p-type-heading-weight);
+    line-height: var(--p-font-leading-tight);
+    color: var(--p-type-heading-color);
+  }
+
+  .cookie-consent__body {
+    margin: 0;
+    font-size: var(--p-type-body-sm-size);
+    line-height: var(--p-type-style-body-sm-line-height);
+    letter-spacing: var(--p-type-style-body-sm-letter-spacing);
+    color: var(--p-color-text-secondary);
+    text-wrap: pretty;
+  }
+
+  .cookie-consent__link {
+    color: var(--p-color-text-link);
+    text-decoration: underline;
+    text-underline-offset: 0.1875rem; /* 3px */
+  }
+
+  .cookie-consent__link:hover { color: var(--p-color-text-link-hover); }
+
+  /* ── Choices ──────────────────────────────────────────────────── */
+  .cookie-consent__prefs { margin-block-start: var(--p-space-5); }
+  .cookie-consent__prefs[hidden] { display: none; }
+
+  .cookie-consent__fieldset {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .cookie-consent__legend {
+    padding: 0;
+    margin-block-end: var(--p-space-2);
+    font-size: var(--p-type-body-sm-size);
+    font-weight: var(--p-font-weight-semibold);
+    color: var(--p-color-text-primary);
+  }
+
+  .cookie-consent__option {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--p-space-4);
+    padding-block: var(--p-space-3);
+    border-block-start: var(--p-border-width-default) solid var(--p-color-border-subtle);
+    cursor: pointer;
+  }
+
+  .cookie-consent__option:has(:disabled) { cursor: default; }
+
+  .cookie-consent__option-text {
+    display: grid;
+    gap: var(--p-space-1);
+  }
+
+  .cookie-consent__option-name {
+    font-size: var(--p-type-body-sm-size);
+    font-weight: var(--p-font-weight-semibold);
+  }
+
+  .cookie-consent__option-desc {
+    font-size: var(--p-font-size-xs);
+    line-height: var(--p-type-style-body-sm-line-height);
+    color: var(--p-color-text-secondary);
+  }
+
+  /* A checkbox drawn as a switch: 40 × 24, knob slides right when on */
+  .cookie-consent__switch {
+    appearance: none;
+    position: relative;
+    inline-size: 2.5rem;  /* 40px */
+    block-size: 1.5rem;   /* 24px */
+    margin: 0;
+    border-radius: var(--p-radius-full);
+    background: var(--p-color-border-strong);
+    cursor: inherit;
+    transition: background-color var(--p-motion-hover) var(--p-motion-ease);
+  }
+
+  .cookie-consent__switch::after {
+    content: '';
+    position: absolute;
+    inset-block-start: 0.1875rem;   /* 3px */
+    inset-inline-start: 0.1875rem;
+    inline-size: 1.125rem;          /* 18px */
+    block-size: 1.125rem;
+    border-radius: var(--p-radius-full);
+    background: var(--p-color-bg-primary);
+    box-shadow: var(--p-shadow-xs);
+    transition: translate var(--p-motion-base) var(--p-motion-ease);
+  }
+
+  .cookie-consent__switch:checked { background: var(--p-color-button-primary-bg); }
+  .cookie-consent__switch:checked::after { translate: 1rem 0; } /* 16px */
+  .cookie-consent__switch:disabled { opacity: 0.5; }
+
+  .cookie-consent__switch:focus-visible {
+    outline: var(--p-border-width-focus) solid var(--p-color-border-focus);
+    outline-offset: var(--p-border-width-focus);
+  }
+
+  /* ── Buttons ──────────────────────────────────────────────────── */
+  .cookie-consent__actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--p-space-3);
+    margin-block-start: var(--p-space-5);
+  }
+
+  .cookie-consent__btn {
+    padding:
+      calc(var(--p-space-3) - var(--p-border-width-default))
+      var(--p-space-4);
+    border: var(--p-border-width-default) solid transparent;
+    border-radius: var(--p-radius-button);
+    font-family: var(--p-font-body);
+    font-size: var(--p-font-size-md);
+    font-weight: var(--p-font-weight-medium);
+    line-height: var(--p-type-style-label-md-line-height);
+    cursor: pointer;
+    transition:
+      background-color var(--p-motion-hover) var(--p-motion-ease),
+      border-color var(--p-motion-hover) var(--p-motion-ease),
+      color var(--p-motion-hover) var(--p-motion-ease);
+  }
+
+  .cookie-consent__btn[hidden] { display: none; }
+
+  .cookie-consent__btn:focus-visible {
+    outline: var(--p-border-width-focus) solid var(--p-color-border-focus);
+    outline-offset: var(--p-border-width-focus);
+  }
+
+  .cookie-consent__btn:active { scale: 0.97; }
+
+  /* Accept and Reject: same fill, same size, so neither is the easy option */
+  .cookie-consent__btn--primary {
+    background: var(--p-color-button-primary-bg);
+    color: var(--p-color-text-on-accent);
+  }
+
+  .cookie-consent__btn--secondary {
+    grid-column: 1 / -1;
+    background: var(--p-color-bg-primary);
+    color: var(--p-color-button-secondary-text);
+    border-color: var(--p-color-button-secondary-border);
+  }
+
+  .cookie-consent__btn--text {
+    grid-column: 1 / -1;
+    justify-self: center;
+    padding-block: var(--p-space-1);
+    background: transparent;
+    color: var(--p-color-text-primary);
+    text-decoration: underline;
+    text-underline-offset: 0.1875rem; /* 3px */
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .cookie-consent__btn--primary:hover { background: var(--p-color-accent-hover); }
+    .cookie-consent__btn--secondary:hover { border-color: var(--p-color-border-hover); }
+    .cookie-consent__btn--text:hover { color: var(--p-color-text-link-hover); }
+  }
+
+  /* ── Motion ───────────────────────────────────────────────────── */
+  @media (prefers-reduced-motion: no-preference) {
+    .cookie-consent {
+      opacity: 0;
+      translate: 0 var(--p-space-4);
+      transition:
+        opacity var(--p-motion-duration-slow) var(--p-motion-ease),
+        translate var(--p-motion-duration-slow) var(--p-motion-ease);
+    }
+    .cookie-consent.is-open { opacity: 1; translate: 0 0; }
+  }
+
+  /* Phones: a sheet along the bottom edge */
+  @media (max-width: 480px) {
+    .cookie-consent {
+      inset-inline: var(--p-space-3);
+      inset-block-end: var(--p-space-3);
+      inline-size: auto;
+      padding: var(--p-space-5);
+    }
+  }
+</style>

@@ -1,0 +1,15 @@
+# Launch: the old domain. Once energysys.com (and www.) are added to this site
+# as domain aliases, every old URL 301s to the same path on forteplatform.com,
+# where src/middleware.ts maps old WordPress paths to new pages (Storyblok ›
+# Datasources › Redirects). These rules do nothing until the DNS points here.
+[[redirects]]
+  from = "https://energysys.com/*"
+  to = "https://forteplatform.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://www.energysys.com/*"
+  to = "https://forteplatform.com/:splat"
+  status = 301
+  force = true

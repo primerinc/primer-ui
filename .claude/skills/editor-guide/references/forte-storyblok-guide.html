@@ -1,0 +1,698 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forte Storyblok Guide</title>
+<meta name="description" content="The Forte team's guide to the website and its Storyblok space: every page, the site settings, the section blocks, resources, testimonials, images, forms, SEO, redirects and publishing.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:      #f5f1e8;
+    --paper-2:    #efe9db;
+    --card:       #fbf9f4;
+    --ink:        #1c1a16;
+    --ink-soft:   #4a463d;
+    --ink-faint:  #8a8475;
+    --accent:     #b5482b;
+    --rule:       #d8d0bf;
+
+    --font-body:  "IBM Plex Sans", system-ui, sans-serif;
+    --font-mono:  "IBM Plex Mono", ui-monospace, monospace;
+
+    --measure: 960px;
+    --radius:  6px;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .bar {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    padding: 0.7rem clamp(1rem, 4vw, 3rem);
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .bar__brand { display: flex; flex-direction: column; }
+  .bar__wordmark { font-size: 1.125rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; }
+  .bar__sub { font-size: 0.6875rem; font-weight: 300; letter-spacing: 0.1em; color: var(--ink-faint); margin-top: 2px; }
+  .bar__print {
+    font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink-soft);
+    background: none; border: 0; padding: 0; cursor: pointer;
+  }
+  .bar__print:hover { color: var(--accent); }
+
+  main { max-width: var(--measure); margin: 0 auto; padding: 0 clamp(1rem, 5vw, 2rem) 3rem; }
+
+  .hero { padding: clamp(2.5rem, 7vw, 4.5rem) 0 2rem; }
+  .eyebrow {
+    font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--accent); margin: 0 0 1rem;
+  }
+  h1 {
+    font-weight: 600; font-size: clamp(2rem, 5.5vw, 3rem); line-height: 1.05;
+    letter-spacing: -0.02em; margin: 0 0 1rem; text-wrap: balance;
+  }
+  .lede { font-size: clamp(1.02rem, 2vw, 1.18rem); color: var(--ink-soft); max-width: 62ch; margin: 0; }
+
+  .facts {
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px;
+    background: var(--rule); border: 1px solid var(--rule); border-radius: var(--radius);
+    overflow: hidden; margin: 0 0 2rem;
+  }
+  .facts > div { background: var(--card); padding: 1.1rem 1.2rem; }
+  .facts b { display: block; font-weight: 600; margin-bottom: 0.25rem; }
+  .facts p { margin: 0; color: var(--ink-soft); font-size: 0.93rem; }
+
+  /* Contents */
+  .toc { margin: 0 0 2.4rem; }
+  .toc ol {
+    list-style: none; margin: 0; padding: 0; counter-reset: toc;
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 2rem;
+  }
+  .toc li { counter-increment: toc; padding: 0.35rem 0; border-bottom: 1px solid var(--rule); font-size: 0.93rem; }
+  .toc li::before { content: counter(toc, decimal-leading-zero); font-family: var(--font-mono); font-size: 0.72rem; color: var(--accent); margin-right: 0.6rem; }
+  .toc a { color: var(--ink); text-decoration: none; }
+  .toc a:hover { color: var(--accent); }
+
+  section { border-top: 1px solid var(--rule); padding: 2rem 0; }
+  .sec-head { display: flex; align-items: baseline; gap: 0.9rem; margin-bottom: 1rem; }
+  .sec-num { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.16em; color: var(--accent); }
+  h2 { font-weight: 600; font-size: clamp(1.35rem, 3vw, 1.7rem); line-height: 1.15; letter-spacing: -0.01em; margin: 0; }
+  h3 { font-size: 1.05rem; font-weight: 600; margin: 1.4rem 0 0.6rem; }
+  .sec-intro { color: var(--ink-soft); max-width: 70ch; }
+  p { margin: 0 0 0.9rem; }
+  strong { font-weight: 600; }
+  a { color: var(--accent); text-underline-offset: 3px; }
+
+  .pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2rem; margin-top: 0.4rem; }
+  .task { background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); padding: 1.3rem 1.4rem; }
+  .task h3 { margin: 0 0 0.9rem; }
+  .task p { font-size: 0.95rem; color: var(--ink-soft); }
+  .task p:last-child { margin-bottom: 0; }
+
+  ol.steps { list-style: none; counter-reset: step; margin: 0; padding: 0; }
+  ol.steps li { counter-increment: step; position: relative; padding: 0 0 0.75rem 2.1rem; font-size: 0.95rem; }
+  ol.steps li:last-child { padding-bottom: 0; }
+  ol.steps li::before {
+    content: counter(step);
+    position: absolute; left: 0; top: 0.1rem;
+    width: 1.45rem; height: 1.45rem; border-radius: 50%;
+    background: var(--ink); color: var(--paper);
+    font-family: var(--font-mono); font-size: 0.72rem; font-weight: 500;
+    display: grid; place-items: center;
+  }
+
+  .ui {
+    font-family: var(--font-mono); font-size: 0.82em; white-space: nowrap;
+    background: var(--paper-2); border: 1px solid var(--rule); border-radius: 4px;
+    padding: 0.05em 0.4em; color: var(--ink);
+  }
+  code { font-family: var(--font-mono); font-size: 0.85em; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.93rem; margin: 0.2rem 0 0.4rem; }
+  th, td { text-align: left; vertical-align: top; padding: 0.6rem 0.8rem 0.6rem 0; border-bottom: 1px solid var(--rule); }
+  th { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); font-weight: 500; }
+  td:first-child { font-weight: 600; width: 11rem; }
+  td { color: var(--ink-soft); }
+  td:first-child { color: var(--ink); }
+  tr:last-child td { border-bottom: 0; }
+  td.where { white-space: nowrap; font-family: var(--font-mono); font-size: 0.82em; }
+  td small { display: block; color: var(--ink-faint); margin-top: 2px; }
+  tr.group td { padding-top: 1rem; font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); font-weight: 500; }
+
+  .state { font-family: var(--font-mono); font-size: 0.72rem; white-space: nowrap; }
+  .state--draft { color: var(--accent); }
+
+  .options { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.2rem; }
+  .option { border-top: 2px solid var(--ink); padding-top: 0.8rem; }
+  .option--warn { border-top-color: var(--accent); }
+  .option h3 { margin: 0 0 0.35rem; font-size: 1rem; }
+  .option p { margin: 0; font-size: 0.93rem; color: var(--ink-soft); }
+
+  ul.tips { margin: 0; padding: 0; list-style: none; columns: 2; column-gap: 2rem; }
+  ul.tips li { break-inside: avoid; padding: 0 0 0.7rem 1.1rem; position: relative; font-size: 0.93rem; color: var(--ink-soft); }
+  ul.tips li::before { content: ""; position: absolute; left: 0; top: 0.6em; width: 0.4rem; height: 0.4rem; background: var(--accent); }
+  ul.tips strong { color: var(--ink); }
+  ul.tips.one { columns: 1; }
+
+  ul.links {
+    list-style: none; margin: 0; padding: 0;
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 2rem;
+  }
+  ul.links li { padding: 0.55rem 0; border-bottom: 1px solid var(--rule); break-inside: avoid; }
+  ul.links a { font-weight: 600; text-decoration: none; }
+  ul.links a::after { content: " ↗"; font-weight: 400; }
+  ul.links span { display: block; font-size: 0.9rem; color: var(--ink-soft); }
+
+  .note {
+    margin-top: 1.2rem; padding: 0.9rem 1.1rem; border-radius: var(--radius);
+    border: 1px solid var(--accent); background: color-mix(in srgb, var(--accent) 6%, var(--paper));
+    font-size: 0.93rem;
+  }
+  .note p { margin: 0; }
+  .note p + p { margin-top: 0.5rem; }
+
+  footer {
+    border-top: 1px solid var(--rule); padding: 1.6rem 0 0; color: var(--ink-faint);
+    font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.04em;
+    display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  }
+
+  @media (max-width: 720px) {
+    .facts, .pair, .options, .toc ol { grid-template-columns: minmax(0, 1fr); }
+    ul.tips { columns: 1; }
+    ul.links { grid-template-columns: minmax(0, 1fr); }
+    td:first-child { width: 7rem; }
+    td.where { white-space: normal; }
+  }
+
+  @media print {
+    @page { margin: 12mm 14mm 14mm; }
+    body { background: #fff; font-size: 9pt; line-height: 1.45; }
+    .bar { position: static; backdrop-filter: none; background: none; padding: 0 0 5pt; }
+    .bar__print { display: none; }
+    main { max-width: none; padding: 0; }
+    .hero { padding: 14pt 0 12pt; }
+    h1 { font-size: 24pt; }
+    .lede { font-size: 10.5pt; }
+    .facts > div, .task { background: #fff; padding: 8pt 10pt; }
+    .facts p, ol.steps li, table, .option p, ul.tips li, .note, .task p, .toc li { font-size: 9pt; }
+    .toc { margin-bottom: 0; }
+    .toc li { padding: 2.5pt 0; }
+    section { padding: 12pt 0; }
+    section.first { break-before: page; border-top: 0; }
+    h2 { font-size: 14pt; }
+    h3 { font-size: 10.5pt; margin: 10pt 0 5pt; }
+    .sec-head, h3 { break-after: avoid; }
+    .sec-intro, tr.group, tr.group td { break-after: avoid; page-break-after: avoid; }
+    th, td { padding: 4pt 8pt 4pt 0; }
+    tr, .task, .option, ul.tips li, .note, ul.links li { break-inside: avoid; }
+    thead { display: table-header-group; }
+    a { color: inherit; text-decoration: none; }
+    .toc a { color: var(--ink); }
+    ul.links { grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 14pt; }
+    ul.links li { padding: 3pt 0; }
+    ul.links a::after { content: attr(data-url); display: block; font-weight: 400; font-family: var(--font-mono); font-size: 7pt; color: var(--ink-faint); overflow-wrap: anywhere; }
+    ul.links span { font-size: 8pt; }
+    td small { font-size: 8pt; }
+    footer { padding-top: 8pt; font-size: 7.5pt; }
+  }
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="bar__brand">
+    <span class="bar__wordmark">Primer</span>
+    <span class="bar__sub">Forte website · Storyblok guide</span>
+  </div>
+  <button class="bar__print" type="button" onclick="window.print()">Print or save as PDF</button>
+</header>
+
+<main>
+  <div class="hero">
+    <p class="eyebrow">Forte · Website and Storyblok guide</p>
+    <h1>Running the Forte website in Storyblok</h1>
+    <p class="lede">Everything on the Forte site comes from its Storyblok space: the pages, the menu and footer, the resources, the testimonials, the images and the redirects. This guide covers how the space is set up, what each page and section is for, and how to add, change and take down content without breaking anything.</p>
+  </div>
+
+  <div class="facts">
+    <div>
+      <b>Storyblok holds the content</b>
+      <p>The site reads Storyblok each time a page is visited. A published change shows within a minute or two, with no rebuild or deploy.</p>
+    </div>
+    <div>
+      <b>Pages are stacks of sections</b>
+      <p>Each page is a list of section blocks (Hero, Feature Grid, Two Column…). Add, reorder or remove them; the design and spacing come with each block.</p>
+    </div>
+    <div>
+      <b>Code holds the look</b>
+      <p>Colours, fonts, layouts, animated illustrations and the choices offered in each block's settings live in the code. Ask Primer to change those (see 14).</p>
+    </div>
+  </div>
+
+  <nav class="toc" aria-label="Contents">
+    <ol>
+      <li><a href="#space">Finding your way around</a></li>
+      <li><a href="#pages">Every page on the site</a></li>
+      <li><a href="#settings">Menu, footer and site settings</a></li>
+      <li><a href="#building">Editing and adding pages</a></li>
+      <li><a href="#blocks">The section blocks</a></li>
+      <li><a href="#resources">Resources</a></li>
+      <li><a href="#add-resource">Adding and editing a resource</a></li>
+      <li><a href="#testimonials">Testimonials</a></li>
+      <li><a href="#images">Images, logos, icons, illustrations</a></li>
+      <li><a href="#forms">Forms and HubSpot</a></li>
+      <li><a href="#seo">SEO and search</a></li>
+      <li><a href="#redirects">Redirects</a></li>
+      <li><a href="#publishing">Publishing, history and removing</a></li>
+      <li><a href="#primer">What to ask Primer for</a></li>
+      <li><a href="#launch">Before launch</a></li>
+      <li><a href="#habits">Good habits</a></li>
+      <li><a href="#more">Learn more</a></li>
+    </ol>
+  </nav>
+
+  <!-- 01 -->
+  <section id="space" class="first">
+    <div class="sec-head"><span class="sec-num">01</span><h2>Finding your way around the space</h2></div>
+    <p class="sec-intro">Sign in at <strong>app.storyblok.com</strong> and open the <strong>Forte</strong> space. The menu on the left has four areas you'll use.</p>
+    <table>
+      <thead><tr><th>Area</th><th>What's in it</th></tr></thead>
+      <tbody>
+        <tr><td>Content</td><td>Every page, as a "story", in folders that match the site's addresses (see the table below). Click a story to open it in the Visual Editor: the page on the left, the selected section's fields on the right.</td></tr>
+        <tr><td>Assets</td><td>Every uploaded image, logo, icon and file. Folders: <span class="ui">Blog (migrated from WordPress)</span>, <span class="ui">Team</span> and <span class="ui">Block previews (editor only)</span>; everything else sits at the top level. Alt text set here is the default wherever the image is used.</td></tr>
+        <tr><td>Datasources</td><td><span class="ui">Redirects</span>: the list of old addresses and where they now go (see 12).</td></tr>
+        <tr><td>Block library</td><td>The section blocks and their fields. Look, don't change: renaming or removing a field here breaks the pages that use it. Ask Primer for changes.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>The folders in Content</h3>
+    <table>
+      <thead><tr><th>Folder</th><th>Holds</th><th>Address on the site</th></tr></thead>
+      <tbody>
+        <tr><td>(top level)</td><td>The main pages: Home, Platform, Why Forte?, Pricing, About, Careers, the three resource listings, Get Started, Contact, Support Center and the legal pages</td><td class="where">/<i>slug</i> (Home is /)</td></tr>
+        <tr><td>Use Cases</td><td>The six use case pages</td><td class="where">/use-cases/<i>slug</i></td></tr>
+        <tr><td>Partners</td><td>The Partners page (the folder's start page) and the 10 partner pages</td><td class="where">/partners<br>/partners/<i>slug</i></td></tr>
+        <tr><td>Posts</td><td>The other resources: Learning Hub articles, Success Stories, White Papers and job listings</td><td class="where">/posts/<i>slug</i></td></tr>
+        <tr><td>Testimonials</td><td>One story per quote, picked by the Testimonials sections (see 08)</td><td class="where">not a page</td></tr>
+        <tr><td>Templates &amp; archive</td><td>Page templates to copy (Get Started, Become a Partner, Competitor vs. Forte) and retired pages kept for reference</td><td class="where">hidden from search</td></tr>
+        <tr><td>Config</td><td>The one "Site Settings" story: header, menu, footer and tracking (see 03)</td><td class="where">every page</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Helpers already set up</h3>
+    <ul class="tips">
+      <li><strong>Preview.</strong> The Visual Editor previews on forte-primer.netlify.app, the pre-launch site. Primer also has a local preview it uses while building; you won't need it.</li>
+      <li><strong>Workflow stages.</strong> Each story can be marked <span class="ui">Drafting</span>, <span class="ui">Reviewing</span> or <span class="ui">Ready to Publish</span>, so the team can see where a page is. They're labels only: they don't publish anything.</li>
+      <li><strong>Tags.</strong> Posts are tagged by type (Success story, White paper, Learning Hub, Job, Partner) and topic (such as Cloud Platform or Oil &amp; Gas). To see one type at a time, like a category in WordPress, open <span class="ui">Content</span> › <span class="ui">Posts</span>, use the filter above the list and pick a tag. A duplicated post keeps its tags; check them when you change its Resource type. The site itself doesn't read tags.</li>
+      <li><strong>[PLACEHOLDER] in a name</strong> marks a story with stand-in content, such as the sample job listings and three sample testimonials. Replace or delete it before launch.</li>
+      <li><strong>Help text.</strong> Most fields show a short hint under them, including Arnie's suggested lengths. They're guides, not hard limits.</li>
+    </ul>
+  </section>
+
+  <!-- 02 -->
+  <section id="pages">
+    <div class="sec-head"><span class="sec-num">02</span><h2>Every page on the site</h2></div>
+    <p class="sec-intro">The sections are listed top to bottom. Every page here was published on 18 November 2026. The preview site shows the latest saved draft; the live site at launch shows only what's published, so publish a page once its changes are ready. Posts and partner pages aren't published yet: Forte decides which go live.</p>
+    <table>
+      <thead><tr><th>Page</th><th>Address</th><th>Sections</th><th>State</th></tr></thead>
+      <tbody>
+        <tr class="group"><td colspan="4">Main pages</td></tr>
+        <tr><td>Home</td><td class="where">/</td><td>Hero, customer Logo Bar, Feature Grid, a second Hero as a section intro, four Two Columns, Feature Grid, CTA Banner, FAQ, Card Grid, Testimonials, CTA Banner</td><td class="state">Published</td></tr>
+        <tr><td>Platform</td><td class="where">/platform</td><td>Hero, Feature Grid, Two Column, Feature Grid, CTA Banner, three Two Columns, FAQ, Card Grid, Testimonials, CTA Banner<small>The Platform menu links jump to sections here by their Anchor ID (#partnership, #security, #ai-integration, #why-paas, #features).</small></td><td class="state">Published</td></tr>
+        <tr><td>Why Forte?</td><td class="where">/why-forte</td><td>Hero, Feature Grid, Two Column, Video (an animated illustration), Card Grid, Testimonials, CTA Banner</td><td class="state">Published</td></tr>
+        <tr><td>Pricing</td><td class="where">/pricing</td><td>Hero, two Two Columns, Video (the pricing infographic, as an image), FAQ, Testimonials, CTA Banner</td><td class="state">Published</td></tr>
+        <tr><td>Partners</td><td class="where">/partners</td><td>Hero, two Two Columns, the Become a Partner Contact Form, partner Logo Bar, Feature Grid, Resource List (six hand-picked partners), Feature Grid ("See Our Partners in Action", filled from the partner pages), FAQ, Card Grid, Testimonials, CTA Banner<small>Every "Become a Partner" button links to /partners#become-a-partner, the form's Anchor ID.</small></td><td class="state">Published</td></tr>
+        <tr><td>About</td><td class="where">/about</td><td>Hero, Two Column, Team, CTA Banner, Feature Grid, Testimonials (employee quotes), CTA Banner</td><td class="state">Published</td></tr>
+        <tr><td>Careers</td><td class="where">/careers</td><td>Hero, Resource List (jobs, with dates), Feature Grid, Testimonials (employee quotes)</td><td class="state">Published</td></tr>
+        <tr class="group"><td colspan="4">Use cases (folder: Use Cases)</td></tr>
+        <tr><td>Emissions Management, LNG, Pipeline Operations, Marine &amp; Cargo Management</td><td class="where">/use-cases/…</td><td>All six share one layout: Hero, Feature Grid, Two Column, Testimonials, CTA Banner, FAQ, Card Grid, CTA Banner</td><td class="state">Published</td></tr>
+        <tr><td>Hydrocarbon Accounting, Terminal Operations</td><td class="where">/use-cases/…</td><td>Same layout; added later from the copy doc, with placeholder images</td><td class="state">Published</td></tr>
+        <tr class="group"><td colspan="4">Resource listings (see 06)</td></tr>
+        <tr><td>Learning Hub, Success Stories, White Papers</td><td class="where">/learning-hub<br>/success-stories<br>/white-papers</td><td>Hero, Resource List, CTA Banner. Each list fills itself from the posts of its type</td><td class="state">Published</td></tr>
+        <tr class="group"><td colspan="4">Forms</td></tr>
+        <tr><td>Get Started</td><td class="where">/get-started</td><td>Contact Form (two-step, the page's heading), Hero used as a product screenshot band, customer Logo Bar, Feature Grid, FAQ, Testimonials</td><td class="state">Published</td></tr>
+        <tr><td>Contact</td><td class="where">/contact</td><td>Contact Form (the page's heading), Feature Grid (office addresses), Testimonials, CTA Banner</td><td class="state">Published</td></tr>
+        <tr><td>Support Center</td><td class="where">/support-center</td><td>Hero, Contact Form, three Two Columns, FAQ<small>Not reachable yet: a redirect sends /support-center to /contact. Delete that redirect when this page is ready.</small></td><td class="state">Published</td></tr>
+        <tr class="group"><td colspan="4">Legal</td></tr>
+        <tr><td>Privacy Policy, Terms &amp; Conditions</td><td class="where">/privacy-policy<br>/terms-and-conditions</td><td>Hero, Article Layout with an automatic table of contents<small>The Privacy Policy still names the legal entity EnergySys Limited. Confirm the wording with Forte's legal team.</small></td><td class="state">Published</td></tr>
+        <tr class="group"><td colspan="4">Built in code (not in Storyblok)</td></tr>
+        <tr><td>All resources</td><td class="where">/resources<br>/resources/<i>type</i></td><td>Automatic archive of every Learning Hub article, Success Story and White Paper, newest first. Linked from the Resources menu</td><td class="state">Live</td></tr>
+        <tr><td>Style guide</td><td class="where">/style-guide</td><td>Forte's colours, type and logo rules. Hidden from search and the menu</td><td class="state">Live</td></tr>
+        <tr><td>Not found, sitemap, robots</td><td class="where">/404<br>/sitemap.xml<br>/robots.txt</td><td>The "page not found" page; the sitemap and search-engine rules, both automatic</td><td class="state">Live</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 03 -->
+  <section id="settings">
+    <div class="sec-head"><span class="sec-num">03</span><h2>Menu, footer and site settings</h2></div>
+    <p class="sec-intro">The header, menu, footer and tracking codes are set once, in <span class="ui">Content</span> › <span class="ui">Config</span>, and appear on every page. Publish Config after a change, like any other story.</p>
+
+    <table>
+      <thead><tr><th>Part</th><th>What you can change</th></tr></thead>
+      <tbody>
+        <tr><td>Announcement bar</td><td>The thin bar above the header. Turn it on or off, and set its text, link label and link. It's on now with placeholder text ("New feature now available") and a link to nowhere: fill it in or turn it off before launch.</td></tr>
+        <tr><td>Logo</td><td>The header logo (SVG).</td></tr>
+        <tr><td>Menu items</td><td>The top-level items: Platform, Use Cases, Partners, Pricing, Why Forte?, Resources. An item with a <strong>Link</strong> and no groups is a plain link. Drag to reorder.</td></tr>
+        <tr><td>Menu groups and links</td><td>An item with <strong>Dropdown groups</strong> opens a full-width menu. Each group has an optional heading and its <strong>Menu Links</strong> (label and link). A group of more than three links splits into two columns.</td></tr>
+        <tr><td>Featured panel</td><td>An optional card on the right of a dropdown: a small label, title, line of copy and a "Read More" link.</td></tr>
+        <tr><td>Button</td><td>The orange button at the right of the header: "Get Started".</td></tr>
+        <tr><td>Sticky, border</td><td>Whether the header stays at the top as you scroll (on), and the thin line under it.</td></tr>
+        <tr><td>Footer</td><td>Logo, tagline, link columns (each a heading and links), social links (LinkedIn), copyright line and legal links (Terms and Conditions, Privacy Policy, Cookie settings). Keep the Cookie settings link: it reopens the cookie banner, so visitors can change their choice.</td></tr>
+        <tr><td>Cookie banner</td><td>The site's own consent banner, on now. <strong>Show cookie banner</strong> turns it on or off; <strong>Cookie banner message</strong> is its text (blank uses the standard wording); <strong>Cookie banner policy link</strong> is where "Read our privacy policy" goes (blank goes to /privacy-policy). Visitors choose Accept all, Reject all or Manage (analytics and marketing separately), and Google Tag Manager only measures what they allow. A choice lasts six months.</td></tr>
+        <tr><td>Tracking &amp; Scripts</td><td>The Google Tag Manager ID (set), and two boxes for raw code in the page head and body. Don't add a second cookie-consent tool here: the built-in banner already handles consent. Ask Primer before pasting anything: bad code here can break every page.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Linking to a section of a page</h3>
+    <p>Most section blocks have an <strong>Anchor ID</strong> field. Give the section a short ID such as <code>security</code>, then link to <code>/platform#security</code> from the menu, a button or a card. The page scrolls to that section, clear of the sticky header. The Platform menu works this way.</p>
+
+    <h3>Links in general</h3>
+    <p>Link fields offer <strong>Internal</strong> (pick a story, and the link follows it if its address changes), <strong>External</strong> (a full web address) and <strong>Email</strong>. Use Internal for pages on this site whenever you can. A section anchor needs a typed address, as above.</p>
+  </section>
+
+  <!-- 04 -->
+  <section id="building">
+    <div class="sec-head"><span class="sec-num">04</span><h2>Editing and adding pages</h2></div>
+    <div class="pair">
+      <div class="task">
+        <h3>Edit a page</h3>
+        <ol class="steps">
+          <li>Open the story from <span class="ui">Content</span>.</li>
+          <li>Click any section in the preview. Its fields open on the right; nested items (a feature, a card, a logo) open when you click them in the list.</li>
+          <li>Change text and images. Drag sections in the <span class="ui">Body</span> list to reorder them, use <span class="ui">+</span> to add one, or the item's menu to copy, duplicate or delete it.</li>
+          <li>Press <span class="ui">Save</span>, check the preview at desktop and phone size, then <span class="ui">Publish</span>.</li>
+        </ol>
+      </div>
+      <div class="task">
+        <h3>Add a page</h3>
+        <ol class="steps">
+          <li>Find the closest existing page, or a template in <span class="ui">Templates &amp; archive</span>, and choose <span class="ui">Duplicate</span>.</li>
+          <li>Move the copy to the right folder: the folder becomes part of the address.</li>
+          <li>In <span class="ui">Config</span> on the right, set its name and slug (lowercase, words joined by hyphens).</li>
+          <li>Replace the content and fill in the SEO block (see 11). Then add the page to the menu or footer in Config if it needs a link.</li>
+        </ol>
+      </div>
+    </div>
+
+    <h3>Rules that keep pages looking right</h3>
+    <ul class="tips">
+      <li><strong>Start with a Hero.</strong> The Hero carries the page's main heading, which search engines and screen readers rely on. The form pages (Get Started, Contact) are the exception: their form's headline is the main heading.</li>
+      <li><strong>Alternate the backgrounds.</strong> Section blocks offer White or Light grey. Neighbouring sections alternate, as in the designs. Heroes use the Forte grid.</li>
+      <li><strong>Line breaks in headlines</strong> show on desktop only. Phones wrap the text to fit, so you don't need a version for each.</li>
+      <li><strong>Any length works.</strong> Every section copes with longer or shorter text and more or fewer items. Still, keep headings near the lengths in the help text, so the layout keeps the balance of the design.</li>
+      <li><strong>Campaign pages</strong> (the templates) are a separate page type. They can hide the menu and footer for a focused landing page, and can be gated behind a form.</li>
+      <li><strong>Moving or renaming a page changes its address.</strong> Add a redirect from the old one (see 12).</li>
+    </ul>
+  </section>
+
+  <!-- 05 -->
+  <section id="blocks">
+    <div class="sec-head"><span class="sec-num">05</span><h2>The section blocks</h2></div>
+    <p class="sec-intro">Every page is built from these. Most have an eyebrow (the small label over the heading), a headline and a sub-headline, a Background (White or Light grey) and an Anchor ID. The table lists what each is for and its main settings.</p>
+    <table>
+      <thead><tr><th>Block</th><th>Use it for</th><th>Main settings</th></tr></thead>
+      <tbody>
+        <tr class="group"><td colspan="3">Used across the Forte site</td></tr>
+        <tr><td>Hero</td><td>The top of a page: heading, sub-heading, up to two buttons, and an image or animated illustration.</td><td><strong>Layout</strong>: Centered, Left-aligned, Two-column (image on the right), Centered media (image under the copy) and Section intro (a smaller heading inside a page). A Centered-media hero with no text becomes an image band, as on Get Started. <strong>Illustration</strong> picks an animated one.</td></tr>
+        <tr><td>Logo Bar</td><td>A row of customer or partner logos.</td><td><strong>Display</strong>: Marquee (scrolling, used everywhere on Forte) or Grid. <strong>Colour on hover</strong>: off on every page now, since the logos don't link anywhere. Each logo needs its company name as alt text.</td></tr>
+        <tr><td>Feature Grid</td><td>A set of points, each an icon, title and description.</td><td><strong>Columns</strong> 2, 3 or 4. <strong>Item style</strong>: Card, Flat, Spot (centred with a large icon, Forte's usual), Left, or Scroll (one sideways-scrolling row). <strong>Source</strong>: on the Partners page it fills itself from every partner page's examples.</td></tr>
+        <tr><td>Two Column</td><td>Copy beside an image or illustration.</td><td><strong>Image side</strong>: right or left (phones always show the copy first). <strong>List</strong>: one bullet per line, shown in two columns. One text link.</td></tr>
+        <tr><td>Card Grid</td><td>Cards linking elsewhere: Learning Hub articles, success stories, partners.</td><td><strong>Columns</strong> 2 or 3. <strong>Image style</strong>: Photo, or Logo (the whole image centred on white, for company logos). Each card has an image, label, title, description and link.</td></tr>
+        <tr><td>CTA Banner</td><td>A call to action, usually the last section.</td><td><strong>Style</strong>: Accent (orange), Dark or Light. <strong>Align</strong>: left or centre. Buttons.</td></tr>
+        <tr><td>FAQ</td><td>Questions that open to show their answers.</td><td><strong>First open</strong> shows the first answer. <strong>Include schema</strong> lets Google show the questions in search results. A question with no answer yet doesn't open.</td></tr>
+        <tr><td>Testimonials</td><td>Customer or employee quotes, picked from the Testimonials folder (see 08).</td><td><strong>Layout</strong>: Single (one large quote at a time, fading through every quote picked; Forte's usual), Grid or Carousel.</td></tr>
+        <tr><td>Video</td><td>A YouTube or uploaded video, a plain image, or an animated illustration.</td><td><strong>Video type</strong>: YouTube, Hosted or Image. YouTube loads only when the visitor presses play, so it sets no cookies before then. No video is in use at launch.</td></tr>
+        <tr><td>Contact Form</td><td>Forms that send to HubSpot (see 10).</td><td><strong>Layout</strong>: Centered, Split, Multistep (Get Started) or Inline (the Apply form in a job post). Which fields show and which are required, the consent wording and the HubSpot IDs.</td></tr>
+        <tr><td>Team</td><td>People with photo, name, title, short bio and LinkedIn link (About).</td><td>Columns and layout.</td></tr>
+        <tr class="group"><td colspan="3">Used in resources</td></tr>
+        <tr><td>Resource List</td><td>A listing of posts (the Learning Hub, Success Stories, White Papers, Careers and Partners pages).</td><td><strong>Resource type</strong> picks which posts. <strong>Per page</strong>, <strong>Show date</strong>, <strong>Show featured</strong>. <strong>Stories</strong> hand-picks posts in your own order instead (Partners).</td></tr>
+        <tr><td>Resource Header</td><td>The top of a post: category label, headline, summary, author, date.</td><td><strong>Layout</strong>: Article, Profile (a partner, with a logo on the right) or Job.</td></tr>
+        <tr><td>Article Layout</td><td>Long-form text: the article, with an optional sidebar.</td><td>Key takeaways, featured image, customer logo, the rich-text article, a form under it, and a sidebar with a table of contents (built from the article's headings automatically) or a call-to-action box.</td></tr>
+        <tr class="group"><td colspan="3">Available, not used on Forte yet</td></tr>
+        <tr><td>Rich Text, Stats Bar, Tabs, Process Steps, Pricing Table, Versus, Gallery</td><td>A free text section; a row of numbers that count up; tabbed content; numbered steps; pricing plans with a monthly/annual switch; a comparison table (used in the Competitor vs. Forte template); an image gallery.</td><td>These come from Primer's shared library and haven't been styled to the Forte designs. Ask Primer before using one on a live page.</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Buttons</strong> appear in many blocks. Each has a label, a link and a <strong>Variant</strong>: Primary (orange), Secondary (outlined), Text, or Link (a text link with a ›).</p>
+  </section>
+
+  <!-- 06 -->
+  <section id="resources">
+    <div class="sec-head"><span class="sec-num">06</span><h2>Resources</h2></div>
+    <p class="sec-intro">Every resource is a story of the <strong>Post</strong> type in the <span class="ui">Posts</span> folder. Its <strong>Resource type</strong> decides which listing it appears in, so a new post joins its list on its own: there's no list to edit.</p>
+    <table>
+      <thead><tr><th>Resource type</th><th>Listed on</th><th>Sections, top to bottom</th></tr></thead>
+      <tbody>
+        <tr><td>Learning Hub <small>67 posts</small></td><td class="where">/learning-hub</td><td>Resource Header, Article Layout (featured image, then the article), CTA Banner</td></tr>
+        <tr><td>Success Story <small>21 posts</small></td><td class="where">/success-stories</td><td>Resource Header, Article Layout (key takeaways, the article, a sidebar led by the customer's logo), CTA Banner</td></tr>
+        <tr><td>White Paper <small>10 posts</small></td><td class="where">/white-papers</td><td>Resource Header, Article Layout, CTA Banner. The <strong>Content gate</strong> can ask for a name and email before the paper shows (see 10)</td></tr>
+        <tr><td>Partner <small>10 posts</small></td><td class="where">/partners</td><td>Resource Header (Profile layout, with the partner's logo), two Two Columns, the partner Logo Bar, Feature Grid, Testimonials, CTA Banner<small>Kept in the Partners folder. The page's address is /partners/<i>name</i>; the old /posts/<i>name</i> forwards there. Its Feature Grid items also appear in "See Our Partners in Action" on the Partners page.</small></td></tr>
+        <tr><td>Job <small>7 posts</small></td><td class="where">/careers</td><td>Resource Header (Job layout), Article Layout holding the job description and the Apply form<small>All seven are [PLACEHOLDER] samples for now.</small></td></tr>
+      </tbody>
+    </table>
+    <p>Listings show the newest posts first, by first publish date. A listing's first page can lead with a large featured post: tick <strong>Featured</strong> on a post to put it there. The Partners page's list is hand-picked instead (six partners, in the order set in its Resource List).</p>
+
+    <h3>The fields on a post</h3>
+    <table>
+      <thead><tr><th>Field</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td>Title</td><td>The name on cards and in listings, and in the browser tab.</td></tr>
+        <tr><td>Resource type</td><td>Which listing the post appears in. Change it to move a post to another section.</td></tr>
+        <tr><td>Featured</td><td>Puts the post in the large featured spot at the top of its listing (the newest featured post wins).</td></tr>
+        <tr><td>Card image</td><td>The picture on the card: landscape, at least 1200px wide. For a Partner, the logo, cropped tight on a transparent background. Left empty, the first image on the page is used.</td></tr>
+        <tr><td>Card excerpt</td><td>One or two sentences for the card. Left empty, the first text on the page is used.</td></tr>
+        <tr><td>Resource Header</td><td><strong>Category</strong> (the small label above the headline, such as Customer Story), <strong>Headline</strong>, <strong>Dek</strong> (the summary under it), author and date. On a Partner page, its <strong>Image</strong> is the logo in the box on the right.</td></tr>
+        <tr><td>Article Layout</td><td>The article, in a rich-text editor for headings, lists, quotes, images and tables. A Success Story also fills <strong>Key takeaways</strong> and the customer <strong>Logo</strong>; a Learning Hub article its <strong>Featured image</strong>.</td></tr>
+        <tr><td>SEO</td><td>The search-result title and description and the share image (see 11).</td></tr>
+        <tr><td>Content Gate</td><td>Asks for a name and email before the rest of the post shows (see 10).</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 07 -->
+  <section id="add-resource">
+    <div class="sec-head"><span class="sec-num">07</span><h2>Adding and editing a resource</h2></div>
+    <div class="pair">
+      <div class="task">
+        <h3>Add a new resource</h3>
+        <ol class="steps">
+          <li>In <span class="ui">Content</span> › <span class="ui">Posts</span>, find a post of the <strong>same type</strong> as the new one. Filter the list by its tag, such as Learning Hub, to see only that type.</li>
+          <li>Select it and choose <span class="ui">Duplicate</span>. The copy keeps the sections the design expects, in order.</li>
+          <li>Open the copy. In <span class="ui">Config</span> on the right, give it a name and a <strong>slug</strong>: lowercase, words joined by hyphens.</li>
+          <li>Replace the text and images in each section, then the card fields.</li>
+          <li>Press <span class="ui">Save</span>, check the preview, then <span class="ui">Publish</span>.</li>
+        </ol>
+      </div>
+      <div class="task">
+        <h3>Add a partner</h3>
+        <ol class="steps">
+          <li>Duplicate an existing partner page in the Partners folder and fill it in as above. Its page appears at /partners/<i>slug</i>.</li>
+          <li>Put the partner's logo in <strong>Card image</strong> and in the Resource Header's <strong>Image</strong>.</li>
+          <li>Its work examples go in its Feature Grid; they join "See Our Partners in Action" on the Partners page automatically.</li>
+          <li>Add the logo to the "Specialist Partner Ecosystem" Logo Bar. That bar is a copy on the Partners page and on every partner page, so add it to each, or ask Primer to.</li>
+          <li>To show it in "Our Partners Have Global Reach", add it to the Partners page's Resource List <strong>Stories</strong>.</li>
+        </ol>
+      </div>
+    </div>
+    <div class="note">
+      <p><strong>Presets:</strong> the Post type also has presets (Job, Learning Hub article, Partner, Success story, White paper) that start a blank post with the right sections. Duplicating is still the safer start: the copy has every current section, and the Partner preset is missing the logo bar.</p>
+    </div>
+  </section>
+
+  <!-- 08 -->
+  <section id="testimonials">
+    <div class="sec-head"><span class="sec-num">08</span><h2>Testimonials</h2></div>
+    <p class="sec-intro">Each quote is its own story in the <span class="ui">Testimonials</span> folder, with the quote, the person's name, their role and company, and an optional photo. Pages don't hold the quotes themselves: a Testimonials section picks stories from the folder.</p>
+    <ul class="tips">
+      <li><strong>Edit a quote once.</strong> Change the testimonial story and publish it, and every page that shows it updates.</li>
+      <li><strong>Choose quotes for a page</strong> in its Testimonials section's <strong>Items</strong>: pick any number and drag them into order. With the Single layout they fade one after another.</li>
+      <li><strong>Add a quote:</strong> create a new story in the Testimonials folder, choose the Testimonial type, fill it in and publish it. Then pick it on the pages where it belongs.</li>
+      <li><strong>Names in the folder</strong> read "Author, Company: first words of the quote", so quotes are easy to tell apart.</li>
+      <li><strong>The shared set:</strong> eight customer quotes, one per company, fade on Home, Platform, Why Forte?, Pricing, Partners, Contact and Get Started. Each page has its own copy of the list, so a change to the set means editing all seven.</li>
+      <li><strong>Other pages:</strong> About and Careers show employee quotes; each use case and partner page has its own.</li>
+      <li><strong>Three samples</strong> (Mark Truman, Brian Isserman, Sarah Chen) are marked [PLACEHOLDER] and used nowhere. Delete them when you're sure.</li>
+      <li><strong>Before deleting a testimonial,</strong> remove it from every page that picks it, or those sections lose a quote.</li>
+    </ul>
+  </section>
+
+  <!-- 09 -->
+  <section id="images">
+    <div class="sec-head"><span class="sec-num">09</span><h2>Images, logos, icons and illustrations</h2></div>
+    <table>
+      <thead><tr><th>Kind</th><th>How to prepare and add it</th></tr></thead>
+      <tbody>
+        <tr><td>Photos</td><td>JPG or WebP, at least twice the width they show at (1200px or more for most sections), under about 2 MB. Storyblok resizes and compresses them for each screen, so upload the full-quality file. Use the Image Editor in Assets to crop or set the focal point.</td></tr>
+        <tr><td>Screenshots and transparent images</td><td>PNG or SVG. A transparent background shows the section's own colour through it. Crop to the edge of the product window; the card shadow on Get Started comes from the code.</td></tr>
+        <tr><td>Logos (Logo Bar, partner pages, cards)</td><td>SVG, or PNG with a transparent background, <strong>cropped tight with no empty margin</strong>. Upload the colour version: the site shows logos in grey. The scrolling bar sizes every logo to the same visual weight, so a square emblem and a long wordmark look equally big; a logo with padding around it comes out small.</td></tr>
+        <tr><td>Spot icons (Feature Grid)</td><td>Pick one from Assets in the feature's <strong>Icon</strong> field. Forte's own line icons draw themselves in as the section appears. A new line icon needs adding to the code as well to animate, so send the SVG to Primer; any other image works, just without the animation.</td></tr>
+        <tr><td>Animated illustrations</td><td>The diagrams on Home, Platform, Why Forte?, Partners and Pricing are built in code from Brian's Figma artwork. Choose one in a Hero, Two Column or Video's <strong>Illustration</strong> field. The section's image stays as the fallback, and its alt text describes the illustration. New illustrations come from Primer.</td></tr>
+        <tr><td>Alt text</td><td>Every image needs one plain sentence saying what it shows, for screen readers and search. A logo's alt text is the company name. Purely decorative images can leave it empty.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 10 -->
+  <section id="forms">
+    <div class="sec-head"><span class="sec-num">10</span><h2>Forms and HubSpot</h2></div>
+    <p class="sec-intro">Every form on the site sends straight to Forte's HubSpot account. A form only reaches HubSpot when its <strong>HubSpot portal ID</strong> and <strong>HubSpot form ID</strong> are both filled in.</p>
+    <table>
+      <thead><tr><th>Form</th><th>Where</th><th>HubSpot form</th></tr></thead>
+      <tbody>
+        <tr><td>Get Started</td><td>/get-started, two steps</td><td>Book a Call: name, email and message are required</td></tr>
+        <tr><td>Contact</td><td>/contact</td><td>Contact: also needs company, area of interest (Partnering, Solutions, Other) and the data-processing consent box</td></tr>
+        <tr><td>Become a Partner</td><td>/partners</td><td>Set in its Contact Form block</td></tr>
+        <tr><td>Apply</td><td>inside each job post</td><td>Set in the Contact Form inside the Article Layout</td></tr>
+        <tr><td>Content gate</td><td>White papers (when on)</td><td>Set in the post's Content Gate fields</td></tr>
+      </tbody>
+    </table>
+    <ul class="tips">
+      <li><strong>Match HubSpot's required fields.</strong> HubSpot turns down a submission that's missing a field it requires, so switch on the same fields here (Show phone, Show company, Company required, interest choices).</li>
+      <li><strong>Interest choices</strong> go one per line, spelled exactly as in the HubSpot form.</li>
+      <li><strong>Consent wording</strong> is copied word for word from the HubSpot form, so HubSpot records what the visitor agreed to.</li>
+      <li><strong>Test without adding a contact:</strong> submit with the email address <code>+skipform@hubspot.com</code>. HubSpot accepts it and adds no entry. Any other made-up address creates a real contact.</li>
+      <li><strong>The content gate</strong> hides a post behind a short form (name, email, optional message). Turn on <strong>Gate enabled</strong>, add both HubSpot IDs, and set <strong>Visible blocks</strong> to 1 to keep the title showing above it. A visitor unlocks it once per page. It collects leads; it doesn't secure the content, which search engines can still read.</li>
+      <li><strong>Form tracking:</strong> each successful send tells Google Tag Manager (event <code>form_submit</code>, with the form's name and HubSpot ID), so conversions can be counted there.</li>
+    </ul>
+  </section>
+
+  <!-- 11 -->
+  <section id="seo">
+    <div class="sec-head"><span class="sec-num">11</span><h2>SEO and search</h2></div>
+    <p class="sec-intro">The <strong>SEO</strong> block holds a page's search and sharing details. It's optional: every existing page and post has one, a new page starts without one, and either way the page falls back to sensible defaults. To set a custom title, description or share image, open the page's <span class="ui">SEO</span> tab and add the block (one per page).</p>
+    <table>
+      <thead><tr><th>Field</th><th>What it does</th><th>If left empty</th></tr></thead>
+      <tbody>
+        <tr><td>Meta title</td><td>The browser-tab and search-result title, used exactly as written, up to 70 characters. Write the brand in yourself, for example "LNG Allocation Software Platform | Forte".</td><td>"Page name | Forte"</td></tr>
+        <tr><td>Meta description</td><td>The search-result and link-preview summary, up to 170 characters.</td><td>A post's <strong>Card excerpt</strong>; otherwise the page's summary or first text. The closing call-to-action box is never used. An excerpt that only repeats the headline makes a weak description, so write a sentence or two</td></tr>
+        <tr><td>Share image</td><td>The picture shown when the link is shared. Shown at 1200 × 630.</td><td>The post's card image, then the first image on the page</td></tr>
+        <tr><td>Canonical URL</td><td>Tells search engines which address is the original. Leave it blank unless a page is a copy of another.</td><td>The page's own address</td></tr>
+        <tr><td>Noindex</td><td>Keeps the page out of search results and the sitemap.</td><td>Off</td></tr>
+        <tr><td>Custom schema</td><td>Extra structured data for search engines, as JSON-LD. Ask Primer.</td><td>Standard data is added for you</td></tr>
+      </tbody>
+    </table>
+    <ul class="tips">
+      <li><strong>The sitemap builds itself</strong> from every page and post, leaving out noindex pages and the Templates &amp; archive folder.</li>
+      <li><strong>The preview site is hidden from search</strong> (forte-primer.netlify.app tells search engines to stay away). The real domain gets the normal rules at launch.</li>
+      <li><strong>FAQ sections</strong> with Include schema on can show their questions in Google's results.</li>
+      <li><strong>Headings matter:</strong> one main heading per page (the Hero or Resource Header), then headings in order inside articles.</li>
+    </ul>
+  </section>
+
+  <!-- 12 -->
+  <section id="redirects">
+    <div class="sec-head"><span class="sec-num">12</span><h2>Redirects</h2></div>
+    <p class="sec-intro">Old addresses forward to new ones through <span class="ui">Datasources</span> › <span class="ui">Redirects</span>. It holds about 245 entries now, most of them from the old EnergySys website, so old links and search results keep working. A change works within a minute, with no deploy.</p>
+    <table>
+      <thead><tr><th>Column</th><th>Holds</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>Name</td><td>The old address: a path, or a full old URL</td><td><code>/about-us</code></td></tr>
+        <tr><td>Value</td><td>Where it goes now: a path, or a full URL on another site</td><td><code>/about</code></td></tr>
+      </tbody>
+    </table>
+    <ul class="tips">
+      <li><strong>Exact matches</strong> ignore capitals and a trailing slash, and keep anything after a <code>?</code>.</li>
+      <li><strong>A Name ending in <code>*</code></strong> covers everything under that path, such as <code>/blog/*</code>. If the Value ends in <code>*</code> too, the rest of the address carries over; otherwise every match goes to the one Value.</li>
+      <li><strong>Exact entries always win,</strong> even over a real page. That's why /support-center goes to /contact today: delete the entry when Support Center is ready.</li>
+      <li><strong><code>*</code> entries only act when there's no page at that address,</strong> so a catch-all such as <code>/partners/*</code> never hides a real partner page. Of several matching <code>*</code> entries, the longest wins.</li>
+      <li><strong>Never point an entry at an address that redirects again,</strong> or at itself: visitors would loop. Send it straight to the final page.</li>
+      <li><strong>When you change a slug,</strong> add an entry from the old address to the new one.</li>
+    </ul>
+  </section>
+
+  <!-- 13 -->
+  <section id="publishing">
+    <div class="sec-head"><span class="sec-num">13</span><h2>Publishing, history and removing</h2></div>
+    <p class="sec-intro"><span class="ui">Save</span> keeps a draft; <span class="ui">Publish</span> makes it live. To publish later, choose <span class="ui">Schedule publishing</span> from <span class="ui">More options</span> next to Publish. A story's state shows beside its name: draft, published, or published with unpublished changes.</p>
+    <div class="options">
+      <div class="option">
+        <h3>Unpublish</h3>
+        <p>Takes the page off the site and out of every listing, but keeps it in Storyblok to publish again later. It's under <span class="ui">More options</span> next to <span class="ui">Publish</span>.</p>
+      </div>
+      <div class="option">
+        <h3>Restore an earlier version</h3>
+        <p>Open the story's <strong>History</strong> to see every saved and published version. Select one, choose <span class="ui">Restore</span>, then publish.</p>
+      </div>
+      <div class="option">
+        <h3>Move it</h3>
+        <p>Moving a story to another folder, or changing its slug, changes its address. Add a redirect from the old address (see 12).</p>
+      </div>
+      <div class="option option--warn">
+        <h3>Delete</h3>
+        <p>Removes the story for good, and links to it stop working. Unpublish first, add a redirect if the page had visitors, check nothing links to it or picks it, and delete only when you're sure.</p>
+      </div>
+    </div>
+    <div class="note">
+      <p><strong>Until launch, the site shows drafts.</strong> forte-primer.netlify.app reads saved drafts as well as published content, so a saved change appears there straight away. Publish anyway. At launch Primer switches the site to published content only, and from then on visitors see only what's published.</p>
+    </div>
+  </section>
+
+  <!-- 14 -->
+  <section id="primer">
+    <div class="sec-head"><span class="sec-num">14</span><h2>What to ask Primer for</h2></div>
+    <p class="sec-intro">Storyblok holds the words, pictures and structure. Some changes need the code, which lives in GitHub (Forte-Platform/forte) and is hosted on Netlify. Code changes only reach the site when Primer deploys them.</p>
+    <table>
+      <thead><tr><th>You want to…</th><th>Who does it</th></tr></thead>
+      <tbody>
+        <tr><td>Change text, images, links or the order of sections</td><td>You, in Storyblok</td></tr>
+        <tr><td>Add or remove pages, posts, testimonials, menu items or redirects</td><td>You, in Storyblok</td></tr>
+        <tr><td>Change colours, fonts or spacing</td><td>Brian in Figma, then Primer carries it into the code</td></tr>
+        <tr><td>A new section type, a new layout or option in a block, or a new field</td><td>Primer: the block's code and its Storyblok fields change together</td></tr>
+        <tr><td>A new animated illustration or a new animated line icon</td><td>Primer, from Brian's Figma artwork</td></tr>
+        <tr><td>Tracking, cookie consent or other scripts</td><td>Primer, with whoever runs Google Tag Manager</td></tr>
+        <tr><td>A new HubSpot form</td><td>Forte creates it in HubSpot; you or Primer add its IDs in Storyblok</td></tr>
+        <tr><td>Something looks broken</td><td>Primer. Send the page address and a screenshot</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 15 -->
+  <section id="launch">
+    <div class="sec-head"><span class="sec-num">15</span><h2>Before launch</h2></div>
+    <p class="sec-intro">Content still to finish in Storyblok, as of this guide.</p>
+    <ul class="tips">
+      <li><strong>Publish the posts and partner pages you want live:</strong> every page, use case, testimonial and Config was published on 18 November 2026. Posts and partner pages aren't published yet; publish each one once it's reviewed, since at launch the site shows only published content.</li>
+      <li><strong>Replace the placeholders:</strong> the three [PLACEHOLDER] testimonials (Mark Truman, Brian Isserman, Sarah Chen), the generic images on the two newer use cases, and the Use Cases menu's featured panel.</li>
+      <li><strong>Fix the links that go nowhere:</strong> Configurator Community (four links, no page yet), the announcement bar's link, and the footer's LinkedIn icon, which needs Forte's LinkedIn address.</li>
+      <li><strong>Legal:</strong> confirm the company name in the Privacy Policy.</li>
+      <li><strong>Search:</strong> write an SEO description for Privacy Policy and Terms &amp; Conditions, and a real card excerpt for the six posts whose excerpt only repeats the headline.</li>
+      <li><strong>Old domains:</strong> energysys.com needs pointing at the new site on launch day, so its old addresses reach the Redirects list and forward to forteplatform.com. Primer will plan this with Forte's IT team.</li>
+    </ul>
+  </section>
+
+  <!-- 16 -->
+  <section id="habits">
+    <div class="sec-head"><span class="sec-num">16</span><h2>Good habits</h2></div>
+    <ul class="tips">
+      <li><strong>Duplicate rather than start blank.</strong> A copy of a page of the same kind already has the right sections in the right order.</li>
+      <li><strong>Keep a slug once it's live.</strong> Changing it changes the web address, so old links and search results break. If you must, add a redirect.</li>
+      <li><strong>Keep resources in Posts and partner pages in Partners.</strong> Moving a story to another folder changes its address.</li>
+      <li><strong>Add alt text to every image,</strong> and the company name to every logo.</li>
+      <li><strong>Check the preview on phones too:</strong> switch the preview to <span class="ui">Mobile</span> in the top toolbar.</li>
+      <li><strong>Use the workflow stages</strong> so others can see what's being drafted and what's ready to publish.</li>
+      <li><strong>Don't edit the Block library.</strong> A renamed or removed field breaks every page that uses it.</li>
+      <li><strong>Restore rather than rebuild.</strong> If an edit goes wrong, History has every saved version.</li>
+      <li><strong>Keep test form sends out of HubSpot:</strong> use <code>+skipform@hubspot.com</code>.</li>
+      <li><strong>Copy from the copy doc.</strong> Arnie's latest copy document is the source of truth for page text. Update it when you change copy in Storyblok, so the next import doesn't overwrite your edit.</li>
+    </ul>
+  </section>
+
+  <!-- 17 -->
+  <section id="more">
+    <div class="sec-head"><span class="sec-num">17</span><h2>Learn more</h2></div>
+    <ul class="links">
+      <li><a href="https://www.storyblok.com/docs/manuals/visual-editor" data-url="storyblok.com/docs/manuals/visual-editor">Visual Editor</a><span>Editing, saving, publishing, scheduling and previewing at phone size</span></li>
+      <li><a href="https://www.storyblok.com/docs/manuals/stories" data-url="storyblok.com/docs/manuals/stories">Stories</a><span>Creating, duplicating, searching and organising stories in folders</span></li>
+      <li><a href="https://www.storyblok.com/docs/manuals/history" data-url="storyblok.com/docs/manuals/history">History</a><span>Comparing versions and restoring an earlier one</span></li>
+      <li><a href="https://www.storyblok.com/docs/manuals/assets" data-url="storyblok.com/docs/manuals/assets">Assets</a><span>Uploading and organising images and files, and adding alt text</span></li>
+      <li><a href="https://www.storyblok.com/docs/manuals/image-editor" data-url="storyblok.com/docs/manuals/image-editor">Image Editor</a><span>Cropping and setting the focal point of an image</span></li>
+      <li><a href="https://www.storyblok.com/docs/concepts/datasources" data-url="storyblok.com/docs/concepts/datasources">Datasources</a><span>Adding and editing entries, such as the Redirects list</span></li>
+      <li><a href="https://www.storyblok.com/docs/manuals/accessibility-checker" data-url="storyblok.com/docs/manuals/accessibility-checker">Accessibility checker</a><span>Finding and fixing accessibility problems in a story</span></li>
+      <li><a href="https://www.w3.org/WAI/tutorials/images/decision-tree/" data-url="w3.org/WAI/tutorials/images/decision-tree">W3C alt text decision tree</a><span>How to write useful alt text, or when to leave it empty</span></li>
+      <li><a href="https://status.storyblok.com" data-url="status.storyblok.com">Storyblok status</a><span>Check here first if the editor is slow or won't load</span></li>
+    </ul>
+  </section>
+
+  <footer>
+    <span>Primer · prepared for Forte · November 2026</span>
+    <span>Questions or something looks off? Contact your Primer team.</span>
+  </footer>
+</main>
+
+</body>
+</html>

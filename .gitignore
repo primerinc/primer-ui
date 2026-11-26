@@ -161,3 +161,10 @@ Thumbs.db
 
 # Local scratch/debug screenshots
 .scratch_*
+
+# Delivery tooling output (client data never committed)
+storyblok/copy-import/input/
+storyblok/copy-import/reports/
+.audit/
+scripts/.wp-import-cache.json
+scripts/.wp-import-report.txt
