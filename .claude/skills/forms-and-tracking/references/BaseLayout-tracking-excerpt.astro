@@ -1,0 +1,142 @@
+// sitemap.xml.ts and robots.txt.ts, so it follows whichever domain serves it.
+const canonicalURL = canonicalUrl || new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin).href;
+
+const storyblokApi = useStoryblokApi();
+let headerBlok = null;
+let footerBlok = null;
+let siteName: string | null = null;
+let gtmContainerId: string | null = null;
+let headScripts: string | null = null;
+let bodyScripts: string | null = null;
+let cookieBanner = false;
+let cookieBannerText: string | undefined;
+let cookiePolicyLink: { url?: string; cached_url?: string; linktype?: string } | null = null;
+let rebrand: Record<string, any> | null = null;
+
+try {
+  const { data } = await storyblokApi.get('cdn/stories/config', {
+    version: contentVersion(Astro.url),
+  });
+  headerBlok     = data?.story?.content?.header?.[0] ?? null;
+  footerBlok     = data?.story?.content?.footer?.[0] ?? null;
+  siteName       = data?.story?.content?.site_name ?? null;
+  gtmContainerId = data?.story?.content?.gtm_container_id || null;
+  headScripts    = data?.story?.content?.head_scripts || null;
+  bodyScripts    = data?.story?.content?.body_scripts || null;
+  cookieBanner     = !!data?.story?.content?.cookie_banner_enabled;
+  cookieBannerText = data?.story?.content?.cookie_message || undefined;
+  cookiePolicyLink = data?.story?.content?.cookie_policy_link ?? null;
+  rebrand          = data?.story?.content?.rebrand_enabled ? data.story.content : null;
+} catch (e) {
+  // Config story not found — header/footer render nothing
+}
+
+/**
+ * The browser-tab and search-result title. An editor's meta title is used as
+ * written (Arnie's already end in "| Forte"). Otherwise the page name gets the
+ * site name after it, and the home page, which has no name of its own, gets
+ * the site name alone.
+ */
+const brand = siteName || 'Forte';
+const fullTitle = metaTitle
+  || (title && title !== brand ? `${title} | ${brand}` : brand);
+
+/**
+ * head_scripts is deliberately rendered BEFORE the GTM snippet below, not after.
+ * If a client needs cookie consent, their CMP (Cookiebot/OneTrust/CookieYes/etc.)
+ * snippet — or a bare Google Consent Mode default-state call — goes in
+ * head_scripts, so consent defaults are established before GTM loads and reads
+ * them. Getting this ordering right is the whole reason GTM has its own
+ * first-class field instead of just being one more thing pasted into
+ * head_scripts: it fixes the load order by construction rather than relying on
+ * every client remembering to paste things in the right sequence.
+ */
+const gtmSnippet = gtmContainerId
+  ? `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer',${JSON.stringify(gtmContainerId)});`
+  : null;
+
+/**
+ * Google Consent Mode v2 defaults, set before head_scripts and GTM so every
+ * tag starts with tracking denied. A choice saved by the cookie banner
+ * (src/components/CookieConsent.astro, same storage key and 180-day expiry)
+ * is replayed straight away, so a returning visitor's tags don't wait for it.
+ */
+const consentHeadScript = cookieBanner
+  ? `window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments);};`
+    + `gtag('consent','default',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:'denied',functionality_storage:'granted',security_storage:'granted',wait_for_update:500});`
+    + `gtag('set','ads_data_redaction',true);`
+    + `try{var c=JSON.parse(localStorage.getItem('forte-consent'));if(c&&c.v===1&&Date.now()-c.at<15552000000){var g=function(o){return o?'granted':'denied'};gtag('consent','update',{analytics_storage:g(c.analytics),ad_storage:g(c.marketing),ad_user_data:g(c.marketing),ad_personalization:g(c.marketing)});}}catch(e){}`
+  : null;
+
+/**
+ * Site-wide structured data. The organisation is described once per page and
+ * referenced by @id from anything else in the graph, so an Article says who
+ * published it without restating the publisher's details.
+ *
+ * Social profiles come from the footer the client already fills in, rather than
+  {canonicalURL && <meta property="og:url" content={String(canonicalURL)} />}
+  {ogImage && <meta property="og:image" content={ogImage} />}
+  <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
+
+  {siteSchema && <script type="application/ld+json" is:inline set:html={siteSchema} />}
+
+  {/* Order matters: a client's consent-management snippet (Cookiebot/OneTrust/
+      CookieYes/a bare Consent Mode default call) belongs in head_scripts, and it
+      must run before GTM reads consent state — see the comment above gtmSnippet. */}
+  {!inVisualEditor && consentHeadScript && <script is:inline set:html={consentHeadScript} />}
+  {!inVisualEditor && headScripts && <Fragment set:html={headScripts} />}
+  {!inVisualEditor && gtmSnippet && <script is:inline set:html={gtmSnippet} />}
+
+  {!inVisualEditor && <ClientRouter fallback="animate" />}
+
+  {/* Marks the document as reveal-capable before first paint. The hidden state is
+      scoped to this class, so if scripting is unavailable the content simply
+      renders — it can never be left invisible by a script that didn't run. */}
+  {!inVisualEditor && <script is:inline>
+    /* A client-side navigation replaces <html>'s attributes, so put the class
+       back on each swap or nothing animates after the first click. */
+    (() => {
+      const on = () => document.documentElement.classList.add('has-reveal');
+      on();
+      document.addEventListener('astro:after-swap', on);
+    })();
+  </script>}
+
+  {/* Every image comes from Storyblok's image service: open that connection
+      while the HTML is still arriving rather than when the first <img> is found. */}
+  <link rel="preconnect" href="https://a.storyblok.com" />
+  <link rel="dns-prefetch" href="https://a.storyblok.com" />
+
+  {/* The Visual Editor connection, fetched only when the page is opened from
+      the editor (see src/lib/storyblok-editor.ts); visitors never load it. */}
+  <script>
+    if (new URLSearchParams(location.search).has('_storyblok')) {
+      import('../lib/storyblok-editor').then((m) => m.startStoryblokEditor());
+    }
+  </script>
+</head>
+<body>
+  {/* Per Google's own placement guidance, as high in body as the markup allows —
+      covers visitors with JS disabled, for whom the head script never ran. */}
+  {/* Left out when the cookie banner is on: without scripts a visitor can't
+      give consent, so the noscript tag would track them without it. */}
+  {!inVisualEditor && gtmContainerId && !cookieBanner && (
+    <noscript>
+      <iframe
+        src={`https://www.googletagmanager.com/ns.html?id=${encodeURIComponent(gtmContainerId)}`}
+        height="0"
+        width="0"
+        style="display:none;visibility:hidden"
+      />
+    </noscript>
+  )}
+  {!inVisualEditor && bodyScripts && <Fragment set:html={bodyScripts} />}
+
+  {/* First focusable element on the page, so keyboard and switch users can jump
+      past a long nav on every page rather than tabbing through it each time. */}
+  <a class="skip-link" href="#main-content">Skip to content</a>
+
+  {/* Fixed to the corner, but early in the page so keyboard and screen reader
+      users reach the cookie choice before the header, not after the footer. */}
+  {!inVisualEditor && cookieBanner && <CookieConsent text={cookieBannerText} policyLink={cookiePolicyLink} />}
+

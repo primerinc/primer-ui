@@ -88,6 +88,17 @@ Phase 3 applies the client's brand ramp once, directly, so the repo is usable im
 1. Update the client repo's `BaseLayout.astro` Google Fonts `<link>` for the brief's brand font.
 2. Report completion clearly: repo created, tokens applied and building clean, Storyblok space provisioned and verified, Figma file connected. Then **stop** — state explicitly that hosting target selection and the `@astrojs/node` → real-platform adapter swap are the deliberate next manual step, not something this skill attempts.
 
+## After bootstrap
+
+The new client repo carries the delivery skills (see "Delivery skills" in `CLAUDE.md`). Set the per-client parts early:
+
+- `STORYBLOK_SPACE_ID` and `STORYBLOK_BACKUP_CLIENT=<Client>` in `.env`, for the importers and `storyblok-safe-edit` backups.
+- `tokens/figma/theme.config.js`, if the client Figma owns its variables (`figma-variables-to-tokens`).
+- Send the copywriter `docs/copy-doc-template.md` before they start writing, then fill in `storyblok/copy-import/mapping.js` (`copy-doc-sync`).
+- Ask the client now for DNS access, HubSpot form IDs, the GTM container and the old site's redirect sheet. On Forte, all of these arrived late (`launch-cutover`, `forms-and-tracking`).
+
+Hosting: Forte replaced `@astrojs/node` with `@astrojs/netlify` 7.x (the last version that supports Astro 6), with manual-only deploys. See the Forte repo's CLAUDE.md "Hosting" note before choosing for the next client.
+
 ## Verification
 
 - Before ever running this for a real client, dry-run Phases 1-3 against a throwaway slug (e.g. `test-client`) without actually calling `gh repo create` or hitting the Storyblok API — confirm the sequence and confirmation gates make sense.

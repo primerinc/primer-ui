@@ -189,6 +189,26 @@ const { blok } = Astro.props;
 - **Browser target: the last 2 versions of Chrome, Edge, Firefox and Safari.** Check each entry's `Support:` line against that, and say so when a technique falls outside it. Don't ship it unguarded.
 - **Updating:** re-copy `skills/good-css` from the upstream repo on purpose, and bump the commit above. Don't install it with `npx skills add` (that tracks latest) or with `-g`.
 
+### Delivery skills (added 2026-11-26, from the Forte build)
+
+Skills in `.claude/skills/` for a client build, in project order. Each skill's own SKILL.md has the procedure and the lessons that went into it. Every client repo copies them at bootstrap.
+
+| Stage | Skill | Script |
+|---|---|---|
+| Direction | `client-direction-canvas` | — |
+| Setup | `client-repo-bootstrap` | `npm run bootstrap:client-space` |
+| Tokens | `figma-variables-to-tokens` (the client Figma owns the variables) or `figma-library-token-sync` (it subscribes to the Primer library) | `npm run build:tokens:figma` |
+| Copy brief | `figma-content-brief`; send the copywriter `docs/copy-doc-template.md` | `npm run figma:content-brief` |
+| Copy | `copy-doc-sync` | `npm run copy:import` |
+| Old site | `wp-to-storyblok-migration`, `redirect-map` | `npm run import:wordpress`, `npm run check:redirects` |
+| Forms and analytics | `forms-and-tracking` | — |
+| Any Storyblok write | `storyblok-safe-edit` (backups in `~/Documents/<Client>-Storyblok-backups/`) | `storyblok/lib/backup.js` |
+| Quality | `prelaunch-audit` and the four `storyblok-*-check` skills | `npm run audit:prelaunch`, `npm run check:unpublished` |
+| Handover | `editor-guide` | — |
+| Launch | `launch-cutover` | `npm run check:launch` |
+
+Some launch code (the content switch, CDN caching, the cache-purge webhook, redirect middleware, the cookie banner, `/guide`) was built in the Forte repo. It isn't in primer-ui's `src/` yet. Each skill's `references/` folder holds the Forte version to port.
+
 ### Background field pattern
 All section components support a `background` Option field in Storyblok. The pattern is identical across every component:
 

@@ -21,7 +21,15 @@
     "check:storyblok-variants": "node --env-file=.env storyblok/check-variant-css.js",
     "storyblok:render-check": "node --env-file=.env storyblok/render-check.js",
     "bootstrap:client-space": "node --env-file=.env storyblok/bootstrap-client-space.js",
-    "storyblok:generate-alt-text": "node --env-file=.env storyblok/generate-alt-text.js"
+    "storyblok:generate-alt-text": "node --env-file=.env storyblok/generate-alt-text.js",
+    "build:tokens:figma": "node tokens/figma-to-theme.js && style-dictionary build --config tokens/sd.config.js",
+    "copy:import": "node --env-file=.env storyblok/copy-import/import.js",
+    "check:unpublished": "node --env-file=.env storyblok/check-unpublished.js",
+    "figma:content-brief": "node --env-file=.env figma/generate-content-brief.js",
+    "audit:prelaunch": "node scripts/prelaunch-audit.mjs",
+    "check:redirects": "node --env-file=.env scripts/check-redirects.mjs",
+    "check:launch": "node scripts/launch-check.mjs",
+    "import:wordpress": "node --env-file=.env scripts/import-wordpress-posts.mjs"
   },
   "keywords": [
     "astro",
